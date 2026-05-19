@@ -247,6 +247,11 @@
       }
     }
 
+    function scrollToBottom() {
+      const messagesDiv = document.getElementById("messages");
+      requestAnimationFrame(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; });
+    }
+
     window.switchTab = function(tab) {
       ["chat", "agenda"].forEach(t => {
         document.getElementById(t + "-panel").style.display = "none";
@@ -254,6 +259,7 @@
       });
       document.getElementById(tab + "-panel").style.display = "flex";
       document.getElementById("tab-" + tab).classList.add("active");
+      if (tab === "chat") scrollToBottom();
     };
 
     chargerMembres().then(() => {
@@ -310,7 +316,7 @@
           `;
           messagesDiv.appendChild(div);
         });
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        scrollToBottom();
       });
     }
 
