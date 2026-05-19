@@ -228,6 +228,12 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="creneau-list" id="creneau-list"></div>
     </div>
 
+    <!-- HISTORIQUE ACCÈS -->
+    <div id="log-wrap" style="display:none">
+      <div class="section-label">Historique d'accès dashboard</div>
+      <div id="log-list" style="display:flex;flex-direction:column;gap:6px;font-size:12px;"></div>
+    </div>
+
     <!-- FOOTER -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <button class="refresh-btn" id="refresh-btn" onclick="fetchStats()">
@@ -279,8 +285,10 @@ function updateDots() {
 function checkPin() {
   if (entered === PIN) {
     sessionStorage.setItem('rr-admin', '1');
+    fetch(APPS_SCRIPT_URL + '?action=log&event=acces').catch(() => {});
     unlock();
   } else {
+    fetch(APPS_SCRIPT_URL + '?action=log&event=tentative').catch(() => {});
     document.getElementById('pin-error').textContent = 'Code incorrect';
     for (let i = 1; i <= 4; i++) document.getElementById('d' + i).classList.add('error');
     setTimeout(() => {
@@ -421,6 +429,23 @@ function renderStats(data) {
         </div>`;
       }).join('');
     document.getElementById('creneaux-wrap').style.display = 'block';
+  }
+
+  // Historique accès
+  const logs = data.accessLog || [];
+  if (logs.length > 0) {
+    document.getElementById('log-list').innerHTML = logs.slice(0, 20).map(l => {
+      const d = new Date(l.ts);
+      const label = l.type === 'acces' ? '✅ Accès réussi' : '⚠️ Mauvais code PIN';
+      const color = l.type === 'acces' ? '#33b679' : '#e63946';
+      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+        + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--black2);border-left:3px solid ${color}">
+        <span style="color:${color}">${label}</span>
+        <span style="color:var(--gray)">${dateStr}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('log-wrap').style.display = 'block';
   }
 }
 </script>
