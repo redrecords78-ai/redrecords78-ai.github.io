@@ -144,8 +144,10 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 60px); letter-spacing: 2px; line-height: 1; margin-bottom: 3rem; }
 
 /* ACTUALITES */
-.actu-card { background: var(--black2); padding: 2rem; border-top: 2px solid var(--red); transition: background 0.2s; border-radius: 12px; }
+.actu-card { background: var(--black2); border-top: 2px solid var(--red); transition: background 0.2s; border-radius: 12px; overflow: hidden; }
 .actu-card:hover { background: var(--black3); }
+.actu-card-img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+.actu-card-body { padding: 1.5rem 2rem 2rem; }
 .actu-date { font-size: 11px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
 .actu-cat { display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); border: 1px solid rgba(232,25,44,0.4); padding: 3px 8px; margin-bottom: 0.75rem; border-radius: 20px; }
 .actu-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 0.5rem; line-height: 1.1; }
@@ -564,18 +566,33 @@ const NEWS = {
   date: '20 Mai 2026',
   cat: 'Promo',
   title: 'Session 4h à 80€ ce week-end',
-  desc: 'Offre limitée ce samedi et dimanche — réserve vite ta session avant que les créneaux soient pris.'
+  desc: 'Offre limitée ce samedi et dimanche — réserve vite ta session avant que les créneaux soient pris.',
+  img: '',        // URL d'une image OU lien YouTube (miniature auto)
+  lien: '',       // URL vers laquelle pointer (YouTube, Instagram, etc.)
+  lienLabel: ''   // Texte du bouton ex: "Voir le clip" / "Réserver"
 };
 (function() {
   if (!NEWS.title) return;
   const section = document.getElementById('actu');
   const wrap = document.getElementById('actu-card-wrap');
-  wrap.innerHTML = `<div class="actu-card">
-    ${NEWS.date ? `<div class="actu-date">${NEWS.date}</div>` : ''}
-    ${NEWS.cat ? `<div class="actu-cat">${NEWS.cat}</div>` : ''}
-    <div class="actu-title">${NEWS.title}</div>
-    ${NEWS.desc ? `<div class="actu-desc">${NEWS.desc}</div>` : ''}
-  </div>`;
+  // Miniature YouTube auto si le lien est YouTube
+  let imgSrc = NEWS.img || '';
+  if (!imgSrc && NEWS.lien && NEWS.lien.includes('youtu')) {
+    const ytId = NEWS.lien.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+    if (ytId) imgSrc = 'https://img.youtube.com/vi/' + ytId[1] + '/maxresdefault.jpg';
+  }
+  const outer = NEWS.lien ? `<a href="${NEWS.lien}" target="_blank" style="text-decoration:none;color:inherit;display:block">` : '<div>';
+  const outerClose = NEWS.lien ? '</a>' : '</div>';
+  wrap.innerHTML = `${outer}<div class="actu-card">
+    ${imgSrc ? `<img class="actu-card-img" src="${imgSrc}" alt="${NEWS.title}">` : ''}
+    <div class="actu-card-body">
+      ${NEWS.date ? `<div class="actu-date">${NEWS.date}</div>` : ''}
+      ${NEWS.cat ? `<div class="actu-cat">${NEWS.cat}</div>` : ''}
+      <div class="actu-title">${NEWS.title}</div>
+      ${NEWS.desc ? `<div class="actu-desc">${NEWS.desc}</div>` : ''}
+      ${NEWS.lienLabel ? `<div style="margin-top:1rem;display:inline-block;background:var(--red);color:white;padding:8px 18px;border-radius:8px;font-size:13px;letter-spacing:0.05em">${NEWS.lienLabel}</div>` : ''}
+    </div>
+  </div>${outerClose}`;
   section.style.display = 'block';
   document.getElementById('actu-divider').style.display = 'block';
 })();
