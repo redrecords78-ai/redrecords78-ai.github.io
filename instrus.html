@@ -157,13 +157,16 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
   background: rgba(8,8,8,0.97); backdrop-filter: blur(12px);
   border-top: 1px solid var(--gray2); height: 56px;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
+#bottom-nav::-webkit-scrollbar { display: none; }
 .bn-item {
-  flex: 1; display: flex; flex-direction: column;
+  flex: 0 0 72px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 3px;
   text-decoration: none; color: var(--gray);
   font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
-  transition: color 0.2s;
+  transition: color 0.2s; white-space: nowrap;
 }
 .bn-item.active, .bn-item:hover { color: var(--red); }
 .bn-item svg { width: 18px; height: 18px; flex-shrink: 0; }
