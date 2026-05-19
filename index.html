@@ -602,6 +602,17 @@ splash.classList.add('hidden'); // désactivé pour les tests
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
+
+// ─── SECRET ADMIN ACCESS (triple-clic sur le logo R) ─────────────────────────
+(function() {
+  let clicks = 0, timer;
+  document.getElementById('r-mark-secret').addEventListener('click', () => {
+    clicks++;
+    clearTimeout(timer);
+    if (clicks >= 3) { clicks = 0; window.location.href = 'admin.html'; return; }
+    timer = setTimeout(() => { clicks = 0; }, 600);
+  });
+})();
 </script>
 
 <!-- BULLE TEAM -->
