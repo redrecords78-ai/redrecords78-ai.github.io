@@ -144,7 +144,17 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 60px); letter-spacing: 2px; line-height: 1; margin-bottom: 3rem; }
 
 /* ACTUALITES */
-.actu-card { background: var(--black2); border-top: 2px solid var(--red); transition: background 0.2s; border-radius: 12px; overflow: hidden; }
+.actu-card {
+  background: var(--black2); border-top: 2px solid var(--red);
+  transition: background 0.2s; border-radius: 12px; overflow: hidden;
+  position: relative;
+}
+.actu-card::after {
+  content: ''; position: absolute; right: -30px; bottom: -30px;
+  width: 180px; height: 180px;
+  background: url('icons/icon-192.png') no-repeat center/contain;
+  opacity: 0.07; pointer-events: none;
+}
 .actu-card:hover { background: var(--black3); }
 .actu-card-img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
 .actu-card-body { padding: 1.5rem 2rem 2rem; }
@@ -579,12 +589,12 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 // ─── ACTUALITE ────────────────────────────────────────────────────────────────
 const NEWS = {
   date: '',
-  cat: '',
-  title: '',
-  desc: '',
+  cat: 'Offre exclusive',
+  title: 'Une session réservée sur l\'appli = 1h offerte',
+  desc: 'Réserve directement depuis l\'app et profite d\'une heure de studio en cadeau.',
   img: '',
-  lien: '',
-  lienLabel: ''
+  lien: '#reservation',
+  lienLabel: 'Réserver maintenant'
 };
 (function() {
   const section = document.getElementById('actu');
