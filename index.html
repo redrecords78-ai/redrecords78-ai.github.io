@@ -563,18 +563,25 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 <script>
 // ─── ACTUALITE ────────────────────────────────────────────────────────────────
 const NEWS = {
-  date: '20 Mai 2026',
-  cat: 'Promo',
-  title: 'Session 4h à 80€ ce week-end',
-  desc: 'Offre limitée ce samedi et dimanche — réserve vite ta session avant que les créneaux soient pris.',
-  img: '',        // URL d'une image OU lien YouTube (miniature auto)
-  lien: '',       // URL vers laquelle pointer (YouTube, Instagram, etc.)
-  lienLabel: ''   // Texte du bouton ex: "Voir le clip" / "Réserver"
+  date: '',
+  cat: '',
+  title: '',
+  desc: '',
+  img: '',
+  lien: '',
+  lienLabel: ''
 };
 (function() {
-  if (!NEWS.title) return;
   const section = document.getElementById('actu');
   const wrap = document.getElementById('actu-card-wrap');
+  section.style.display = 'block';
+  document.getElementById('actu-divider').style.display = 'block';
+  if (!NEWS.title) {
+    wrap.innerHTML = `<div style="padding:2rem;background:var(--black2);border-radius:12px;border:1px dashed var(--gray2);text-align:center">
+      <div style="font-size:13px;color:var(--gray);letter-spacing:0.05em">Rien pour le moment — revenez bientôt</div>
+    </div>`;
+    return;
+  }
   // Miniature YouTube auto si le lien est YouTube
   let imgSrc = NEWS.img || '';
   if (!imgSrc && NEWS.lien && NEWS.lien.includes('youtu')) {
