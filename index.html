@@ -110,7 +110,7 @@ nav {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid rgba(232,25,44,0.3); padding: 6px 14px;
   font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
-  margin-bottom: 2rem; animation: fadeUp 0.8s ease both;
+  margin-bottom: 2rem; animation: fadeUp 0.8s ease both; border-radius: 20px;
 }
 .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -146,7 +146,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .actu-card { background: var(--black2); padding: 2rem; border-top: 2px solid var(--red); transition: background 0.2s; border-radius: 12px; }
 .actu-card:hover { background: var(--black3); }
 .actu-date { font-size: 11px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
-.actu-cat { display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); border: 1px solid rgba(232,25,44,0.4); padding: 3px 8px; margin-bottom: 0.75rem; }
+.actu-cat { display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); border: 1px solid rgba(232,25,44,0.4); padding: 3px 8px; margin-bottom: 0.75rem; border-radius: 20px; }
 .actu-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 0.5rem; line-height: 1.1; }
 .actu-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
 
@@ -167,11 +167,11 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .format-price { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); }
 .acompte-banner {
   margin-top: 1px; background: rgba(232,25,44,0.08); border: 1px solid rgba(232,25,44,0.25);
-  padding: 1.25rem 2rem; display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem 2rem; display: flex; align-items: center; gap: 1rem; border-radius: 12px;
 }
 .acompte-text { font-size: 14px; }
 .acompte-text strong { color: var(--red); }
-.saison-block { margin-top: 4rem; border: 1px solid rgba(232,25,44,0.3); padding: 2.5rem; position: relative; overflow: hidden; }
+.saison-block { margin-top: 4rem; border: 1px solid rgba(232,25,44,0.3); padding: 2.5rem; position: relative; overflow: hidden; border-radius: 16px; }
 .saison-block::before { content: ''; position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: radial-gradient(circle, rgba(232,25,44,0.1), transparent 70%); }
 .saison-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); margin-bottom: 1rem; }
 .saison-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 2px; margin-bottom: 1rem; }
