@@ -282,13 +282,15 @@ function updateDots() {
   }
 }
 
-function checkPin() {
-  if (entered === PIN) {
+async function checkPin() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + entered);
+    const data = await res.json();
+    if (data.error === 'unauthorized') throw new Error('unauthorized');
     sessionStorage.setItem('rr-admin', '1');
-    fetch(APPS_SCRIPT_URL + '?action=log&event=acces').catch(() => {});
-    unlock();
-  } else {
-    fetch(APPS_SCRIPT_URL + '?action=log&event=tentative').catch(() => {});
+    sessionStorage.setItem('rr-pin', entered);
+    unlockWithData(data);
+  } catch(err) {
     document.getElementById('pin-error').textContent = 'Code incorrect';
     for (let i = 1; i <= 4; i++) document.getElementById('d' + i).classList.add('error');
     setTimeout(() => {
@@ -304,6 +306,14 @@ function unlock() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   fetchStats();
+}
+
+function unlockWithData(data) {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  renderStats(data);
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
@@ -338,7 +348,8 @@ async function fetchStats() {
   btn.classList.add('spinning');
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=stats');
+    const pin = sessionStorage.getItem('rr-pin') || '';
+    const res = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + pin);
     const data = await res.json();
 
     if (!data || data.error) throw new Error(data?.error || 'no data');
