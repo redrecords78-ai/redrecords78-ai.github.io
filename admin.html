@@ -228,6 +228,22 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="creneau-list" id="creneau-list"></div>
     </div>
 
+    <!-- DIFFUSION -->
+    <div>
+      <div class="section-label">Envoyer un message à tous les clients</div>
+      <div style="background:var(--black2);border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:12px;border:1px solid var(--gray2)">
+        <input id="push-titre" type="text" placeholder="Titre (ex: Promo week-end)" maxlength="60"
+          style="background:var(--black3);border:1px solid var(--gray2);color:var(--white);padding:10px 14px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;">
+        <textarea id="push-msg" placeholder="Ton message..." maxlength="140" rows="2"
+          style="background:var(--black3);border:1px solid var(--gray2);color:var(--white);padding:10px 14px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:none;"></textarea>
+        <button onclick="envoyerDiffusion()" id="push-btn"
+          style="background:var(--red);color:white;border:none;padding:12px;border-radius:8px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;">
+          Envoyer à tout le monde
+        </button>
+        <div id="push-retour" style="font-size:12px;text-align:center;display:none"></div>
+      </div>
+    </div>
+
     <!-- HISTORIQUE ACCÈS -->
     <div id="log-wrap" style="display:none">
       <div class="section-label">Historique d'accès dashboard</div>
@@ -457,6 +473,50 @@ function renderStats(data) {
       </div>`;
     }).join('');
     document.getElementById('log-wrap').style.display = 'block';
+  }
+}
+
+// ─── DIFFUSION PUSH ───────────────────────────────────────────────────────────
+async function envoyerDiffusion() {
+  const titre = document.getElementById('push-titre').value.trim();
+  const msg   = document.getElementById('push-msg').value.trim();
+  const retour = document.getElementById('push-retour');
+  const btn    = document.getElementById('push-btn');
+
+  if (!titre || !msg) {
+    retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:var(--red)';
+    retour.textContent = 'Remplis le titre et le message.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  retour.style.display = 'none';
+
+  try {
+    const pin = sessionStorage.getItem('rr-pin') || '';
+    const url = APPS_SCRIPT_URL
+      + '?action=push'
+      + '&titre=' + encodeURIComponent(titre)
+      + '&msg='   + encodeURIComponent(msg)
+      + '&pin='   + pin;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:#33b679';
+      retour.textContent = '✅ Message envoyé à tous les clients !';
+      document.getElementById('push-titre').value = '';
+      document.getElementById('push-msg').value   = '';
+    } else {
+      throw new Error(data.error || 'erreur');
+    }
+  } catch(e) {
+    retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:var(--red)';
+    retour.textContent = '⚠️ Erreur : ' + (e.message || 'impossible d\'envoyer');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Envoyer à tout le monde';
   }
 }
 </script>
