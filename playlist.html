@@ -41,9 +41,8 @@ nav {
 .nav-back:hover { color: var(--white); }
 .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .nav-logo .r-mark {
-  width: 34px; height: 34px; background: var(--red);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; letter-spacing: 1px;
+  width: 36px; height: 36px; border-radius: 10px;
+  object-fit: cover; display: block; flex-shrink: 0;
 }
 .nav-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--white); }
 .nav-links { display: flex; gap: 1.5rem; list-style: none; }
@@ -171,7 +170,7 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
   </a>
   <a href="index.html" class="nav-logo">
-    <div class="r-mark">R</div>
+    <img src="icons/icon-192.png" class="r-mark" alt="Red Records">
     <span>Red Records 78</span>
   </a>
   <ul class="nav-links">

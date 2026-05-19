@@ -84,9 +84,8 @@ nav {
 }
 .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .nav-logo .r-mark {
-  width: 34px; height: 34px; background: var(--red);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; letter-spacing: 1px;
+  width: 36px; height: 36px; border-radius: 10px;
+  object-fit: cover; display: block; flex-shrink: 0;
 }
 .nav-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--white); }
 .nav-links { display: flex; gap: 1.5rem; list-style: none; }
@@ -95,6 +94,7 @@ nav {
 .nav-cta {
   background: var(--red); color: white !important;
   padding: 8px 18px; font-size: 13px; text-decoration: none; letter-spacing: 0.05em; transition: background 0.2s;
+  border-radius: 8px;
 }
 .nav-cta:hover { background: var(--red2); }
 
@@ -143,7 +143,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 60px); letter-spacing: 2px; line-height: 1; margin-bottom: 3rem; }
 
 /* ACTUALITES */
-.actu-card { background: var(--black2); padding: 2rem; border-top: 2px solid var(--red); transition: background 0.2s; }
+.actu-card { background: var(--black2); padding: 2rem; border-top: 2px solid var(--red); transition: background 0.2s; border-radius: 12px; }
 .actu-card:hover { background: var(--black3); }
 .actu-date { font-size: 11px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
 .actu-cat { display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); border: 1px solid rgba(232,25,44,0.4); padding: 3px 8px; margin-bottom: 0.75rem; }
@@ -151,7 +151,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .actu-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
 
 /* TARIFS */
-.tarif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gray2); margin-bottom: 1px; }
+.tarif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gray2); margin-bottom: 1px; border-radius: 12px; overflow: hidden; }
 .tarif-card { background: var(--black2); padding: 1.1rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .tarif-card:hover { background: var(--black3); }
 .tarif-card.featured { background: var(--black3); border-left: 2px solid var(--red); padding-left: calc(1.25rem - 2px); }
@@ -160,7 +160,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 .tarif-hours { font-size: 11px; color: var(--gray); margin-top: 2px; }
 .tarif-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--red); line-height: 1; }
 .tarif-price span { font-size: 14px; color: var(--gray); }
-.formats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray2); }
+.formats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray2); border-radius: 12px; overflow: hidden; }
 .format-card { background: var(--black2); padding: 0.9rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
 .format-card:hover { background: var(--black3); }
 .format-label { font-size: 11px; color: var(--gray); }
@@ -251,6 +251,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
   background: rgba(15,15,15,0.97); backdrop-filter: blur(20px);
   border-top: 1px solid var(--gray2);
+  border-radius: 20px 20px 0 0;
   padding: 0 1.5rem;
   height: 72px; display: none; align-items: center; gap: 1rem;
 }
@@ -287,7 +288,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
 
 /* FORMULAIRE */
 #reservation { max-width: 640px; margin: 0 auto; padding: 6rem 2rem; }
-.form-wrap { background: var(--black2); border: 1px solid var(--gray2); padding: 2.5rem; }
+.form-wrap { background: var(--black2); border: 1px solid var(--gray2); padding: 2.5rem; border-radius: 16px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .form-group { margin-bottom: 1.25rem; }
 .form-label { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
@@ -295,10 +296,11 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
   width: 100%; background: var(--black3); border: 1px solid var(--gray2);
   color: var(--white); padding: 12px 16px; font-size: 14px;
   font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; appearance: none;
+  border-radius: 8px;
 }
 .form-input:focus, .form-select:focus { outline: none; border-color: var(--red); }
 .form-select option { background: var(--black3); }
-.price-tag { background: rgba(232,25,44,0.08); border: 1px solid rgba(232,25,44,0.25); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: none; }
+.price-tag { background: rgba(232,25,44,0.08); border: 1px solid rgba(232,25,44,0.25); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: none; border-radius: 8px; }
 .price-tag-row { display: flex; justify-content: space-between; align-items: center; }
 .price-tag-label { font-size: 12px; color: var(--gray); }
 .price-tag-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--red); }
@@ -309,6 +311,7 @@ section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
   font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
   font-family: 'DM Sans', sans-serif; transition: background 0.2s;
   display: flex; align-items: center; justify-content: center; gap: 10px;
+  border-radius: 10px;
 }
 .submit-btn:hover { background: var(--red2); }
 .error-msg { font-size: 13px; color: var(--red); margin-bottom: 1rem; display: none; }
@@ -371,7 +374,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 
 <nav>
   <a href="#" class="nav-logo">
-    <div class="r-mark" id="r-mark-secret">R</div>
+    <img src="icons/icon-192.png" class="r-mark" id="r-mark-secret" alt="Red Records">
     <span>Red Records 78</span>
   </a>
   <ul class="nav-links">
