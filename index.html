@@ -329,6 +329,18 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 .footer-logo span { color: var(--red); }
 .footer-info { font-size: 12px; color: var(--gray); text-align: right; line-height: 1.8; }
 .divider { width: 100%; height: 1px; background: var(--gray2); max-width: 1000px; margin: 0 auto; }
+.pages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.page-card {
+  background: var(--black2); border-radius: 16px; padding: 1.75rem;
+  text-decoration: none; display: flex; align-items: center;
+  justify-content: space-between; transition: background 0.2s;
+  border: 1px solid var(--gray2);
+}
+.page-card:hover { background: var(--black3); }
+.page-card-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; }
+.page-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--white); line-height: 1; }
+.page-card-sub { font-size: 13px; color: var(--gray); margin-top: 6px; }
+@media (max-width: 700px) { .pages-grid { grid-template-columns: 1fr; } }
 
 /* BOTTOM NAV */
 #bottom-nav {
@@ -465,22 +477,24 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 <div class="divider"></div>
 
 <!-- LIENS VERS PAGES -->
-<section style="max-width:1000px;display:flex;gap:1px;background:var(--gray2);">
-  <a href="instrus.html" style="flex:1;background:var(--black2);padding:2rem;text-decoration:none;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s;" onmouseover="this.style.background='var(--black3)'" onmouseout="this.style.background='var(--black2)'">
-    <div>
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;">Catalogue · Beats</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);">Instrumentales</div>
-      <div style="font-size:13px;color:var(--gray);margin-top:6px;">À partir de <strong style="color:var(--red)">50€</strong> / beat</div>
-    </div>
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </a>
-  <a href="playlist.html" style="flex:1;background:var(--black2);padding:2rem;text-decoration:none;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s;" onmouseover="this.style.background='var(--black3)'" onmouseout="this.style.background='var(--black2)'">
-    <div>
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;">Sélection · Red Records</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);">Playlist RED</div>
-    </div>
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </a>
+<section style="max-width:1000px;">
+  <div class="pages-grid">
+    <a href="instrus.html" class="page-card">
+      <div>
+        <div class="page-card-label">Catalogue · Beats</div>
+        <div class="page-card-title">Instrumentales</div>
+        <div class="page-card-sub">À partir de <strong style="color:var(--red)">50€</strong> / beat</div>
+      </div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="playlist.html" class="page-card">
+      <div>
+        <div class="page-card-label">Sélection · Red Records</div>
+        <div class="page-card-title">Playlist RED</div>
+      </div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
 </section>
 
 <div class="divider"></div>
