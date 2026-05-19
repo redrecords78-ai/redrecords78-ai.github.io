@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Records — Team</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: #111; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+
+    /* LOGIN */
+    #login-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100vh; gap: 16px; padding: 24px;
+    }
+    #login-screen h1 { font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; }
+    #login-screen input {
+      width: 100%; max-width: 320px; padding: 12px 16px;
+      border-radius: 8px; border: 1px solid #333; background: #1a1a1a;
+      color: #fff; font-size: 16px;
+    }
+    #login-screen button {
+      width: 100%; max-width: 320px; padding: 12px;
+      background: #e63946; border: none; border-radius: 8px;
+      color: #fff; font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+    #login-error { color: #e63946; font-size: 14px; }
+
+    /* APP */
+    #app-screen { display: none; flex-direction: column; height: 100vh; }
+
+    /* HEADER */
+    #app-header {
+      padding: 12px 16px; background: #1a1a1a;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #333;
+    }
+    #app-header-left { display: flex; align-items: center; gap: 12px; }
+    #back-btn { background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; }
+    #app-header h2 { font-size: 15px; letter-spacing: 1px; }
+    #logout-btn {
+      background: none; border: 1px solid #555; color: #aaa;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    }
+
+    /* ONGLETS */
+    #tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid #333; }
+    .tab {
+      flex: 1; padding: 12px; text-align: center; cursor: pointer;
+      font-size: 13px; color: #888; border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab.active { color: #fff; border-bottom: 2px solid #e63946; }
+
+    /* CHAT */
+    #chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    #messages {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .msg { max-width: 80%; }
+    .msg.mine { align-self: flex-end; }
+    .msg.other { align-self: flex-start; }
+    .msg-name { font-size: 11px; color: #888; margin-bottom: 3px; }
+    .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+    .mine .msg-bubble { border-radius: 12px 12px 2px 12px; }
+    .other .msg-bubble { border-radius: 12px 12px 12px 2px; }
+    .msg-time { font-size: 10px; color: #555; margin-top: 3px; text-align: right; }
+    #chat-input-area {
+      padding: 12px 16px; background: #1a1a1a;
+      display: flex; gap: 10px; border-top: 1px solid #333;
+    }
+    #msg-input {
+      flex: 1; padding: 10px 14px; border-radius: 20px;
+      border: 1px solid #333; background: #222; color: #fff; font-size: 15px;
+    }
+    #send-btn {
+      padding: 10px 18px; background: #e63946; border: none;
+      border-radius: 20px; color: #fff; font-weight: bold; cursor: pointer;
+    }
+
+    /* AGENDA */
+    #agenda-panel { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+    #open-agenda-btn {
+      padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333;
+      display: flex; justify-content: flex-end;
+    }
+    #open-agenda-btn a {
+      color: #e63946; font-size: 13px; text-decoration: none; font-weight: bold;
+    }
+    #agenda-panel iframe { flex: 1; border: none; width: 100%; }
+
+    /* MA SESSION */
+    #session-panel {
+      flex: 1; display: none; overflow-y: auto; padding: 24px;
+      flex-direction: column; gap: 16px;
+    }
+    #session-who {
+      background: #1a1a1a; border-radius: 10px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #session-who-dot {
+      width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+    }
+    #session-who-name { font-size: 15px; font-weight: bold; }
+    #session-who-email { font-size: 12px; color: #888; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; color: #888; }
+    .form-group input, .form-group select {
+      padding: 12px 14px; border-radius: 8px;
+      border: 1px solid #333; background: #1a1a1a;
+      color: #fff; font-size: 15px;
+    }
+    .form-group select option { background: #1a1a1a; }
+    #session-submit {
+      padding: 14px; background: #e63946;
+      border: none; border-radius: 8px; color: #fff;
+      font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 4px;
+    }
+    #session-feedback { font-size: 14px; text-align: center; min-height: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <h1>RED RECORDS</h1>
+    <p style="color:#888; font-size:13px;">Espace privé équipe</p>
+    <input type="email" id="email-input" placeholder="Email" />
+    <input type="password" id="password-input" placeholder="Mot de passe" />
+    <button id="login-btn">Se connecter</button>
+    <span id="login-error"></span>
+  </div>
+
+  <!-- APP -->
+  <div id="app-screen">
+    <div id="app-header">
+      <div id="app-header-left">
+        <button id="back-btn" onclick="window.location.href='index.html'">&#8592;</button>
+        <h2>RED RECORDS — TEAM</h2>
+      </div>
+      <button id="logout-btn">Déconnexion</button>
+    </div>
+
+    <div id="tabs">
+      <div class="tab active" id="tab-chat" onclick="switchTab('chat')">💬 Chat</div>
+      <div class="tab" id="tab-agenda" onclick="switchTab('agenda')">📅 Agenda</div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chat-panel">
+      <div id="messages"></div>
+      <div id="chat-input-area">
+        <input type="text" id="msg-input" placeholder="Message..." />
+        <button id="send-btn">Envoyer</button>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div id="agenda-panel">
+      <div id="open-agenda-btn">
+        <a href="https://calendar.google.com/calendar/r" target="_blank">Ouvrir Google Agenda ↗</a>
+      </div>
+      <iframe src="https://calendar.google.com/calendar/embed?src=red.records78200%40gmail.com&ctz=Europe%2FParis&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0" allowfullscreen></iframe>
+    </div>
+
+    <!-- MA SESSION -->
+    <div id="session-panel">
+
+      <div id="session-who">
+        <div id="session-who-dot"></div>
+        <div>
+          <div id="session-who-name"></div>
+          <div id="session-who-email"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Date de la session</label>
+        <input type="date" id="s-date" />
+      </div>
+
+      <div class="form-group">
+        <label>Créneau (si plusieurs sessions ce jour)</label>
+        <select id="s-creneau">
+          <option value="">Peu importe / unique session</option>
+          <option value="Session Jour 12h-16h">Session Jour 12h-16h</option>
+          <option value="Session Jour 16h-20h">Session Jour 16h-20h</option>
+          <option value="Session Soir 20h-00h">Session Soir 20h-00h</option>
+          <option value="Session Nuit 00h-04h">Session Nuit 00h-04h</option>
+          <option value="Format Court 2h avant 20h">Format Court 2h avant 20h</option>
+          <option value="Format Court 3h avant 20h">Format Court 3h avant 20h</option>
+          <option value="Format Court 2h apres 20h">Format Court 2h apres 20h</option>
+          <option value="Format Court 3h apres 20h">Format Court 3h apres 20h</option>
+        </select>
+      </div>
+
+      <button id="session-submit">Je prends cette session</button>
+      <div id="session-feedback"></div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
+
+    const MEMBRES_DEFAUT = [
+      { email: 'red.records78@gmail.com', nom: 'RED',   couleur: '#f6bf26' },
+      { email: 'amoss@redrecords.fr',     nom: 'Amoss', couleur: '#46d6db' },
+      { email: 'remi@redrecords.fr',      nom: 'Remi',  couleur: '#d50000' },
+      { email: 'baloo@redrecords.fr',     nom: 'Baloo', couleur: '#33b679' },
+      { email: 'juss@redrecords.fr',      nom: 'JUSS',  couleur: '#8e24aa' },
+    ];
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAu9o74RjXGJyWWlVkwNgVWisAHclBtkhs",
+      authDomain: "redapp-a85c9.firebaseapp.com",
+      projectId: "redapp-a85c9",
+      storageBucket: "redapp-a85c9.firebasestorage.app",
+      messagingSenderId: "738440248376",
+      appId: "1:738440248376:web:086c52e568a70702f37acd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentInge = null;
+    let ingeMap = {};
+
+    async function chargerMembres() {
+      const snap = await getDocs(collection(db, "team-members"));
+      if (snap.empty) {
+        for (const m of MEMBRES_DEFAUT) {
+          await setDoc(doc(db, "team-members", m.email), m);
+        }
+        MEMBRES_DEFAUT.forEach(m => ingeMap[m.email] = m);
+      } else {
+        snap.forEach(d => { ingeMap[d.id] = d.data(); });
+      }
+    }
+
+    window.switchTab = function(tab) {
+      ["chat", "agenda"].forEach(t => {
+        document.getElementById(t + "-panel").style.display = "none";
+        document.getElementById("tab-" + t).classList.remove("active");
+      });
+      document.getElementById(tab + "-panel").style.display = "flex";
+      document.getElementById("tab-" + tab).classList.add("active");
+    };
+
+    chargerMembres().then(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          currentInge = ingeMap[user.email] || { nom: user.email.split("@")[0], couleur: '#aaa' };
+
+            localStorage.setItem('rr-team', '1');
+          document.getElementById("session-who-dot").style.background = currentInge.couleur;
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("app-screen").style.display = "flex";
+          loadMessages();
+        } else {
+          currentUser = null;
+          currentInge = null;
+          document.getElementById("login-screen").style.display = "flex";
+          document.getElementById("app-screen").style.display = "none";
+        }
+      });
+    });
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email-input").value;
+      const password = document.getElementById("password-input").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (e) {
+        document.getElementById("login-error").textContent = "Email ou mot de passe incorrect.";
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      localStorage.removeItem('rr-team');
+      signOut(auth);
+    });
+
+    function loadMessages() {
+      const q = query(collection(db, "team-chat"), orderBy("timestamp", "asc"));
+      onSnapshot(q, (snapshot) => {
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const msg = doc.data();
+          const isMine = msg.uid === currentUser.uid;
+          const time = msg.timestamp?.toDate().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) || "";
+          const couleur = msg.couleur || (isMine ? "#e63946" : "#2a2a2a");
+          const div = document.createElement("div");
+          div.className = "msg " + (isMine ? "mine" : "other");
+          div.innerHTML = `
+            ${!isMine ? `<div class="msg-name" style="color:${couleur}">${msg.name}</div>` : ""}
+            <div class="msg-bubble" style="background:${couleur}">${msg.text}</div>
+            <div class="msg-time">${time}</div>
+          `;
+          messagesDiv.appendChild(div);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      });
+    }
+
+    async function sendMessage() {
+      const msgInput = document.getElementById("msg-input");
+      const text = msgInput.value.trim();
+      if (!text) return;
+      const name = currentInge ? currentInge.nom : currentUser.email.split("@")[0];
+      msgInput.value = "";
+      await addDoc(collection(db, "team-chat"), {
+        text, uid: currentUser.uid, name,
+        couleur: currentInge ? currentInge.couleur : "#e63946",
+        timestamp: serverTimestamp()
+      });
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ type: "message", expediteur: name, texte: text })
+      }).catch(() => {});
+    }
+
+    document.getElementById("send-btn").addEventListener("click", sendMessage);
+    document.getElementById("msg-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    document.getElementById("session-submit").addEventListener("click", async () => {
+      const date    = document.getElementById("s-date").value;
+      const creneau = document.getElementById("s-creneau").value;
+      const feedback = document.getElementById("session-feedback");
+
+      if (!date) {
+        feedback.style.color = "#e63946";
+        feedback.textContent = "Sélectionne une date.";
+        return;
+      }
+
+      feedback.style.color = "#aaa";
+      feedback.textContent = "En cours...";
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "prendreSession",
+          dateStr: date,
+          creneau: creneau,
+          inge: currentInge.nom
+        })
+      }).catch(() => {});
+
+      feedback.style.color = "#4caf50";
+      feedback.textContent = "Session prise ! L'agenda va se mettre à jour.";
+    });
+  </script>
+
+</body>
+</html>

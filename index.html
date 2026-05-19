@@ -1,0 +1,941 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Records 78 · Studio d'enregistrement</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#E8192C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Red Records">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<!-- OneSignal -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "74a62f45-6d36-4d68-ad25-e7c9b092de88",
+      serviceWorkerParam: { scope: "/" },
+      serviceWorkerPath: "sw.js",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8192C;
+  --red2: #FF3347;
+  --black: #080808;
+  --black2: #0F0F0F;
+  --black3: #161616;
+  --black4: #1E1E1E;
+  --white: #F2F2F2;
+  --gray: #888;
+  --gray2: #444;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+/* SPLASH INTRO */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #080808;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.6s ease;
+}
+#splash.hidden { opacity: 0; pointer-events: none; }
+#splash-video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 999; opacity: 0.4;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1.25rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(8,8,8,0.9); backdrop-filter: blur(12px);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo .r-mark {
+  width: 34px; height: 34px; background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; letter-spacing: 1px;
+}
+.nav-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--white); }
+.nav-links { display: flex; gap: 1.5rem; list-style: none; }
+.nav-links a { color: var(--gray); text-decoration: none; font-size: 13px; letter-spacing: 0.05em; transition: color 0.2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  background: var(--red); color: white !important;
+  padding: 8px 18px; font-size: 13px; text-decoration: none; letter-spacing: 0.05em; transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--red2); }
+
+/* HERO */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 8rem 2rem 4rem; position: relative; overflow: hidden;
+}
+.hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(232,25,44,0.12) 0%, transparent 70%); }
+.hero-line { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 120px; background: linear-gradient(to bottom, transparent, var(--red)); }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(232,25,44,0.3); padding: 6px 14px;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
+  margin-bottom: 2rem; animation: fadeUp 0.8s ease both;
+}
+.hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 14vw, 160px);
+  line-height: 0.9; letter-spacing: 4px; margin-bottom: 1.5rem; animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero-title span { color: var(--red); }
+.hero-sub { font-size: 16px; color: var(--gray); max-width: 400px; margin: 0 auto 2.5rem; animation: fadeUp 0.8s 0.2s ease both; }
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 12px; background: var(--red); color: white;
+  text-decoration: none; padding: 14px 32px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: all 0.2s; animation: fadeUp 0.8s 0.3s ease both;
+}
+.hero-cta:hover { background: var(--red2); transform: translateY(-2px); }
+.hero-cta svg { transition: transform 0.2s; }
+.hero-cta:hover svg { transform: translateX(4px); }
+.hero-stats { display: flex; gap: 3rem; margin-top: 5rem; animation: fadeUp 0.8s 0.4s ease both; }
+.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--white); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--gray); letter-spacing: 0.05em; margin-top: 4px; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SECTION BASE */
+section { padding: 6rem 2rem; max-width: 1000px; margin: 0 auto; }
+.section-tag {
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--red); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;
+}
+.section-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--red); }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 60px); letter-spacing: 2px; line-height: 1; margin-bottom: 3rem; }
+
+/* ACTUALITES */
+.actu-card { background: var(--black2); padding: 2rem; border-top: 2px solid var(--red); transition: background 0.2s; }
+.actu-card:hover { background: var(--black3); }
+.actu-date { font-size: 11px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.actu-cat { display: inline-block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); border: 1px solid rgba(232,25,44,0.4); padding: 3px 8px; margin-bottom: 0.75rem; }
+.actu-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 0.5rem; line-height: 1.1; }
+.actu-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+/* TARIFS */
+.tarif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gray2); margin-bottom: 1px; }
+.tarif-card { background: var(--black2); padding: 1.1rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.tarif-card:hover { background: var(--black3); }
+.tarif-card.featured { background: var(--black3); border-left: 2px solid var(--red); padding-left: calc(1.25rem - 2px); }
+.tarif-type { display: none; }
+.tarif-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; line-height: 1; }
+.tarif-hours { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.tarif-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--red); line-height: 1; }
+.tarif-price span { font-size: 14px; color: var(--gray); }
+.formats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray2); }
+.format-card { background: var(--black2); padding: 0.9rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
+.format-card:hover { background: var(--black3); }
+.format-label { font-size: 11px; color: var(--gray); }
+.format-price { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); }
+.acompte-banner {
+  margin-top: 1px; background: rgba(232,25,44,0.08); border: 1px solid rgba(232,25,44,0.25);
+  padding: 1.25rem 2rem; display: flex; align-items: center; gap: 1rem;
+}
+.acompte-text { font-size: 14px; }
+.acompte-text strong { color: var(--red); }
+.saison-block { margin-top: 4rem; border: 1px solid rgba(232,25,44,0.3); padding: 2.5rem; position: relative; overflow: hidden; }
+.saison-block::before { content: ''; position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: radial-gradient(circle, rgba(232,25,44,0.1), transparent 70%); }
+.saison-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); margin-bottom: 1rem; }
+.saison-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 2px; margin-bottom: 1rem; }
+.saison-desc { font-size: 15px; color: var(--gray); max-width: 500px; line-height: 1.7; margin-bottom: 1.5rem; }
+.saison-items { display: flex; gap: 2rem; }
+.saison-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray); }
+.saison-item::before { content: '✓'; color: var(--red); font-weight: 500; }
+
+/* INSTRUMENTALES */
+#instrus { max-width: 1000px; }
+.instru-category { margin-bottom: 2rem; }
+.instru-cat-label {
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.instru-cat-label::before { content: ''; display: block; width: 16px; height: 1px; background: var(--gray2); }
+.instru-list { display: flex; flex-direction: column; gap: 1px; background: var(--gray2); }
+.instru-row-compact {
+  background: var(--black2); padding: 0.9rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+  transition: background 0.2s; cursor: pointer;
+}
+.instru-row-compact:hover { background: var(--black3); }
+.instru-row-compact.active { background: var(--black3); border-left: 2px solid var(--red); }
+.instru-play-btn {
+  width: 30px; height: 30px; border: 1px solid var(--gray2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.instru-row-compact:hover .instru-play-btn { border-color: var(--white); }
+.instru-row-compact.active .instru-play-btn { border-color: var(--red); background: rgba(232,25,44,0.1); }
+.instru-info { flex: 1; min-width: 0; }
+.instru-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.instru-meta { font-size: 11px; color: var(--gray); margin-top: 2px; letter-spacing: 0.05em; }
+.instru-price-compact { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); flex-shrink: 0; }
+.instru-price-compact span { font-size: 12px; color: var(--gray); }
+.instru-buy-btn {
+  background: var(--red); border: none; color: white;
+  padding: 6px 12px; font-size: 11px; cursor: pointer; transition: background 0.2s;
+  font-family: 'DM Sans', sans-serif; text-decoration: none;
+  display: flex; align-items: center; flex-shrink: 0;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.instru-buy-btn:hover { background: var(--red2); }
+
+/* PLAYLIST */
+#playlist { max-width: 1000px; }
+.playlist-list { display: flex; flex-direction: column; gap: 1px; background: var(--gray2); }
+.playlist-track {
+  background: var(--black2); padding: 1.25rem 1.75rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  transition: background 0.2s; cursor: pointer;
+}
+.playlist-track:hover { background: var(--black3); }
+.playlist-track.active { background: var(--black3); border-left: 2px solid var(--red); }
+.playlist-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+  color: var(--gray2); min-width: 28px; text-align: center;
+}
+.playlist-track.active .playlist-num { color: var(--red); }
+.playlist-play-btn {
+  width: 38px; height: 38px; border: 1px solid var(--gray2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.playlist-track:hover .playlist-play-btn { border-color: var(--white); }
+.playlist-track.active .playlist-play-btn { border-color: var(--red); background: rgba(232,25,44,0.1); }
+.playlist-info { flex: 1; min-width: 0; }
+.playlist-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.playlist-artist { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.playlist-genre { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray2); margin-top: 4px; }
+.playlist-duration { font-size: 13px; color: var(--gray); flex-shrink: 0; }
+
+/* MINI PLAYER */
+#mini-player {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(15,15,15,0.97); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--gray2);
+  padding: 0 1.5rem;
+  height: 72px; display: none; align-items: center; gap: 1rem;
+}
+#mini-player.visible { display: flex; }
+.mp-cover {
+  width: 44px; height: 44px; background: var(--black3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; color: var(--red); overflow: hidden;
+}
+.mp-cover img { width: 100%; height: 100%; object-fit: cover; }
+.mp-info { flex: 1; min-width: 0; }
+.mp-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-sub { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.mp-progress-wrap { flex: 1.5; display: flex; flex-direction: column; gap: 4px; }
+.mp-progress {
+  width: 100%; height: 3px; background: var(--gray2);
+  cursor: pointer; position: relative; border-radius: 2px;
+}
+.mp-progress-bar { height: 100%; background: var(--red); border-radius: 2px; width: 0%; transition: width 0.1s linear; pointer-events: none; }
+.mp-times { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); }
+.mp-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.mp-btn {
+  background: none; border: none; color: var(--white); cursor: pointer;
+  padding: 6px; display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s;
+}
+.mp-btn:hover { color: var(--red); }
+.mp-btn.play-pause {
+  width: 38px; height: 38px; border: 1px solid var(--gray2); border-radius: 50%;
+}
+.mp-btn.play-pause:hover { border-color: var(--red); }
+.mp-close { color: var(--gray); font-size: 18px; }
+
+/* FORMULAIRE */
+#reservation { max-width: 640px; margin: 0 auto; padding: 6rem 2rem; }
+.form-wrap { background: var(--black2); border: 1px solid var(--gray2); padding: 2.5rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+.form-input, .form-select {
+  width: 100%; background: var(--black3); border: 1px solid var(--gray2);
+  color: var(--white); padding: 12px 16px; font-size: 14px;
+  font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; appearance: none;
+}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--red); }
+.form-select option { background: var(--black3); }
+.price-tag { background: rgba(232,25,44,0.08); border: 1px solid rgba(232,25,44,0.25); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: none; }
+.price-tag-row { display: flex; justify-content: space-between; align-items: center; }
+.price-tag-label { font-size: 12px; color: var(--gray); }
+.price-tag-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--red); }
+.price-tag-acompte { font-size: 12px; color: var(--gray); margin-top: 4px; }
+.price-tag-acompte span { color: var(--red); }
+.submit-btn {
+  width: 100%; background: var(--red); border: none; color: white; padding: 16px;
+  font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.submit-btn:hover { background: var(--red2); }
+.error-msg { font-size: 13px; color: var(--red); margin-bottom: 1rem; display: none; }
+.success-msg { display: none; text-align: center; padding: 3rem 2rem; }
+.success-icon { width: 56px; height: 56px; background: rgba(232,25,44,0.1); border: 1px solid var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 24px; }
+.success-msg h3 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; margin-bottom: 0.75rem; }
+.success-msg p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; align-items: center; justify-content: space-between; max-width: 1000px; margin: 0 auto; }
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--gray); }
+.footer-logo span { color: var(--red); }
+.footer-info { font-size: 12px; color: var(--gray); text-align: right; line-height: 1.8; }
+.divider { width: 100%; height: 1px; background: var(--gray2); max-width: 1000px; margin: 0 auto; }
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .tarif-grid, .instru-grid { grid-template-columns: 1fr; }
+  .formats-grid { grid-template-columns: repeat(2, 1fr); }
+  .actu-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 2rem; }
+  .nav-links { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+  .saison-items { flex-direction: column; gap: 0.75rem; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; }
+  .footer-info { text-align: center; }
+  .mp-progress-wrap { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- INTRO SPLASH -->
+<div id="splash">
+  <video id="splash-video" src="logo red after (04.26).mp4" autoplay muted playsinline></video>
+</div>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="r-mark" id="r-mark-secret">R</div>
+    <span>Red Records 78</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#actu">Actus</a></li>
+    <li><a href="#tarifs">Tarifs</a></li>
+    <li><a href="instrus.html">Instrus</a></li>
+    <li><a href="playlist.html">Playlist</a></li>
+    <li><a href="#reservation">Réserver</a></li>
+  </ul>
+  <a href="#reservation" class="nav-cta">Prendre RDV</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+  <div class="hero-tag">Studio · Mantes-la-Jolie · 78</div>
+  <h1 class="hero-title">RED<br><span>RECORDS</span></h1>
+  <p class="hero-sub">Enregistrement · Mix · Mastering · Production.<br>Un son professionnel, une vraie vision.</p>
+  <a href="#reservation" class="hero-cta">
+    Réserver une session
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</div>
+
+<div class="divider"></div>
+
+<!-- ACTUALITES -->
+<section id="actu" style="display:none">
+  <div class="section-tag">Studio · News</div>
+  <h2 class="section-title">Actualités</h2>
+  <div id="actu-card-wrap"></div>
+</section>
+
+<div class="divider" id="actu-divider" style="display:none"></div>
+
+<!-- TARIFS -->
+<section id="tarifs">
+  <div class="section-tag">Fonctionnement 2026</div>
+  <h2 class="section-title">Nos tarifs</h2>
+  <div class="tarif-grid">
+    <div class="tarif-card">
+      <div class="tarif-type">Session principale</div>
+      <div class="tarif-name">Jour</div>
+      <div class="tarif-hours">12h – 16h &nbsp;/&nbsp; 16h – 20h</div>
+      <div class="tarif-price">100<span>€</span></div>
+    </div>
+    <div class="tarif-card featured">
+      <div class="tarif-type">Session principale</div>
+      <div class="tarif-name">Soir</div>
+      <div class="tarif-hours">20h – 00h</div>
+      <div class="tarif-price">130<span>€</span></div>
+    </div>
+    <div class="tarif-card">
+      <div class="tarif-type">Session principale</div>
+      <div class="tarif-name">Nuit</div>
+      <div class="tarif-hours">00h – 04h</div>
+      <div class="tarif-price">140<span>€</span></div>
+    </div>
+  </div>
+  <div class="formats-grid">
+    <div class="format-card"><div class="format-label">2h avant 20h</div><div class="format-price">60€</div></div>
+    <div class="format-card"><div class="format-label">3h avant 20h</div><div class="format-price">90€</div></div>
+    <div class="format-card"><div class="format-label">2h après 20h</div><div class="format-price">80€</div></div>
+    <div class="format-card"><div class="format-label">3h après 20h</div><div class="format-price">120€</div></div>
+  </div>
+  <div class="acompte-banner">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div class="acompte-text">Acompte de réservation <strong>30€ obligatoire</strong> via SumUp · Valide définitivement ta session</div>
+  </div>
+  <div class="saison-block">
+    <div class="saison-label">🎙 Opportunité · Chaque saison</div>
+    <div class="saison-title">Le Son de la Saison</div>
+    <p class="saison-desc">Un projet est sélectionné chaque saison et bénéficie d'une production complète + clip vidéo <em>gratuitement</em>.</p>
+    <div class="saison-items">
+      <div class="saison-item">Produit</div>
+      <div class="saison-item">Clippé gratuitement</div>
+      <div class="saison-item">Accompagné</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LIENS VERS PAGES -->
+<section style="max-width:1000px;display:flex;gap:1px;background:var(--gray2);">
+  <a href="instrus.html" style="flex:1;background:var(--black2);padding:2rem;text-decoration:none;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s;" onmouseover="this.style.background='var(--black3)'" onmouseout="this.style.background='var(--black2)'">
+    <div>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;">Catalogue · Beats</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);">Instrumentales</div>
+      <div style="font-size:13px;color:var(--gray);margin-top:6px;">À partir de <strong style="color:var(--red)">50€</strong> / beat</div>
+    </div>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+  <a href="playlist.html" style="flex:1;background:var(--black2);padding:2rem;text-decoration:none;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s;" onmouseover="this.style.background='var(--black3)'" onmouseout="this.style.background='var(--black2)'">
+    <div>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;">Sélection · Red Records</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);">Playlist RED</div>
+    </div>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</section>
+
+<div class="divider"></div>
+
+<!-- RESERVATION -->
+<section id="reservation" style="max-width:640px;">
+  <div class="section-tag">Demande de réservation</div>
+  <h2 class="section-title">Réserver</h2>
+  <div class="form-wrap">
+    <form id="demandeForm">
+      <div class="form-group">
+        <label class="form-label">Nom d'artiste</label>
+        <input class="form-input" type="text" id="artiste" placeholder="Ton nom d'artiste" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contact (tel ou insta)</label>
+        <input class="form-input" type="text" id="contact" placeholder="06... ou @tonpseudo" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Type de session</label>
+        <select class="form-select" id="type" required>
+          <option value="">-- Choisir --</option>
+          <option value="Session Jour 12h-16h">Session Jour 4h - 12h a 16h</option>
+          <option value="Session Jour 16h-20h">Session Jour 4h - 16h a 20h</option>
+          <option value="Session Soir 20h-00h">Session Soir 4h - 20h a 00h</option>
+          <option value="Session Nuit 00h-04h">Session Nuit 4h - 00h a 04h</option>
+          <option value="Format Court 2h avant 20h">Format Court 2h - avant 20h</option>
+          <option value="Format Court 3h avant 20h">Format Court 3h - avant 20h</option>
+          <option value="Format Court 2h apres 20h">Format Court 2h - apres 20h</option>
+          <option value="Format Court 3h apres 20h">Format Court 3h - apres 20h</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date souhaitee</label>
+        <input class="form-input" type="date" id="date" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Precision (optionnel)</label>
+        <input class="form-input" type="text" id="precision" placeholder="Ex : mix, voix, feat...">
+      </div>
+
+      <button type="submit" class="submit-btn" id="btnEnvoyer">Envoyer ma demande</button>
+      <p id="msgRetour" style="display:none;margin-top:1rem;font-size:14px;"></p>
+    </form>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="footer-logo"><span>RED</span> RECORDS 78</div>
+  <div class="footer-info">1 Rue Armand Cassan, Mantes-la-Jolie 78200<br>@red_records78 · Studio de production musicale</div>
+</footer>
+
+<!-- MINI PLAYER -->
+<div id="mini-player">
+  <div class="mp-cover" id="mp-cover"><span>R</span></div>
+  <div class="mp-info">
+    <div class="mp-title" id="mp-title">—</div>
+    <div class="mp-sub" id="mp-sub">Red Records</div>
+  </div>
+  <div class="mp-progress-wrap">
+    <div class="mp-progress" id="mp-progress" onclick="seekAudio(event)">
+      <div class="mp-progress-bar" id="mp-bar"></div>
+    </div>
+    <div class="mp-times"><span id="mp-cur">0:00</span><span id="mp-dur">0:00</span></div>
+  </div>
+  <div class="mp-controls">
+    <button class="mp-btn play-pause" id="mp-play" onclick="togglePlay()">
+      <svg id="mp-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="mp-icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+    </button>
+    <button class="mp-btn mp-close" onclick="closePlayer()">✕</button>
+  </div>
+</div>
+
+<script>
+// ─── ACTUALITE ────────────────────────────────────────────────────────────────
+const NEWS = {
+  date: '',
+  cat: '',
+  title: '',
+  desc: ''
+};
+(function() {
+  if (!NEWS.title) return;
+  const section = document.getElementById('actu');
+  const wrap = document.getElementById('actu-card-wrap');
+  wrap.innerHTML = `<div class="actu-card">
+    ${NEWS.date ? `<div class="actu-date">${NEWS.date}</div>` : ''}
+    ${NEWS.cat ? `<div class="actu-cat">${NEWS.cat}</div>` : ''}
+    <div class="actu-title">${NEWS.title}</div>
+    ${NEWS.desc ? `<div class="actu-desc">${NEWS.desc}</div>` : ''}
+  </div>`;
+  section.style.display = 'block';
+  document.getElementById('actu-divider').style.display = 'block';
+})();
+
+// ─── FORMULAIRE RESERVATION ───────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
+
+document.getElementById('demandeForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('btnEnvoyer');
+  const msg = document.getElementById('msgRetour');
+
+  btn.disabled    = true;
+  btn.textContent = 'Envoi en cours...';
+
+  const data = {
+    artiste:   document.getElementById('artiste').value.trim(),
+    contact:   document.getElementById('contact').value.trim(),
+    type:      document.getElementById('type').value,
+    date:      document.getElementById('date').value,
+    precision: document.getElementById('precision').value.trim()
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+
+    msg.style.display = 'block';
+    msg.style.color   = 'green';
+    msg.textContent   = 'Demande envoyee ! On te repond vite.';
+    document.getElementById('demandeForm').reset();
+
+  } catch(err) {
+    msg.style.display = 'block';
+    msg.style.color   = 'red';
+    msg.textContent   = 'Erreur lors de l envoi. Reessaie ou contacte-nous directement.';
+  }
+
+  btn.disabled    = false;
+  btn.textContent = 'Envoyer ma demande';
+});
+// ─── SPLASH INTRO ────────────────────────────────────────────────────────────
+const splash = document.getElementById('splash');
+const splashVideo = document.getElementById('splash-video');
+splash.classList.add('hidden'); // désactivé pour les tests
+
+
+// ─── SERVICE WORKER ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+
+<!-- BULLE TEAM -->
+<button id="private-bubble" title="Espace équipe" onclick="toggleTeamPanel()">💬<span id="tp-badge"></span></button>
+
+<!-- PANNEAU TEAM -->
+<div id="team-panel">
+
+  <!-- LOGIN -->
+  <div id="tp-login">
+    <div id="tp-login-inner">
+      <h2>RED RECORDS</h2>
+      <p>Espace privé équipe</p>
+      <input type="email" id="tp-email" placeholder="Email" autocomplete="email" />
+      <input type="password" id="tp-password" placeholder="Mot de passe" autocomplete="current-password" />
+      <button id="tp-login-btn">Se connecter</button>
+      <span id="tp-login-error"></span>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="tp-app">
+    <div id="tp-header">
+      <div id="tp-header-left">
+        <button id="tp-close" onclick="toggleTeamPanel()">✕</button>
+        <span>RED RECORDS — TEAM</span>
+      </div>
+      <button id="tp-logout">Déconnexion</button>
+    </div>
+    <div id="tp-tabs">
+      <div class="tp-tab active" id="tp-tab-chat" onclick="tpSwitchTab('chat')">💬 Chat</div>
+      <div class="tp-tab" id="tp-tab-agenda" onclick="tpSwitchTab('agenda')">📅 Agenda</div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="tp-chat-panel">
+      <div id="tp-messages"></div>
+      <div id="tp-input-area">
+        <input type="text" id="tp-msg-input" placeholder="Message..." />
+        <button id="tp-send-btn">Envoyer</button>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div id="tp-agenda-panel">
+      <div id="tp-agenda-link"><a href="https://calendar.google.com/calendar/r" target="_blank">Ouvrir Google Agenda ↗</a></div>
+      <iframe src="https://calendar.google.com/calendar/embed?src=red.records78200%40gmail.com&ctz=Europe%2FParis&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<style>
+  #private-bubble {
+    position: fixed; bottom: 24px; left: 24px;
+    width: 56px; height: 56px; background: #e63946; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    font-size: 24px; border: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(230,57,70,0.5); z-index: 9000;
+    transition: transform 0.2s;
+  }
+  #private-bubble:hover { transform: scale(1.1); }
+  #tp-badge {
+    position: absolute; top: -4px; right: -4px;
+    background: #fff; color: #e63946;
+    font-size: 11px; font-weight: bold; font-family: sans-serif;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  #team-panel {
+    position: fixed; inset: 0; z-index: 9500;
+    background: #111; color: #fff; font-family: sans-serif;
+    display: none; flex-direction: column;
+  }
+  #team-panel.open { display: flex; }
+
+  #tp-login {
+    flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  #tp-login-inner {
+    display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px;
+  }
+  #tp-login-inner h2 { font-size: 22px; letter-spacing: 2px; text-align: center; }
+  #tp-login-inner p { font-size: 13px; color: #888; text-align: center; }
+  #tp-login-inner input {
+    padding: 12px 16px; border-radius: 8px; border: 1px solid #333;
+    background: #1a1a1a; color: #fff; font-size: 16px;
+  }
+  #tp-login-btn {
+    padding: 12px; background: #e63946; border: none; border-radius: 8px;
+    color: #fff; font-size: 16px; font-weight: bold; cursor: pointer;
+  }
+  #tp-login-error { color: #e63946; font-size: 13px; text-align: center; min-height: 18px; }
+
+  #tp-app { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  #tp-app.visible { display: flex; }
+
+  #tp-header {
+    padding: 12px 16px; background: #1a1a1a;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #333; flex-shrink: 0;
+  }
+  #tp-header-left { display: flex; align-items: center; gap: 12px; }
+  #tp-close { background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; }
+  #tp-header span { font-size: 14px; letter-spacing: 1px; }
+  #tp-logout {
+    background: none; border: 1px solid #555; color: #aaa;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  }
+
+  #tp-tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid #333; flex-shrink: 0; }
+  .tp-tab {
+    flex: 1; padding: 12px; text-align: center; cursor: pointer;
+    font-size: 13px; color: #888; border-bottom: 2px solid transparent;
+  }
+  .tp-tab.active { color: #fff; border-bottom: 2px solid #e63946; }
+
+  #tp-chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #tp-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .tp-msg { max-width: 80%; }
+  .tp-msg.mine { align-self: flex-end; }
+  .tp-msg.other { align-self: flex-start; }
+  .tp-msg-name { font-size: 11px; color: #888; margin-bottom: 3px; }
+  .tp-msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+  .mine .tp-msg-bubble { border-radius: 12px 12px 2px 12px; }
+  .other .tp-msg-bubble { border-radius: 12px 12px 12px 2px; }
+  .tp-msg-time { font-size: 10px; color: #555; margin-top: 3px; text-align: right; }
+  #tp-input-area {
+    padding: 12px 16px; background: #1a1a1a;
+    display: flex; gap: 10px; border-top: 1px solid #333; flex-shrink: 0;
+  }
+  #tp-msg-input {
+    flex: 1; padding: 10px 14px; border-radius: 20px;
+    border: 1px solid #333; background: #222; color: #fff; font-size: 15px;
+  }
+  #tp-send-btn {
+    padding: 10px 18px; background: #e63946; border: none;
+    border-radius: 20px; color: #fff; font-weight: bold; cursor: pointer;
+  }
+
+  #tp-agenda-panel { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+  #tp-agenda-link {
+    padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333;
+    display: flex; justify-content: flex-end; flex-shrink: 0;
+  }
+  #tp-agenda-link a { color: #e63946; font-size: 13px; text-decoration: none; font-weight: bold; }
+  #tp-agenda-panel iframe { flex: 1; border: none; width: 100%; }
+</style>
+
+<script>
+  function toggleTeamPanel() {
+    const panel = document.getElementById('team-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+      localStorage.setItem('rr-last-seen', Date.now());
+      updateBadge(0);
+    }
+  }
+
+  function updateBadge(count) {
+    const badge = document.getElementById('tp-badge');
+    if (count > 0) {
+      badge.textContent = count > 9 ? '9+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  if (localStorage.getItem('rr-team') === '1') {
+    document.getElementById('private-bubble').style.display = 'flex';
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
+
+  const MEMBRES_DEFAUT = [
+    { email: 'red.records78@gmail.com', nom: 'RED',   couleur: '#f6bf26' },
+    { email: 'amoss@redrecords.fr',     nom: 'Amoss', couleur: '#46d6db' },
+    { email: 'remi@redrecords.fr',      nom: 'Remi',  couleur: '#d50000' },
+    { email: 'baloo@redrecords.fr',     nom: 'Baloo', couleur: '#33b679' },
+    { email: 'juss@redrecords.fr',      nom: 'JUSS',  couleur: '#8e24aa' },
+  ];
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAu9o74RjXGJyWWlVkwNgVWisAHclBtkhs",
+    authDomain: "redapp-a85c9.firebaseapp.com",
+    projectId: "redapp-a85c9",
+    storageBucket: "redapp-a85c9.firebasestorage.app",
+    messagingSenderId: "738440248376",
+    appId: "1:738440248376:web:086c52e568a70702f37acd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let currentInge = null;
+  let ingeMap = {};
+  let unsubMessages = null;
+
+  async function chargerMembres() {
+    const snap = await getDocs(collection(db, "team-members"));
+    if (snap.empty) {
+      for (const m of MEMBRES_DEFAUT) {
+        await setDoc(doc(db, "team-members", m.email), m);
+      }
+      MEMBRES_DEFAUT.forEach(m => ingeMap[m.email] = m);
+    } else {
+      snap.forEach(d => { ingeMap[d.id] = d.data(); });
+    }
+  }
+
+  window.tpSwitchTab = function(tab) {
+    ['chat', 'agenda'].forEach(t => {
+      document.getElementById('tp-' + t + '-panel').style.display = 'none';
+      document.getElementById('tp-tab-' + t).classList.remove('active');
+    });
+    document.getElementById('tp-' + tab + '-panel').style.display = 'flex';
+    document.getElementById('tp-tab-' + tab).classList.add('active');
+  };
+
+  chargerMembres().then(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        currentInge = ingeMap[user.email] || { nom: user.email.split('@')[0], couleur: '#aaa' };
+        localStorage.setItem('rr-team', '1');
+        document.getElementById('private-bubble').style.display = 'flex';
+        document.getElementById('tp-login').style.display = 'none';
+        document.getElementById('tp-app').classList.add('visible');
+        loadMessages();
+        watchUnread();
+      } else {
+        currentUser = null;
+        currentInge = null;
+        document.getElementById('tp-login').style.display = 'flex';
+        document.getElementById('tp-app').classList.remove('visible');
+        if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+      }
+    });
+  });
+
+  document.getElementById('tp-login-btn').addEventListener('click', async () => {
+    const email = document.getElementById('tp-email').value;
+    const password = document.getElementById('tp-password').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      document.getElementById('tp-login-error').textContent = 'Email ou mot de passe incorrect.';
+    }
+  });
+
+  document.getElementById('tp-logout').addEventListener('click', () => {
+    localStorage.removeItem('rr-team');
+    document.getElementById('private-bubble').style.display = 'none';
+    document.getElementById('team-panel').classList.remove('open');
+    signOut(auth);
+  });
+
+  function loadMessages() {
+    const q = query(collection(db, 'team-chat'), orderBy('timestamp', 'asc'));
+    unsubMessages = onSnapshot(q, (snapshot) => {
+      const div = document.getElementById('tp-messages');
+      div.innerHTML = '';
+      snapshot.forEach((d) => {
+        const msg = d.data();
+        const isMine = msg.uid === currentUser.uid;
+        const time = msg.timestamp?.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || '';
+        const couleur = msg.couleur || (isMine ? '#e63946' : '#2a2a2a');
+        const el = document.createElement('div');
+        el.className = 'tp-msg ' + (isMine ? 'mine' : 'other');
+        el.innerHTML = `
+          ${!isMine ? `<div class="tp-msg-name" style="color:${couleur}">${msg.name}</div>` : ''}
+          <div class="tp-msg-bubble" style="background:${couleur}">${msg.text}</div>
+          <div class="tp-msg-time">${time}</div>
+        `;
+        div.appendChild(el);
+      });
+      div.scrollTop = div.scrollHeight;
+    });
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('tp-msg-input');
+    const text = input.value.trim();
+    if (!text || !currentUser) return;
+    const name = currentInge ? currentInge.nom : currentUser.email.split('@')[0];
+    input.value = '';
+    await addDoc(collection(db, 'team-chat'), {
+      text, uid: currentUser.uid, name,
+      couleur: currentInge ? currentInge.couleur : '#e63946',
+      timestamp: serverTimestamp()
+    });
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ type: 'message', expediteur: name, texte: text })
+    }).catch(() => {});
+  }
+
+  document.getElementById('tp-send-btn').addEventListener('click', sendMessage);
+  document.getElementById('tp-msg-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  function watchUnread() {
+    const q = query(collection(db, 'team-chat'), orderBy('timestamp', 'asc'));
+    onSnapshot(q, (snapshot) => {
+      const panel = document.getElementById('team-panel');
+      if (panel.classList.contains('open')) {
+        localStorage.setItem('rr-last-seen', Date.now());
+        updateBadge(0);
+        return;
+      }
+      const lastSeen = parseInt(localStorage.getItem('rr-last-seen') || '0');
+      let unread = 0;
+      snapshot.forEach((d) => {
+        const msg = d.data();
+        if (msg.uid === currentUser.uid) return;
+        const ts = msg.timestamp?.toMillis?.() || 0;
+        if (ts > lastSeen) unread++;
+      });
+      updateBadge(unread);
+    });
+  }
+</script>
+</body>
+</html>
