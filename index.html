@@ -13,21 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Red Records">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-<!-- OneSignal -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "74a62f45-6d36-4d68-ad25-e7c9b092de88",
-      serviceWorkerParam: { scope: "/" },
-      serviceWorkerPath: "sw.js",
-      notifyButton: {
-        enable: false,
-      },
-    });
-  });
-</script>
+<!-- OneSignal : SDK page supprimé — push géré uniquement côté service worker -->
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
