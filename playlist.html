@@ -239,6 +239,8 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
 
 <script>
 // ─── PLAYLIST ─────────────────────────────────────────────────────────────────
+// RÈGLE : 10 sons max, triés par date de session (chronologique)
+// Quand on ajoute : on trie par date, on vire le plus ancien si > 10
 // Pour ajouter un son : mettre le fichier dans audio/playlist/ et ajouter une ligne ici
 const PLAYLIST = [
   { id: 'p1', title: 'ANKARA',            artist: 'LACOMETE',  src: 'audio/playlist/LACOMETE - ANKARA.mp3' },
