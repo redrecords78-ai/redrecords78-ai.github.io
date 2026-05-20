@@ -13,7 +13,50 @@
 <meta name="apple-mobile-web-app-title" content="Red Records">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-<!-- OneSignal : SDK page supprimé — push géré uniquement côté service worker -->
+<!-- OneSignal -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  let _OS = null;
+
+  OneSignalDeferred.push(async function(OneSignal) {
+    _OS = OneSignal;
+    await OneSignal.init({
+      appId: "74a62f45-6d36-4d68-ad25-e7c9b092de88",
+      serviceWorkerParam: { scope: "/" },
+      serviceWorkerPath: "sw.js",
+      notifyButton: { enable: false },
+    });
+
+    // Déjà accordé ou refusé → rien à faire
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'default') return;
+    if (localStorage.getItem('rr-notif-done') === '1') return;
+
+    // Affiche la bannière après 4 secondes
+    setTimeout(() => {
+      const b = document.getElementById('notif-banner');
+      if (!b) return;
+      b.style.display = 'flex';
+      requestAnimationFrame(() => b.classList.add('show'));
+    }, 4000);
+  });
+
+  window.activerNotifs = async function() {
+    _dismissBanner();
+    try { if (_OS) await _OS.Notifications.requestPermission(); } catch(e) {}
+  };
+
+  window.dismissNotif = function() { _dismissBanner(); };
+
+  function _dismissBanner() {
+    localStorage.setItem('rr-notif-done', '1');
+    const b = document.getElementById('notif-banner');
+    if (!b) return;
+    b.classList.remove('show');
+    setTimeout(() => b.style.display = 'none', 400);
+  }
+</script>
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -1041,5 +1084,30 @@ if ('serviceWorker' in navigator) {
     Privé
   </button>
 </div>
+
+<!-- Bannière notifs custom -->
+<div id="notif-banner" style="display:none;position:fixed;bottom:88px;left:16px;right:16px;z-index:500;
+  background:#141414;border:1px solid #2a2a2a;border-left:3px solid var(--red);border-radius:14px;
+  padding:14px 16px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  transform:translateY(20px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease;">
+  <div style="font-size:20px;flex-shrink:0">🔔</div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Reste dans la boucle</div>
+    <div style="font-size:12px;color:var(--gray);margin-top:2px">Promos et nouveautés <strong style="color:var(--red)">RED</strong></div>
+  </div>
+  <button onclick="activerNotifs()"
+    style="background:var(--red);color:white;border:none;padding:9px 16px;border-radius:8px;
+    font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0">
+    Activer
+  </button>
+  <button onclick="dismissNotif()"
+    style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0">
+    ×
+  </button>
+</div>
+
+<style>
+#notif-banner.show { transform: translateY(0) !important; opacity: 1 !important; }
+</style>
 </body>
 </html>
