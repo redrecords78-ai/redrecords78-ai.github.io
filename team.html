@@ -248,8 +248,12 @@
     }
 
     function scrollToBottom() {
-      const messagesDiv = document.getElementById("messages");
-      requestAnimationFrame(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; });
+      setTimeout(() => {
+        const messagesDiv = document.getElementById("messages");
+        const last = messagesDiv.lastElementChild;
+        if (last) last.scrollIntoView({ behavior: 'instant', block: 'end' });
+        else messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 80);
     }
 
     window.switchTab = function(tab) {
