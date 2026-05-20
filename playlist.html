@@ -91,6 +91,8 @@ nav {
 .playlist-title { font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .playlist-artist { font-size: 12px; color: var(--gray); margin-top: 2px; }
 .playlist-duration { font-size: 11px; color: var(--gray2); flex-shrink: 0; min-width: 36px; text-align: right; }
+.slot-vide { cursor: default; opacity: 0.5; }
+.slot-vide:hover { background: var(--black2) !important; }
 
 /* MINI PLAYER */
 #mini-player {
@@ -259,7 +261,8 @@ let order       = PLAYLIST.map((_, i) => i);
 const durations = {};
 
 // ─── CONSTRUCTION LISTE ───────────────────────────────────────────────────────
-document.getElementById('pl-count').textContent = PLAYLIST.length + ' son' + (PLAYLIST.length > 1 ? 's' : '');
+const MAX_SLOTS = 10;
+document.getElementById('pl-count').textContent = PLAYLIST.length + ' son' + (PLAYLIST.length > 1 ? 's' : '') + ' · ' + (MAX_SLOTS - PLAYLIST.length) + ' place' + (MAX_SLOTS - PLAYLIST.length > 1 ? 's' : '') + ' restante' + (MAX_SLOTS - PLAYLIST.length > 1 ? 's' : '');
 
 const plList = document.getElementById('playlist-list');
 PLAYLIST.forEach((t, i) => {
@@ -288,6 +291,23 @@ PLAYLIST.forEach((t, i) => {
     document.getElementById('dur-' + t.id).textContent = fmtTime(tmp.duration);
   });
 });
+
+// Slots vides — toujours afficher 10 lignes
+for (let i = PLAYLIST.length; i < MAX_SLOTS; i++) {
+  const div = document.createElement('div');
+  div.className = 'playlist-track slot-vide';
+  div.innerHTML = `
+    <div class="playlist-num" style="color:var(--gray2)">${String(i+1).padStart(2,'0')}</div>
+    <div class="playlist-play-icon" style="border-color:var(--black4);opacity:0.3">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gray2)"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="playlist-info">
+      <div class="playlist-title" style="color:var(--gray2);font-size:15px;letter-spacing:3px">À QUI LE TOUR ?</div>
+      <div class="playlist-artist" style="color:var(--black4)">Red Records 78</div>
+    </div>
+    <div style="font-size:11px;color:var(--black4)">—</div>`;
+  plList.appendChild(div);
+}
 
 // ─── UTILITAIRES ──────────────────────────────────────────────────────────────
 function fmtTime(s) {
