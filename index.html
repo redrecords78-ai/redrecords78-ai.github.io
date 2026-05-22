@@ -17,6 +17,7 @@
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window._clientPlayerId = '';
   let _OS = null;
 
   OneSignalDeferred.push(async function(OneSignal) {
@@ -27,6 +28,9 @@
       serviceWorkerPath: "sw.js",
       notifyButton: { enable: false },
     });
+
+    // Capture player ID client (pour push ciblé si demande acceptée/refusée)
+    try { window._clientPlayerId = OneSignal.User?.PushSubscription?.id || await OneSignal.getUserId?.() || ''; } catch(e) {}
 
     // Déjà accordé ou refusé → rien à faire
     if (!('Notification' in window)) return;
@@ -583,6 +587,16 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       <p id="msgRetour" style="display:none;margin-top:1rem;font-size:14px;"></p>
     </form>
   </div>
+
+  <!-- État en cours de traitement -->
+  <div id="demande-en-cours" style="display:none;text-align:center;padding:3rem 1rem;">
+    <div style="font-size:52px;margin-bottom:1.25rem">⏳</div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:0.75rem;color:var(--white)">Demande en cours</h3>
+    <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:2rem;">On revient vers toi rapidement.<br>Tu recevras une notification dès confirmation.</p>
+    <button onclick="annulerDemande()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
+      Faire une nouvelle demande
+    </button>
+  </div>
 </section>
 
 <div class="divider"></div>
@@ -661,6 +675,17 @@ const NEWS = {
 // ─── FORMULAIRE RESERVATION ───────────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
 
+// Gérer ?reset=1 (depuis push "refusé") + état en cours
+(function() {
+  if (new URLSearchParams(window.location.search).get('reset') === '1') {
+    localStorage.removeItem('rr-demande-pending');
+    history.replaceState({}, '', window.location.pathname);
+  }
+  if (localStorage.getItem('rr-demande-pending') === '1') {
+    afficherEtatEnCours();
+  }
+})();
+
 document.getElementById('demandeForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -676,29 +701,39 @@ document.getElementById('demandeForm').addEventListener('submit', async function
     contact:   document.getElementById('contact').value.trim(),
     type:      document.getElementById('type').value,
     date:      document.getElementById('date').value,
-    precision: document.getElementById('precision').value.trim()
+    precision: document.getElementById('precision').value.trim(),
+    playerId:  window._clientPlayerId || ''
   };
 
   try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-
-    msg.style.display = 'block';
-    msg.style.color   = 'green';
-    msg.textContent   = 'Demande envoyee ! On te repond vite.';
-    document.getElementById('demandeForm').reset();
-
+    await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+    localStorage.setItem('rr-demande-pending', '1');
+    afficherEtatEnCours();
   } catch(err) {
     msg.style.display = 'block';
     msg.style.color   = 'red';
-    msg.textContent   = 'Erreur lors de l envoi. Reessaie ou contacte-nous directement.';
+    msg.textContent   = 'Erreur lors de l\'envoi. Reessaie ou contacte-nous directement.';
+    btn.disabled    = false;
+    btn.textContent = 'Envoyer ma demande';
   }
-
-  btn.disabled    = false;
-  btn.textContent = 'Envoyer ma demande';
 });
+
+function afficherEtatEnCours() {
+  const form    = document.getElementById('demandeForm');
+  const encours = document.getElementById('demande-en-cours');
+  if (form)    form.style.display    = 'none';
+  if (encours) encours.style.display = 'block';
+}
+
+function annulerDemande() {
+  localStorage.removeItem('rr-demande-pending');
+  const form    = document.getElementById('demandeForm');
+  const encours = document.getElementById('demande-en-cours');
+  const msg     = document.getElementById('msgRetour');
+  if (form)    { form.style.display = 'block'; form.reset(); }
+  if (encours)   encours.style.display = 'none';
+  if (msg)       msg.style.display     = 'none';
+}
 // ─── SPLASH INTRO ────────────────────────────────────────────────────────────
 const splash = document.getElementById('splash');
 const splashVideo = document.getElementById('splash-video');
