@@ -671,6 +671,7 @@ document.getElementById('demandeForm').addEventListener('submit', async function
   btn.textContent = 'Envoi en cours...';
 
   const data = {
+    action:    "reservation",
     artiste:   document.getElementById('artiste').value.trim(),
     contact:   document.getElementById('contact').value.trim(),
     type:      document.getElementById('type').value,
