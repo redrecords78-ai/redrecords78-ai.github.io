@@ -20,44 +20,19 @@
 body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 300; }
 
 /* ─── PIN SCREEN ─── */
-#pin-screen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--black);
-  display: flex; align-items: center; justify-content: center;
-}
-.pin-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
-  padding: 2rem; width: 100%; max-width: 320px;
-}
-.pin-logo {
-  width: 56px; height: 56px; background: var(--red);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: white;
-}
-.pin-title {
-  font-family: 'Bebas Neue', sans-serif; font-size: 28px;
-  letter-spacing: 4px; color: var(--white);
-}
+#pin-screen { position: fixed; inset: 0; z-index: 9999; background: var(--black); display: flex; align-items: center; justify-content: center; }
+.pin-wrap { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 2rem; width: 100%; max-width: 320px; }
+.pin-logo { width: 56px; height: 56px; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: white; }
+.pin-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 4px; color: var(--white); }
 .pin-subtitle { font-size: 12px; color: var(--gray); letter-spacing: 0.1em; margin-top: -1rem; }
 .pin-dots { display: flex; gap: 16px; }
-.pin-dot {
-  width: 14px; height: 14px; border-radius: 50%;
-  border: 2px solid var(--gray2); transition: all 0.15s;
-}
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--gray2); transition: all 0.15s; }
 .pin-dot.filled { background: var(--red); border-color: var(--red); }
 .pin-dot.error { border-color: var(--red); animation: shake 0.3s ease; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
 .pin-error { font-size: 12px; color: var(--red); height: 16px; letter-spacing: 0.05em; }
-.pin-keypad {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;
-}
-.pin-key {
-  background: var(--black2); border: 1px solid var(--gray2);
-  color: var(--white); padding: 18px 0;
-  font-family: 'Bebas Neue', sans-serif; font-size: 26px;
-  cursor: pointer; transition: background 0.15s; text-align: center;
-  border-radius: 2px; user-select: none;
-}
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+.pin-key { background: var(--black2); border: 1px solid var(--gray2); color: var(--white); padding: 18px 0; font-family: 'Bebas Neue', sans-serif; font-size: 26px; cursor: pointer; transition: background 0.15s; text-align: center; border-radius: 2px; user-select: none; }
 .pin-key:hover { background: var(--black3); }
 .pin-key:active { background: var(--black4); }
 .pin-key.del { font-size: 18px; color: var(--gray); }
@@ -65,27 +40,39 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
 /* ─── DASHBOARD ─── */
 #dashboard { display: none; min-height: 100vh; padding-bottom: 3rem; }
-
-.dash-header {
-  position: sticky; top: 0; z-index: 10;
-  padding: 1.25rem 2rem;
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(8,8,8,0.95); backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
+.dash-header { position: sticky; top: 0; z-index: 10; padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(8,8,8,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06); }
 .dash-logo { display: flex; align-items: center; gap: 12px; }
 .dash-logo .r { width: 32px; height: 32px; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
 .dash-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--gray); }
 .dash-back { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gray); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
 .dash-back:hover { color: var(--white); }
 .dash-tag { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); padding: 4px 10px; border: 1px solid rgba(232,25,44,0.4); }
-
 .dash-body { max-width: 900px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
-
 .section-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
 .section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gray2); }
 
-/* KPI CARDS */
+/* ─── DEMANDES EN ATTENTE ─── */
+.demande-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--red); color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px; margin-left: 8px; vertical-align: middle; }
+.demandes-list { display: flex; flex-direction: column; gap: 1px; }
+.demande-card { background: var(--black2); border-left: 3px solid var(--red); padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; transition: opacity 0.2s; }
+.demande-artiste { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--white); margin-bottom: 4px; }
+.demande-session { font-size: 12px; color: var(--red); margin-bottom: 4px; letter-spacing: 0.05em; }
+.demande-contact { font-size: 12px; color: var(--gray); margin-bottom: 2px; }
+.demande-note { font-size: 12px; color: var(--gray); font-style: italic; margin-bottom: 2px; }
+.demande-ts { font-size: 10px; color: var(--gray2); margin-top: 6px; letter-spacing: 0.05em; }
+.demande-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.btn-accepter { background: #33b679; border: none; color: white; padding: 10px 18px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; white-space: nowrap; border-radius: 2px; }
+.btn-accepter:hover { background: #27a366; }
+.btn-refuser { background: none; border: 1px solid var(--red); color: var(--red); padding: 10px 18px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; border-radius: 2px; }
+.btn-refuser:hover { background: var(--red); color: white; }
+.demande-vide { padding: 1.5rem; text-align: center; font-size: 13px; color: var(--gray); background: var(--black2); border: 1px solid var(--gray2); }
+@media (max-width: 600px) {
+  .demande-card { flex-direction: column; }
+  .demande-actions { flex-direction: row; width: 100%; }
+  .btn-accepter, .btn-refuser { flex: 1; text-align: center; }
+}
+
+/* ─── KPI CARDS ─── */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray2); }
 .kpi-card { background: var(--black2); padding: 1.5rem; display: flex; flex-direction: column; gap: 6px; }
 .kpi-card.accent { border-top: 2px solid var(--red); }
@@ -94,13 +81,9 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .kpi-label { font-size: 11px; color: var(--gray); letter-spacing: 0.05em; text-transform: uppercase; }
 .kpi-sub { font-size: 11px; color: var(--gray2); margin-top: 2px; }
 
-/* SESSIONS LIST */
+/* ─── SESSIONS LIST ─── */
 .sessions-list { display: flex; flex-direction: column; gap: 1px; background: var(--gray2); }
-.session-row {
-  background: var(--black2); padding: 1rem 1.5rem;
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  transition: background 0.15s;
-}
+.session-row { background: var(--black2); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; transition: background 0.15s; }
 .session-row:hover { background: var(--black3); }
 .session-date { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--red); min-width: 90px; }
 .session-title { flex: 1; font-size: 14px; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -108,15 +91,13 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .session-hours { font-size: 12px; color: var(--gray); flex-shrink: 0; }
 .session-ca { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); flex-shrink: 0; min-width: 50px; text-align: right; }
 
-/* INGES GRID */
+/* ─── INGES / CRENEAUX ─── */
 .inge-grid { display: flex; gap: 1px; background: var(--gray2); flex-wrap: wrap; }
 .inge-card { background: var(--black2); padding: 1.25rem 1.5rem; flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px; }
 .inge-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; }
 .inge-count { font-size: 12px; color: var(--gray); }
 .inge-bar-wrap { height: 3px; background: var(--gray2); margin-top: 6px; }
 .inge-bar { height: 100%; }
-
-/* CRENEAUX */
 .creneau-list { display: flex; flex-direction: column; gap: 10px; }
 .creneau-row { display: flex; align-items: center; gap: 1rem; }
 .creneau-label { font-size: 13px; color: var(--gray); min-width: 100px; }
@@ -124,24 +105,14 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .creneau-bar { height: 100%; background: var(--red); border-radius: 3px; transition: width 0.8s ease; }
 .creneau-count { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--white); min-width: 30px; text-align: right; }
 
-/* REFRESH */
-.refresh-btn {
-  display: flex; align-items: center; gap: 8px;
-  background: none; border: 1px solid var(--gray2); color: var(--gray);
-  padding: 8px 16px; font-size: 12px; letter-spacing: 0.05em; cursor: pointer;
-  transition: all 0.2s; font-family: 'DM Sans', sans-serif;
-}
+/* ─── MISC ─── */
+.refresh-btn { display: flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--gray2); color: var(--gray); padding: 8px 16px; font-size: 12px; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
 .refresh-btn:hover { border-color: var(--red); color: var(--red); }
 .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* STATE: LOADING / ERROR / EMPTY */
 .state-box { background: var(--black2); border: 1px solid var(--gray2); padding: 2rem; text-align: center; }
 .state-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; margin-bottom: 0.5rem; }
 .state-box p { font-size: 13px; color: var(--gray); line-height: 1.7; }
-.state-box code { display: block; margin-top: 1rem; background: var(--black3); padding: 0.75rem 1rem; font-size: 12px; color: var(--red); text-align: left; border-radius: 2px; }
-
-/* LAST UPDATED */
 .last-updated { font-size: 11px; color: var(--gray2); text-align: right; }
 
 @media (max-width: 700px) {
@@ -152,6 +123,20 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 </style>
 </head>
 <body>
+
+<!-- OneSignal -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "74a62f45-6d36-4d68-ad25-e7c9b092de88",
+      serviceWorkerParam: { scope: "/" },
+      serviceWorkerPath: "sw.js",
+      notifyButton: { enable: false },
+    });
+  });
+</script>
 
 <!-- ─── PIN SCREEN ─── -->
 <div id="pin-screen">
@@ -198,13 +183,22 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
   <div class="dash-body">
 
+    <!-- DEMANDES EN ATTENTE -->
+    <div>
+      <div class="section-label">
+        Demandes en attente
+        <span class="demande-badge" id="demandes-badge" style="display:none">0</span>
+      </div>
+      <div class="demandes-list" id="demandes-list">
+        <div class="demande-vide">Chargement…</div>
+      </div>
+    </div>
+
     <!-- KPIs -->
     <div>
       <div class="section-label">Vue d'ensemble · 30 prochains jours</div>
       <div class="kpi-grid" id="kpi-grid">
-        <div class="state-box" style="grid-column:1/-1;border:none">
-          <p>Chargement des stats…</p>
-        </div>
+        <div class="state-box" style="grid-column:1/-1;border:none"><p>Chargement des stats…</p></div>
       </div>
     </div>
 
@@ -252,7 +246,7 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
     <!-- FOOTER -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-      <button class="refresh-btn" id="refresh-btn" onclick="fetchStats()">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         Actualiser
       </button>
@@ -261,16 +255,14 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
     <!-- ERROR BOX -->
     <div class="state-box" id="error-box" style="display:none">
-      <h3>Endpoint à activer</h3>
-      <p>Le dashboard est prêt, mais il faut ajouter le endpoint <code>?action=stats</code> dans l'Apps Script.<br>Ouvre le fichier <strong>SCRIPT-APPS-SCRIPT.md</strong> sur la clé USB et recopie la nouvelle version du script dans Apps Script (Edge).</p>
-      <code>Apps Script → Projet "Red Records Agenda" → Nouveau déploiement</code>
+      <h3>Erreur de connexion</h3>
+      <p>Vérifie que le script Apps Script est bien déployé.</p>
     </div>
 
   </div>
 </div>
 
 <script>
-const PIN = '8890';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
 
 const COULEURS_INGE = {
@@ -280,10 +272,22 @@ const COULEURS_INGE = {
   'JUSS':  '#8e24aa',
 };
 
-// ─── PIN ──────────────────────────────────────────────────────────────────────
+// ─── PIN ─────────────────────────────────────────────────────────────────────
 let entered = '';
 
-if (sessionStorage.getItem('rr-admin') === '1') unlock();
+// Lire PIN depuis localStorage (persiste entre sessions)
+const _pinSaved = localStorage.getItem('rr-pin-admin');
+if (_pinSaved) {
+  // Vérifier que le PIN sauvegardé est toujours valide
+  fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + _pinSaved)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.error) {
+        unlockWithData(data, _pinSaved);
+      }
+    })
+    .catch(() => {});
+}
 
 function pressPin(d) {
   if (d === 'del') { entered = entered.slice(0, -1); }
@@ -300,12 +304,12 @@ function updateDots() {
 
 async function checkPin() {
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + entered);
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + entered);
     const data = await res.json();
     if (data.error === 'unauthorized') throw new Error('unauthorized');
-    sessionStorage.setItem('rr-admin', '1');
-    sessionStorage.setItem('rr-pin', entered);
-    unlockWithData(data);
+    localStorage.setItem('rr-pin-admin', entered);
+    registerAdminDevice(entered);
+    unlockWithData(data, entered);
   } catch(err) {
     document.getElementById('pin-error').textContent = 'Code incorrect';
     for (let i = 1; i <= 4; i++) document.getElementById('d' + i).classList.add('error');
@@ -318,30 +322,104 @@ async function checkPin() {
   }
 }
 
-function unlock() {
+function unlockWithData(data, pin) {
   document.getElementById('pin-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  fetchStats();
+  document.getElementById('dashboard').style.display  = 'block';
+  fetchDemandes(pin);
+  renderStats(data);
+  document.getElementById('error-box').style.display  = 'none';
+  document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-function unlockWithData(data) {
-  document.getElementById('pin-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  renderStats(data);
-  document.getElementById('error-box').style.display = 'none';
-  document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+// ─── DEMANDES EN ATTENTE ──────────────────────────────────────────────────────
+async function fetchDemandes(pin) {
+  const p = pin || localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getDemandes&pin=' + p);
+    const data = await res.json();
+    renderDemandes(data.demandes || []);
+  } catch(e) {
+    document.getElementById('demandes-list').innerHTML = '<div class="demande-vide">Impossible de charger les demandes.</div>';
+  }
+}
+
+function renderDemandes(demandes) {
+  const list  = document.getElementById('demandes-list');
+  const badge = document.getElementById('demandes-badge');
+
+  if (demandes.length === 0) {
+    list.innerHTML      = '<div class="demande-vide">✅ Aucune demande en attente</div>';
+    badge.style.display = 'none';
+    return;
+  }
+
+  badge.textContent   = demandes.length;
+  badge.style.display = 'inline-flex';
+
+  list.innerHTML = demandes.map(d => {
+    const dateFormatee = d.date
+      ? new Date(d.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+      : d.date;
+    const tsFormatee = new Date(d.ts).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+    return `
+    <div class="demande-card" id="demande-${d.id}">
+      <div>
+        <div class="demande-artiste">${d.artiste}</div>
+        <div class="demande-session">${dateFormatee} · ${d.type}</div>
+        ${d.contact   ? `<div class="demande-contact">📞 ${d.contact}</div>`  : ''}
+        ${d.precision ? `<div class="demande-note">💬 ${d.precision}</div>`   : ''}
+        <div class="demande-ts">Reçu le ${tsFormatee}</div>
+      </div>
+      <div class="demande-actions">
+        <button class="btn-accepter" onclick="traiterDemande('${d.id}','accepter')">✅ Accepter</button>
+        <button class="btn-refuser"  onclick="traiterDemande('${d.id}','refuser')">❌ Refuser</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function traiterDemande(id, action) {
+  const pin      = localStorage.getItem('rr-pin-admin') || '';
+  const endpoint = action === 'accepter' ? 'accepterDemande' : 'refuserDemande';
+  const card     = document.getElementById('demande-' + id);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=${endpoint}&id=${encodeURIComponent(id)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) {
+      fetchDemandes();
+      if (action === 'accepter') fetchStats();
+    } else {
+      if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+      alert('Erreur : ' + (data.error || 'réessaie'));
+    }
+  } catch(e) {
+    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+    alert('Erreur réseau — réessaie');
+  }
+}
+
+async function registerAdminDevice(pin) {
+  try {
+    if (window.OneSignalDeferred) {
+      OneSignalDeferred.push(async function(os) {
+        const playerId = os.User?.PushSubscription?.id || await os.getUserId?.() || '';
+        if (playerId) {
+          await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
+        }
+      });
+    }
+  } catch(e) {}
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
 function calcPrix(start, end) {
   const d = new Date(start), f = new Date(end);
-  const duree = Math.round((f - d) / 3600000);
-  const h = d.getHours();
-  if (duree >= 4) {
-    if (h === 0 || h < 4) return 140; // nuit
-    if (h >= 20) return 130; // soir
-    return 100; // jour
-  }
+  const duree = Math.round((f - d) / 3600000), h = d.getHours();
+  if (duree >= 4) { if (h === 0 || h < 4) return 140; if (h >= 20) return 130; return 100; }
   if (h >= 20) return duree === 2 ? 80 : 120;
   return duree === 2 ? 60 : 90;
 }
@@ -362,56 +440,37 @@ function fmtHeures(start, end) {
 async function fetchStats() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spinning');
-
   try {
-    const pin = sessionStorage.getItem('rr-pin') || '';
-    const res = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + pin);
+    const pin  = localStorage.getItem('rr-pin-admin') || '';
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + pin);
     const data = await res.json();
-
     if (!data || data.error) throw new Error(data?.error || 'no data');
-
     renderStats(data);
-    document.getElementById('error-box').style.display = 'none';
+    document.getElementById('error-box').style.display  = 'none';
     document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   } catch(e) {
     document.getElementById('error-box').style.display = 'block';
-    document.getElementById('kpi-grid').innerHTML = '<div style="grid-column:1/-1;padding:1.5rem;text-align:center;font-size:13px;color:var(--gray)">Données non disponibles — endpoint à activer</div>';
-    document.getElementById('next-sessions-list').innerHTML = '<div class="session-row"><div style="font-size:13px;color:var(--gray)">Aucune donnée</div></div>';
   } finally {
     btn.classList.remove('spinning');
   }
 }
 
+function refreshAll() { fetchDemandes(); fetchStats(); }
+
 function renderStats(data) {
-  // KPIs
   document.getElementById('kpi-grid').innerHTML = `
-    <div class="kpi-card accent">
-      <div class="kpi-num">${data.sessionsWeek}</div>
-      <div class="kpi-label">Sessions · 7 jours</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-num">${data.caWeek}<span>€</span></div>
-      <div class="kpi-label">CA semaine estimé</div>
-      <div class="kpi-sub">hors acomptes</div>
-    </div>
-    <div class="kpi-card accent">
-      <div class="kpi-num">${data.sessionsMonth}</div>
-      <div class="kpi-label">Sessions · ce mois</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-num">${data.caMonth}<span>€</span></div>
-      <div class="kpi-label">CA mois estimé</div>
-      <div class="kpi-sub">hors acomptes</div>
-    </div>
+    <div class="kpi-card accent"><div class="kpi-num">${data.sessionsWeek}</div><div class="kpi-label">Sessions · 7 jours</div></div>
+    <div class="kpi-card"><div class="kpi-num">${data.caWeek}<span>€</span></div><div class="kpi-label">CA semaine estimé</div><div class="kpi-sub">hors acomptes</div></div>
+    <div class="kpi-card accent"><div class="kpi-num">${data.sessionsMonth}</div><div class="kpi-label">Sessions · ce mois</div></div>
+    <div class="kpi-card"><div class="kpi-num">${data.caMonth}<span>€</span></div><div class="kpi-label">CA mois estimé</div><div class="kpi-sub">hors acomptes</div></div>
   `;
 
-  // Prochaines sessions
   const listEl = document.getElementById('next-sessions-list');
   if (!data.prochaines || data.prochaines.length === 0) {
     listEl.innerHTML = '<div class="session-row"><div style="font-size:13px;color:var(--gray)">Aucune session à venir</div></div>';
   } else {
     listEl.innerHTML = data.prochaines.map(s => {
-      const prix = calcPrix(s.start, s.end);
+      const prix    = calcPrix(s.start, s.end);
       const couleur = COULEURS_INGE[s.inge] || '#888';
       return `<div class="session-row">
         <div class="session-date">${fmtDate(s.start)}</div>
@@ -423,54 +482,39 @@ function renderStats(data) {
     }).join('');
   }
 
-  // Ingés
-  const ingeMap = data.ingeMonth || {};
+  const ingeMap  = data.ingeMonth || {};
   const ingeKeys = Object.keys(ingeMap).filter(k => k !== 'Non assigné');
   if (ingeKeys.length > 0) {
     const max = Math.max(...ingeKeys.map(k => ingeMap[k]));
     document.getElementById('inge-grid').innerHTML = ingeKeys.map(nom => {
       const couleur = COULEURS_INGE[nom] || '#888';
       const pct = Math.round(ingeMap[nom] / max * 100);
-      return `<div class="inge-card">
-        <div class="inge-name" style="color:${couleur}">${nom}</div>
-        <div class="inge-count">${ingeMap[nom]} session${ingeMap[nom] > 1 ? 's' : ''}</div>
-        <div class="inge-bar-wrap"><div class="inge-bar" style="width:${pct}%;background:${couleur}"></div></div>
-      </div>`;
+      return `<div class="inge-card"><div class="inge-name" style="color:${couleur}">${nom}</div><div class="inge-count">${ingeMap[nom]} session${ingeMap[nom] > 1 ? 's' : ''}</div><div class="inge-bar-wrap"><div class="inge-bar" style="width:${pct}%;background:${couleur}"></div></div></div>`;
     }).join('');
     document.getElementById('inges-wrap').style.display = 'block';
   }
 
-  // Créneaux
   const creneaux = data.creneaux || {};
-  const crKeys = Object.keys(creneaux);
+  const crKeys   = Object.keys(creneaux);
   if (crKeys.length > 0) {
     const maxCr = Math.max(...crKeys.map(k => creneaux[k]));
     document.getElementById('creneau-list').innerHTML = crKeys
       .sort((a, b) => creneaux[b] - creneaux[a])
       .map(slot => {
         const pct = Math.round(creneaux[slot] / maxCr * 100);
-        return `<div class="creneau-row">
-          <div class="creneau-label">${slot}</div>
-          <div class="creneau-bar-wrap"><div class="creneau-bar" style="width:${pct}%"></div></div>
-          <div class="creneau-count">${creneaux[slot]}</div>
-        </div>`;
+        return `<div class="creneau-row"><div class="creneau-label">${slot}</div><div class="creneau-bar-wrap"><div class="creneau-bar" style="width:${pct}%"></div></div><div class="creneau-count">${creneaux[slot]}</div></div>`;
       }).join('');
     document.getElementById('creneaux-wrap').style.display = 'block';
   }
 
-  // Historique accès
   const logs = data.accessLog || [];
   if (logs.length > 0) {
     document.getElementById('log-list').innerHTML = logs.slice(0, 20).map(l => {
-      const d = new Date(l.ts);
+      const d     = new Date(l.ts);
       const label = l.type === 'acces' ? '✅ Accès réussi' : '⚠️ Mauvais code PIN';
       const color = l.type === 'acces' ? '#33b679' : '#e63946';
-      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
-        + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--black2);border-left:3px solid ${color}">
-        <span style="color:${color}">${label}</span>
-        <span style="color:var(--gray)">${dateStr}</span>
-      </div>`;
+      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--black2);border-left:3px solid ${color}"><span style="color:${color}">${label}</span><span style="color:var(--gray)">${dateStr}</span></div>`;
     }).join('');
     document.getElementById('log-wrap').style.display = 'block';
   }
@@ -478,48 +522,37 @@ function renderStats(data) {
 
 // ─── DIFFUSION PUSH ───────────────────────────────────────────────────────────
 async function envoyerDiffusion() {
-  const titre = document.getElementById('push-titre').value.trim();
-  const msg   = document.getElementById('push-msg').value.trim();
+  const titre  = document.getElementById('push-titre').value.trim();
+  const msg    = document.getElementById('push-msg').value.trim();
   const retour = document.getElementById('push-retour');
   const btn    = document.getElementById('push-btn');
 
   if (!titre || !msg) {
     retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:var(--red)';
-    retour.textContent = 'Remplis le titre et le message.';
+    retour.textContent   = 'Remplis le titre et le message.';
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Envoi en cours…';
-  retour.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Envoi en cours…'; retour.style.display = 'none';
 
   try {
-    const pin = sessionStorage.getItem('rr-pin') || '';
-    const url = APPS_SCRIPT_URL
-      + '?action=push'
-      + '&titre=' + encodeURIComponent(titre)
-      + '&msg='   + encodeURIComponent(msg)
-      + '&pin='   + pin;
+    const pin  = localStorage.getItem('rr-pin-admin') || '';
+    const url  = APPS_SCRIPT_URL + '?action=push&titre=' + encodeURIComponent(titre) + '&msg=' + encodeURIComponent(msg) + '&pin=' + pin;
     const res  = await fetch(url);
     const data = await res.json();
-
     if (data.ok) {
-      retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:#33b679';
-      retour.textContent = '✅ Message envoyé à tous les clients !';
+      retour.style.cssText  = 'display:block;font-size:12px;text-align:center;color:#33b679';
+      retour.textContent    = '✅ Message envoyé à tous les clients !';
       document.getElementById('push-titre').value = '';
       document.getElementById('push-msg').value   = '';
-    } else {
-      throw new Error(data.error || 'erreur');
-    }
+    } else { throw new Error(data.error || 'erreur'); }
   } catch(e) {
     retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:var(--red)';
-    retour.textContent = '⚠️ Erreur : ' + (e.message || 'impossible d\'envoyer');
+    retour.textContent   = '⚠️ Erreur : ' + (e.message || 'impossible d\'envoyer');
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Envoyer à tout le monde';
+    btn.disabled = false; btn.textContent = 'Envoyer à tout le monde';
   }
 }
 </script>
-
 </body>
 </html>
