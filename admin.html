@@ -259,6 +259,16 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <p>Vérifie que le script Apps Script est bien déployé.</p>
     </div>
 
+    <!-- DEBUG PUSH ID -->
+    <div style="background:var(--black2);border:1px dashed var(--gray2);border-radius:8px;padding:1rem;font-size:11px;color:var(--gray)">
+      <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);margin-bottom:8px">🔧 Debug — Ton player ID actuel</div>
+      <div id="debug-player-id" style="font-family:monospace;font-size:10px;color:var(--white);word-break:break-all;background:var(--black3);padding:8px;border-radius:4px;margin-bottom:10px">chargement...</div>
+      <button onclick="forceReRegister()" style="background:var(--black3);border:1px solid var(--gray2);color:var(--white);padding:8px 14px;border-radius:6px;font-size:11px;cursor:pointer;letter-spacing:0.05em;">
+        🔄 Re-enregistrer cet appareil comme admin
+      </button>
+      <div id="debug-register-retour" style="font-size:11px;margin-top:6px;display:none"></div>
+    </div>
+
   </div>
 </div>
 
@@ -330,6 +340,9 @@ function unlockWithData(data, pin) {
   renderStats(data);
   document.getElementById('error-box').style.display  = 'none';
   document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  // Afficher le player ID actuel pour debug
+  const pid = localStorage.getItem('rr-player-id') || '⚠️ NON CAPTURÉ';
+  document.getElementById('debug-player-id').textContent = pid;
 }
 
 // ─── DEMANDES EN ATTENTE ──────────────────────────────────────────────────────
@@ -405,13 +418,38 @@ async function traiterDemande(id, action) {
 
 async function registerAdminDevice(pin) {
   try {
-    // Récupère le player ID sauvegardé par index.html (abonnement actif garanti)
     const playerId = localStorage.getItem('rr-player-id') || '';
     if (playerId) {
       await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
       console.log('Admin enregistré avec ID:', playerId);
     }
   } catch(e) { console.error('registerAdminDevice error:', e); }
+}
+
+async function forceReRegister() {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  const playerId = localStorage.getItem('rr-player-id') || '';
+  const retour = document.getElementById('debug-register-retour');
+  retour.style.display = 'block';
+  if (!playerId) {
+    retour.style.color = '#ff6b6b';
+    retour.textContent = '⚠️ Aucun player ID dans localStorage. Ouvre d\'abord index.html sur ce tel.';
+    return;
+  }
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) {
+      retour.style.color = '#69db7c';
+      retour.textContent = '✅ Enregistré ! Total admins : ' + data.total;
+    } else {
+      retour.style.color = '#ff6b6b';
+      retour.textContent = '❌ ' + (data.error || 'erreur');
+    }
+  } catch(e) {
+    retour.style.color = '#ff6b6b';
+    retour.textContent = '❌ Erreur réseau';
+  }
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
