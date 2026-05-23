@@ -30,7 +30,11 @@
     });
 
     // Capture player ID client (pour push ciblé si demande acceptée/refusée)
-    try { window._clientPlayerId = OneSignal.User?.PushSubscription?.id || await OneSignal.getUserId?.() || ''; } catch(e) {}
+    try {
+      window._clientPlayerId = OneSignal.User?.PushSubscription?.id || await OneSignal.getUserId?.() || '';
+      // Sauvegarder dans localStorage pour que admin.html puisse l'utiliser
+      if (window._clientPlayerId) localStorage.setItem('rr-player-id', window._clientPlayerId);
+    } catch(e) {}
 
     // Déjà accordé ou refusé → rien à faire
     if (!('Notification' in window)) return;

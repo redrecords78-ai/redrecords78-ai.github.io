@@ -405,14 +405,13 @@ async function traiterDemande(id, action) {
 
 async function registerAdminDevice(pin) {
   try {
-    if (window.OneSignalDeferred) {
-      OneSignalDeferred.push(async function(os) {
-        // Tagger cet appareil comme admin dans OneSignal
-        await os.User.addTag("role", "admin");
-        Logger && Logger.log && Logger.log('Tag role=admin applique');
-      });
+    // Récupère le player ID sauvegardé par index.html (abonnement actif garanti)
+    const playerId = localStorage.getItem('rr-player-id') || '';
+    if (playerId) {
+      await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
+      console.log('Admin enregistré avec ID:', playerId);
     }
-  } catch(e) {}
+  } catch(e) { console.error('registerAdminDevice error:', e); }
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
