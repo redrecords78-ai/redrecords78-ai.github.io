@@ -407,10 +407,9 @@ async function registerAdminDevice(pin) {
   try {
     if (window.OneSignalDeferred) {
       OneSignalDeferred.push(async function(os) {
-        const playerId = os.User?.PushSubscription?.id || await os.getUserId?.() || '';
-        if (playerId) {
-          await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
-        }
+        // Tagger cet appareil comme admin dans OneSignal
+        await os.User.addTag("role", "admin");
+        Logger && Logger.log && Logger.log('Tag role=admin applique');
       });
     }
   } catch(e) {}
