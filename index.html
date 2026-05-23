@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Red Records 78 · Studio d'enregistrement</title>
 
 <!-- PWA -->
@@ -76,7 +76,8 @@
   --gray2: #444;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; overflow-x: clip; }
+html { scroll-behavior: smooth; overflow-x: clip; overscroll-behavior: none; }
+
 * { max-width: 100%; }
 body {
   background: var(--black);
