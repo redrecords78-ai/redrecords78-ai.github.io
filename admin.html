@@ -283,6 +283,7 @@ if (_pinSaved) {
     .then(r => r.json())
     .then(data => {
       if (!data.error) {
+        registerAdminDevice(_pinSaved);
         unlockWithData(data, _pinSaved);
       }
     })
