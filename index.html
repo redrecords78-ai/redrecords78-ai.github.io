@@ -425,9 +425,9 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 #bottom-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
-  background: rgba(8,8,8,0.97); backdrop-filter: blur(12px);
-  border-top: 1px solid var(--gray2);
-  height: calc(56px + var(--safe-bottom));
+  background: rgba(10,10,10,0.98); backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  height: calc(64px + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
   overflow-x: auto; overflow-y: hidden;
   scrollbar-width: none; -ms-overflow-style: none;
@@ -435,14 +435,30 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 #bottom-nav::-webkit-scrollbar { display: none; }
 .bn-item {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 2px;
+  align-items: center; justify-content: center; gap: 3px;
   text-decoration: none; color: var(--gray);
-  font-size: 8px; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: 9px; letter-spacing: 0.03em;
+  font-family: 'DM Sans', sans-serif; font-weight: 400;
   transition: color 0.2s; white-space: nowrap; min-width: 0;
   background: none; border: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
-.bn-item.active, .bn-item:hover { color: var(--red); }
-.bn-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.bn-item.active { color: var(--red); }
+.bn-item:not(.active) { color: #555; }
+.bn-item svg {
+  width: 22px; height: 22px; flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bn-item.active svg { transform: scale(1.12); }
+.bn-item:active svg { transform: scale(0.9); }
+/* Dot indicator under active item */
+.bn-item.active::after {
+  content: ''; display: block;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--red);
+  position: absolute; bottom: 6px;
+}
 
 /* RESPONSIVE */
 @media (max-width: 700px) {
@@ -807,6 +823,7 @@ splash.classList.add('hidden'); // désactivé pour les tests
   <!-- LOGIN -->
   <div id="tp-login">
     <div id="tp-login-inner">
+      <div id="tp-login-logo">R</div>
       <h2>RED RECORDS</h2>
       <p>Espace privé équipe</p>
       <input type="email" id="tp-email" placeholder="Email" autocomplete="email" />
@@ -820,22 +837,40 @@ splash.classList.add('hidden'); // désactivé pour les tests
   <div id="tp-app">
     <div id="tp-header">
       <div id="tp-header-left">
-        <button id="tp-close" onclick="toggleTeamPanel()">✕</button>
-        <span>RED RECORDS — TEAM</span>
+        <button id="tp-close" onclick="toggleTeamPanel()" aria-label="Fermer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div id="tp-header-brand">
+          <div id="tp-header-logo">R</div>
+          <div>
+            <div id="tp-header-title">Red Records</div>
+            <div id="tp-header-sub">Espace équipe</div>
+          </div>
+        </div>
       </div>
-      <button id="tp-logout">Déconnexion</button>
+      <button id="tp-logout" title="Déconnexion">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
     <div id="tp-tabs">
-      <div class="tp-tab active" id="tp-tab-chat" onclick="tpSwitchTab('chat')">💬 Chat</div>
-      <div class="tp-tab" id="tp-tab-agenda" onclick="tpSwitchTab('agenda')">📅 Agenda</div>
+      <div class="tp-tab active" id="tp-tab-chat" onclick="tpSwitchTab('chat')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat
+      </div>
+      <div class="tp-tab" id="tp-tab-agenda" onclick="tpSwitchTab('agenda')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Agenda
+      </div>
     </div>
 
     <!-- CHAT -->
     <div id="tp-chat-panel">
       <div id="tp-messages"></div>
       <div id="tp-input-area">
-        <input type="text" id="tp-msg-input" placeholder="Message..." />
-        <button id="tp-send-btn">Envoyer</button>
+        <input type="text" id="tp-msg-input" placeholder="Écrire un message…" autocomplete="off"/>
+        <button id="tp-send-btn" aria-label="Envoyer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
       </div>
     </div>
 
@@ -871,81 +906,155 @@ splash.classList.add('hidden'); // désactivé pour les tests
 
   #team-panel {
     position: fixed; inset: 0; z-index: 9500;
-    background: #111; color: #fff; font-family: sans-serif;
+    background: #0c0c0c; color: #fff;
+    font-family: 'DM Sans', system-ui, sans-serif;
     display: none; flex-direction: column;
   }
   #team-panel.open { display: flex; }
 
+  /* LOGIN */
   #tp-login {
     flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px;
+    background: #0c0c0c;
   }
   #tp-login-inner {
-    display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px;
+    display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px;
   }
-  #tp-login-inner h2 { font-size: 22px; letter-spacing: 2px; text-align: center; }
-  #tp-login-inner p { font-size: 13px; color: #888; text-align: center; }
+  #tp-login-logo {
+    width: 48px; height: 48px; background: #E8192C; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: #fff;
+    margin: 0 auto 8px;
+  }
+  #tp-login-inner h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+    letter-spacing: 3px; text-align: center; color: #fff;
+  }
+  #tp-login-inner p { font-size: 13px; color: #555; text-align: center; margin-bottom: 4px; }
   #tp-login-inner input {
-    padding: 12px 16px; border-radius: 8px; border: 1px solid #333;
-    background: #1a1a1a; color: #fff; font-size: 16px;
+    padding: 13px 16px; border-radius: 10px; border: 1px solid #222;
+    background: #161616; color: #fff; font-size: 15px;
+    font-family: 'DM Sans', sans-serif; outline: none;
+    transition: border-color 0.2s;
   }
+  #tp-login-inner input:focus { border-color: #E8192C; }
   #tp-login-btn {
-    padding: 12px; background: #e63946; border: none; border-radius: 8px;
-    color: #fff; font-size: 16px; font-weight: bold; cursor: pointer;
+    padding: 14px; background: #E8192C; border: none; border-radius: 10px;
+    color: #fff; font-size: 15px; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; margin-top: 4px;
+    transition: background 0.2s;
   }
-  #tp-login-error { color: #e63946; font-size: 13px; text-align: center; min-height: 18px; }
+  #tp-login-btn:hover { background: #FF3347; }
+  #tp-login-error { color: #E8192C; font-size: 12px; text-align: center; min-height: 16px; }
 
+  /* APP */
   #tp-app { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   #tp-app.visible { display: flex; }
 
+  /* HEADER */
   #tp-header {
-    padding: 12px 16px; background: #1a1a1a;
+    padding: 14px 16px;
+    background: rgba(14,14,14,0.98);
     display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid #333; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+    padding-top: calc(14px + var(--safe-top, 0px));
   }
   #tp-header-left { display: flex; align-items: center; gap: 12px; }
-  #tp-close { background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; }
-  #tp-header span { font-size: 14px; letter-spacing: 1px; }
+  #tp-close {
+    background: rgba(255,255,255,0.07); border: none; color: #aaa;
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  #tp-close:hover { background: rgba(255,255,255,0.12); }
+  #tp-header-brand { display: flex; align-items: center; gap: 10px; }
+  #tp-header-logo {
+    width: 32px; height: 32px; background: #E8192C; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: #fff;
+    flex-shrink: 0;
+  }
+  #tp-header-title { font-size: 14px; font-weight: 500; letter-spacing: 0.02em; color: #fff; }
+  #tp-header-sub { font-size: 11px; color: #555; margin-top: 1px; }
   #tp-logout {
-    background: none; border: 1px solid #555; color: #aaa;
-    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+    background: rgba(255,255,255,0.06); border: none; color: #666;
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
   }
+  #tp-logout:hover { background: rgba(232,25,44,0.15); color: #E8192C; }
 
-  #tp-tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid #333; flex-shrink: 0; }
+  /* TABS */
+  #tp-tabs {
+    display: flex; background: rgba(14,14,14,0.98);
+    border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+    padding: 0 8px;
+    gap: 4px;
+  }
   .tp-tab {
-    flex: 1; padding: 12px; text-align: center; cursor: pointer;
-    font-size: 13px; color: #888; border-bottom: 2px solid transparent;
+    flex: 1; padding: 11px 8px; text-align: center; cursor: pointer;
+    font-size: 12px; color: #555; border-bottom: 2px solid transparent;
+    transition: color 0.2s; display: flex; align-items: center;
+    justify-content: center; gap: 6px; font-weight: 400;
+    letter-spacing: 0.02em;
   }
-  .tp-tab.active { color: #fff; border-bottom: 2px solid #e63946; }
+  .tp-tab.active { color: #fff; border-bottom: 2px solid #E8192C; }
+  .tp-tab svg { transition: stroke 0.2s; }
 
-  #tp-chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  #tp-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-  .tp-msg { max-width: 80%; }
-  .tp-msg.mine { align-self: flex-end; }
-  .tp-msg.other { align-self: flex-start; }
-  .tp-msg-name { font-size: 11px; color: #888; margin-bottom: 3px; }
-  .tp-msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
-  .mine .tp-msg-bubble { border-radius: 12px 12px 2px 12px; }
-  .other .tp-msg-bubble { border-radius: 12px 12px 12px 2px; }
-  .tp-msg-time { font-size: 10px; color: #555; margin-top: 3px; text-align: right; }
+  /* MESSAGES */
+  #tp-chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0c0c0c; }
+  #tp-messages {
+    flex: 1; overflow-y: auto; padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    scrollbar-width: thin; scrollbar-color: #222 transparent;
+  }
+  .tp-msg { max-width: 78%; display: flex; flex-direction: column; }
+  .tp-msg.mine { align-self: flex-end; align-items: flex-end; }
+  .tp-msg.other { align-self: flex-start; align-items: flex-start; }
+  .tp-msg-name { font-size: 11px; color: #444; margin-bottom: 4px; font-weight: 500; }
+  .tp-msg-bubble {
+    padding: 10px 14px; font-size: 14px; line-height: 1.5;
+    word-break: break-word;
+  }
+  .mine .tp-msg-bubble { border-radius: 18px 18px 4px 18px; }
+  .other .tp-msg-bubble { border-radius: 18px 18px 18px 4px; }
+  .tp-msg-time { font-size: 10px; color: #333; margin-top: 4px; }
+
+  /* INPUT */
   #tp-input-area {
-    padding: 12px 16px; background: #1a1a1a;
-    display: flex; gap: 10px; border-top: 1px solid #333; flex-shrink: 0;
+    padding: 12px 16px; background: rgba(14,14,14,0.98);
+    display: flex; gap: 10px; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+    padding-bottom: calc(12px + var(--safe-bottom, 0px));
   }
   #tp-msg-input {
-    flex: 1; padding: 10px 14px; border-radius: 20px;
-    border: 1px solid #333; background: #222; color: #fff; font-size: 15px;
+    flex: 1; padding: 11px 16px; border-radius: 22px;
+    border: 1px solid #222; background: #161616; color: #fff;
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
   }
+  #tp-msg-input:focus { border-color: rgba(232,25,44,0.5); }
+  #tp-msg-input::placeholder { color: #444; }
   #tp-send-btn {
-    padding: 10px 18px; background: #e63946; border: none;
-    border-radius: 20px; color: #fff; font-weight: bold; cursor: pointer;
+    width: 40px; height: 40px; background: #E8192C; border: none;
+    border-radius: 50%; color: #fff; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; padding-left: 2px;
   }
+  #tp-send-btn:hover { background: #FF3347; transform: scale(1.05); }
+  #tp-send-btn:active { transform: scale(0.92); }
 
+  /* AGENDA */
   #tp-agenda-panel { flex: 1; display: none; flex-direction: column; overflow: hidden; }
   #tp-agenda-link {
-    padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333;
+    padding: 10px 16px; background: rgba(14,14,14,0.98);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
     display: flex; justify-content: flex-end; flex-shrink: 0;
   }
-  #tp-agenda-link a { color: #e63946; font-size: 13px; text-decoration: none; font-weight: bold; }
+  #tp-agenda-link a {
+    color: #E8192C; font-size: 12px; text-decoration: none;
+    font-weight: 500; display: flex; align-items: center; gap: 6px;
+  }
   #tp-agenda-panel iframe { flex: 1; border: none; width: 100%; }
 </style>
 
@@ -1138,28 +1247,45 @@ splash.classList.add('hidden'); // désactivé pour les tests
 
 <div id="bottom-nav">
   <a href="index.html" class="bn-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>
+      <path d="M9 21V12h6v9"/>
+    </svg>
     Accueil
   </a>
   <a href="#tarifs" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
     Tarifs
   </a>
   <a href="instrus.html" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
+      <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+    </svg>
     Instrus
   </a>
   <a href="playlist.html" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+      <path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/>
+    </svg>
     Playlist
   </a>
   <a href="#reservation" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/>
+    </svg>
     Réserver
   </a>
-  <button class="bn-item" onclick="localStorage.getItem('rr-team')==='1' ? toggleTeamPanel() : window.location.href='team.html'" style="background:none;border:none;cursor:pointer;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    Privé
+  <button class="bn-item" onclick="localStorage.getItem('rr-team')==='1' ? toggleTeamPanel() : window.location.href='team.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    Équipe
   </button>
 </div>
 
@@ -1168,7 +1294,9 @@ splash.classList.add('hidden'); // désactivé pour les tests
   background:#141414;border:1px solid #2a2a2a;border-left:3px solid var(--red);border-radius:14px;
   padding:14px 16px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);
   transform:translateY(20px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease;">
-  <div style="font-size:20px;flex-shrink:0">🔔</div>
+  <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(232,25,44,0.12);border-radius:10px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </div>
   <div style="flex:1;min-width:0">
     <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Reste dans la boucle</div>
     <div style="font-size:12px;color:var(--gray);margin-top:2px">Promos et nouveautés <strong style="color:var(--red)">RED</strong></div>
