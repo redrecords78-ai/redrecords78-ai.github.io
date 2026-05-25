@@ -162,7 +162,8 @@
       <div id="open-agenda-btn">
         <a href="https://calendar.google.com/calendar/r" target="_blank">Ouvrir Google Agenda ↗</a>
       </div>
-      <iframe src="https://calendar.google.com/calendar/embed?src=red.records78200%40gmail.com&ctz=Europe%2FParis&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0" allowfullscreen></iframe>
+      <!-- src chargé en JS seulement quand on ouvre l'onglet → évite erreur au démarrage -->
+      <iframe id="agenda-iframe" src="" allowfullscreen></iframe>
     </div>
 
     <!-- MA SESSION -->
@@ -257,6 +258,9 @@
       }, 80);
     }
 
+    const AGENDA_URL = "https://calendar.google.com/calendar/embed?src=red.records78200%40gmail.com&ctz=Europe%2FParis&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0";
+    let agendaLoaded = false;
+
     window.switchTab = function(tab) {
       ["chat", "agenda"].forEach(t => {
         document.getElementById(t + "-panel").style.display = "none";
@@ -265,6 +269,11 @@
       document.getElementById(tab + "-panel").style.display = "flex";
       document.getElementById("tab-" + tab).classList.add("active");
       if (tab === "chat") scrollToBottom();
+      // Charger l'iframe agenda seulement au premier clic (évite l'erreur au démarrage)
+      if (tab === "agenda" && !agendaLoaded) {
+        document.getElementById("agenda-iframe").src = AGENDA_URL;
+        agendaLoaded = true;
+      }
     };
 
     chargerMembres().then(() => {

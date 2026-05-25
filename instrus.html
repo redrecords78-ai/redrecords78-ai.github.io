@@ -39,12 +39,12 @@ nav {
 }
 .nav-back { color: var(--gray); display: flex; align-items: center; padding: 6px; transition: color 0.2s; }
 .nav-back:hover { color: var(--white); }
-.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-.nav-logo .r-mark {
-  width: 36px; height: 36px; border-radius: 10px;
-  object-fit: cover; display: block; flex-shrink: 0;
-}
-.nav-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--white); }
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo .r-mark { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; display: block; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+.nav-logo-main { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 3px; color: var(--white); }
+.nav-logo-main em { color: var(--red); font-style: normal; }
+.nav-logo-sub { font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 300; color: #4a4a4a; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 2px; }
 .nav-links { display: flex; gap: 1.5rem; list-style: none; }
 .nav-links a { color: var(--gray); text-decoration: none; font-size: 13px; letter-spacing: 0.05em; transition: color 0.2s; }
 .nav-links a:hover { color: var(--white); }
@@ -189,7 +189,10 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
   </a>
   <a href="index.html" class="nav-logo">
     <img src="icons/icon-192.png" class="r-mark" alt="Red Records">
-    <span>Red Records 78</span>
+    <div class="nav-logo-text">
+      <span class="nav-logo-main"><em>RED</em> RECORDS</span>
+      <span class="nav-logo-sub">Studio · 78</span>
+    </div>
   </a>
   <ul class="nav-links">
     <li><a href="index.html">Accueil</a></li>

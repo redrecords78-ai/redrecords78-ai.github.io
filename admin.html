@@ -120,6 +120,39 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
   .inge-grid { flex-direction: column; }
   .session-hours, .session-ca { display: none; }
 }
+
+/* ─── ÉQUIPE (OWNER uniquement) ─── */
+.team-list { display: flex; flex-direction: column; gap: 1px; }
+.team-row { background: var(--black2); border-radius: 0; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.team-list .team-row:first-child { border-radius: 12px 12px 0 0; }
+.team-list .team-row:last-child  { border-radius: 0 0 12px 12px; }
+.team-list .team-row:only-child  { border-radius: 12px; }
+.team-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.team-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+.team-badge-owner { font-size: 9px; letter-spacing: 0.15em; background: var(--red); color: white; padding: 2px 8px; border-radius: 20px; }
+.team-badge-admin { font-size: 9px; letter-spacing: 0.15em; background: var(--black4); color: var(--gray); padding: 2px 8px; border: 1px solid var(--gray2); border-radius: 20px; }
+.team-meta { font-size: 11px; color: var(--gray); display: flex; align-items: center; gap: 8px; }
+.team-status-active::before  { content: '●'; color: #33b679; margin-right: 4px; font-size: 8px; }
+.team-status-revoked::before { content: '●'; color: var(--gray2); margin-right: 4px; font-size: 8px; }
+.team-status-active  { color: #33b679; font-size: 11px; }
+.team-status-revoked { color: var(--gray); font-size: 11px; }
+.btn-revoquer { background: none; border: 1px solid var(--red); color: var(--red); padding: 8px 16px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; border-radius: 20px; flex-shrink: 0; }
+.btn-revoquer:hover { background: var(--red); color: white; }
+.btn-activer  { background: none; border: 1px solid #33b679; color: #33b679; padding: 8px 16px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; border-radius: 20px; flex-shrink: 0; }
+.btn-activer:hover { background: #33b679; color: white; }
+.team-add-form { background: var(--black2); border: 1px dashed var(--gray2); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.team-add-form input { background: var(--black3); border: 1px solid var(--gray2); color: var(--white); padding: 10px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; border-radius: 8px; }
+.team-add-form input:focus { border-color: var(--red); }
+.team-add-row { display: flex; gap: 8px; }
+.team-add-row input { flex: 1; }
+.btn-ajouter { background: var(--red); border: none; color: white; padding: 10px 18px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; border-radius: 20px; transition: background 0.15s; align-self: flex-start; }
+.btn-ajouter:hover { background: var(--red2); }
+.change-pin-wrap { background: var(--black2); border-radius: 12px; border: 1px solid var(--gray2); padding: 1.25rem 1.5rem; margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+.change-pin-row { display: flex; gap: 8px; align-items: center; }
+.change-pin-input { background: var(--black3); border: 1px solid var(--gray2); color: var(--white); padding: 10px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; border-radius: 8px; width: 130px; letter-spacing: 0.2em; }
+.change-pin-input:focus { border-color: var(--red); }
+.btn-changer-pin { background: none; border: 1px solid var(--gray2); color: var(--gray); padding: 10px 16px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; border-radius: 20px; transition: all 0.15s; }
+.btn-changer-pin:hover { border-color: var(--white); color: var(--white); }
 </style>
 </head>
 <body>
@@ -188,7 +221,7 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="r">R</div>
       <span>Red Records 78</span>
     </div>
-    <div class="dash-tag">DASHBOARD</div>
+    <div class="dash-tag" id="dash-role-tag">DASHBOARD</div>
   </div>
 
   <div class="dash-body">
@@ -248,6 +281,31 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       </div>
     </div>
 
+    <!-- ─── ÉQUIPE — visible OWNER uniquement ─── -->
+    <div id="team-section" style="display:none">
+      <div class="section-label">Équipe &amp; accès</div>
+      <div class="team-list" id="team-list">
+        <div class="demande-vide">Chargement…</div>
+      </div>
+      <div class="team-add-form">
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)">Ajouter un admin</div>
+        <div class="team-add-row">
+          <input id="new-user-name" type="text" placeholder="Prénom (ex: Marc)" maxlength="20">
+          <input id="new-user-pin" type="tel" inputmode="numeric" placeholder="PIN 4 chiffres" maxlength="4" pattern="[0-9]{4}">
+        </div>
+        <button class="btn-ajouter" onclick="ajouterUser()">+ Ajouter</button>
+        <div style="font-size:12px;height:16px" id="team-add-retour"></div>
+      </div>
+      <div class="change-pin-wrap">
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)">Changer mon PIN</div>
+        <div class="change-pin-row">
+          <input class="change-pin-input" id="new-pin-input" type="tel" inputmode="numeric" placeholder="Nouveau PIN" maxlength="4" pattern="[0-9]{4}">
+          <button class="btn-changer-pin" onclick="changerMonPin()">Valider</button>
+        </div>
+        <div style="font-size:11px;color:var(--gray);height:14px" id="change-pin-retour"></div>
+      </div>
+    </div>
+
     <!-- HISTORIQUE ACCÈS -->
     <div id="log-wrap" style="display:none">
       <div class="section-label">Historique d'accès dashboard</div>
@@ -269,15 +327,6 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <p>Vérifie que le script Apps Script est bien déployé.</p>
     </div>
 
-    <!-- DEBUG PUSH ID -->
-    <div style="background:var(--black2);border:1px dashed var(--gray2);border-radius:8px;padding:1rem;font-size:11px;color:var(--gray)">
-      <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);margin-bottom:8px">🔧 Debug — Ton player ID actuel</div>
-      <div id="debug-player-id" style="font-family:monospace;font-size:10px;color:var(--white);word-break:break-all;background:var(--black3);padding:8px;border-radius:4px;margin-bottom:10px">chargement...</div>
-      <button onclick="forceReRegister()" style="background:var(--black3);border:1px solid var(--gray2);color:var(--white);padding:8px 14px;border-radius:6px;font-size:11px;cursor:pointer;letter-spacing:0.05em;">
-        🔄 Re-enregistrer cet appareil comme admin
-      </button>
-      <div id="debug-register-retour" style="font-size:11px;margin-top:6px;display:none"></div>
-    </div>
 
   </div>
 </div>
@@ -291,6 +340,9 @@ const COULEURS_INGE = {
   'Baloo': '#33b679',
   'JUSS':  '#8e24aa',
 };
+
+// ─── USER COURANT ─────────────────────────────────────────────────────────────
+let currentUser = null;
 
 // ─── PIN ─────────────────────────────────────────────────────────────────────
 let entered = '';
@@ -346,16 +398,31 @@ async function checkPin() {
 function unlockWithData(data, pin) {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('dashboard').style.display  = 'block';
+
+  // Stocker le user courant + adapter le header
+  if (data.currentUser) {
+    currentUser = data.currentUser;
+    const roleTag = document.getElementById('dash-role-tag');
+    if (roleTag) {
+      roleTag.textContent = currentUser.role === 'OWNER' ? 'OWNER' : currentUser.name.toUpperCase();
+      if (currentUser.role === 'OWNER') roleTag.style.borderColor = 'rgba(232,25,44,0.7)';
+    }
+    if (currentUser.role === 'OWNER') {
+      document.getElementById('team-section').style.display = 'block';
+      loadTeam();
+    }
+  }
+
   fetchDemandes(pin);
   renderStats(data);
   document.getElementById('error-box').style.display  = 'none';
   document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  // Afficher le player ID actuel pour debug
   let pid = '';
   try { if (window._OS) pid = window._OS.User?.PushSubscription?.id || ''; } catch(e) {}
   if (!pid) pid = localStorage.getItem('rr-player-id') || '';
   if (pid) localStorage.setItem('rr-player-id', pid);
-  document.getElementById('debug-player-id').textContent = pid || '⚠️ NON CAPTURÉ';
+  const dbgEl = document.getElementById('debug-player-id');
+  if (dbgEl) dbgEl.textContent = pid || '⚠️ NON CAPTURÉ';
 }
 
 // ─── DEMANDES EN ATTENTE ──────────────────────────────────────────────────────
@@ -513,7 +580,7 @@ async function fetchStats() {
   }
 }
 
-function refreshAll() { fetchDemandes(); fetchStats(); }
+function refreshAll() { fetchDemandes(); fetchStats(); if (currentUser?.role === 'OWNER') loadTeam(); }
 
 function renderStats(data) {
   document.getElementById('kpi-grid').innerHTML = `
@@ -569,7 +636,7 @@ function renderStats(data) {
   if (logs.length > 0) {
     document.getElementById('log-list').innerHTML = logs.slice(0, 20).map(l => {
       const d     = new Date(l.ts);
-      const label = l.type === 'acces' ? '✅ Accès réussi' : '⚠️ Mauvais code PIN';
+      const label = l.type === 'acces' ? `✅ ${l.user || 'Admin'} — accès` : '⚠️ Mauvais PIN';
       const color = l.type === 'acces' ? '#33b679' : '#e63946';
       const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--black2);border-left:3px solid ${color}"><span style="color:${color}">${label}</span><span style="color:var(--gray)">${dateStr}</span></div>`;
@@ -610,6 +677,106 @@ async function envoyerDiffusion() {
   } finally {
     btn.disabled = false; btn.textContent = 'Envoyer à tout le monde';
   }
+}
+
+// ─── GESTION ÉQUIPE (OWNER uniquement) ───────────────────────────────────────
+async function loadTeam() {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getUsers&pin=${pin}`);
+    const data = await res.json();
+    if (!data.error) renderTeam(data.users || []);
+  } catch(e) {}
+}
+
+function renderTeam(users) {
+  document.getElementById('team-list').innerHTML = users.map(u => {
+    const badge  = u.role === 'OWNER'
+      ? '<span class="team-badge-owner">OWNER</span>'
+      : '<span class="team-badge-admin">ADMIN</span>';
+    const status = u.active
+      ? '<span class="team-status-active">Actif</span>'
+      : '<span class="team-status-revoked">Révoqué</span>';
+    const devices = u.deviceCount > 0 ? ` · ${u.deviceCount} appareil${u.deviceCount > 1 ? 's' : ''}` : ' · aucun appareil';
+    const btn = u.role === 'OWNER' ? '' : (
+      u.active
+        ? `<button class="btn-revoquer" onclick="revoquerUser('${u.id}','${u.name}')">🚫 Révoquer</button>`
+        : `<button class="btn-activer"  onclick="activerUser('${u.id}','${u.name}')">✅ Réactiver</button>`
+    );
+    return `<div class="team-row" id="team-row-${u.id}">
+      <div class="team-info">
+        <div class="team-name">${u.name} ${badge}</div>
+        <div class="team-meta">${status}${devices}</div>
+      </div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+async function revoquerUser(userId, name) {
+  if (!confirm(`Révoquer ${name} ? Il perdra l'accès immédiatement et ne recevra plus les notifs.`)) return;
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  const row = document.getElementById('team-row-' + userId);
+  if (row) row.style.opacity = '0.4';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=revokeUser&userId=${encodeURIComponent(userId)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) loadTeam();
+    else { if (row) row.style.opacity = '1'; alert('Erreur : ' + (data.error || 'réessaie')); }
+  } catch(e) { if (row) row.style.opacity = '1'; alert('Erreur réseau'); }
+}
+
+async function activerUser(userId) {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=activateUser&userId=${encodeURIComponent(userId)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) loadTeam();
+    else alert('Erreur : ' + (data.error || 'réessaie'));
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function ajouterUser() {
+  const name   = document.getElementById('new-user-name').value.trim();
+  const newPin = document.getElementById('new-user-pin').value.trim();
+  const retour = document.getElementById('team-add-retour');
+  retour.style.display = 'block';
+  if (!name || newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+    retour.style.color = '#ff6b6b'; retour.textContent = 'Prénom + PIN 4 chiffres requis.'; return;
+  }
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=addUser&pin=${pin}&name=${encodeURIComponent(name)}&newPin=${newPin}&role=ADMIN`);
+    const data = await res.json();
+    if (data.ok) {
+      retour.style.color = '#33b679'; retour.textContent = `✅ ${name} ajouté — PIN : ${newPin}`;
+      document.getElementById('new-user-name').value = '';
+      document.getElementById('new-user-pin').value  = '';
+      loadTeam();
+    } else if (data.error === 'pin_taken') {
+      retour.style.color = '#ff6b6b'; retour.textContent = '❌ Ce PIN est déjà utilisé.';
+    } else { retour.style.color = '#ff6b6b'; retour.textContent = '❌ ' + data.error; }
+  } catch(e) { retour.style.color = '#ff6b6b'; retour.textContent = '❌ Erreur réseau'; }
+}
+
+async function changerMonPin() {
+  const newPin = document.getElementById('new-pin-input').value.trim();
+  const retour = document.getElementById('change-pin-retour');
+  if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+    retour.style.color = '#ff6b6b'; retour.textContent = 'PIN 4 chiffres requis'; return;
+  }
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=changePin&pin=${pin}&newPin=${newPin}`);
+    const data = await res.json();
+    if (data.ok) {
+      localStorage.setItem('rr-pin-admin', newPin);
+      retour.style.color = '#33b679'; retour.textContent = '✅ PIN changé !';
+      document.getElementById('new-pin-input').value = '';
+    } else if (data.error === 'pin_taken') {
+      retour.style.color = '#ff6b6b'; retour.textContent = '❌ Ce PIN est déjà utilisé';
+    } else { retour.style.color = '#ff6b6b'; retour.textContent = '❌ ' + data.error; }
+  } catch(e) { retour.style.color = '#ff6b6b'; retour.textContent = '❌ Erreur réseau'; }
 }
 </script>
 </body>
