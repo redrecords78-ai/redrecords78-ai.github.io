@@ -129,12 +129,18 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
+    window._OS = OneSignal;
     await OneSignal.init({
       appId: "74a62f45-6d36-4d68-ad25-e7c9b092de88",
       serviceWorkerParam: { scope: "/" },
       serviceWorkerPath: "sw.js",
       notifyButton: { enable: false },
     });
+    // Capturer et sauvegarder le player ID directement depuis OneSignal
+    try {
+      const pid = OneSignal.User?.PushSubscription?.id || '';
+      if (pid) localStorage.setItem('rr-player-id', pid);
+    } catch(e) {}
   });
 </script>
 
@@ -341,8 +347,11 @@ function unlockWithData(data, pin) {
   document.getElementById('error-box').style.display  = 'none';
   document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   // Afficher le player ID actuel pour debug
-  const pid = localStorage.getItem('rr-player-id') || '⚠️ NON CAPTURÉ';
-  document.getElementById('debug-player-id').textContent = pid;
+  let pid = '';
+  try { if (window._OS) pid = window._OS.User?.PushSubscription?.id || ''; } catch(e) {}
+  if (!pid) pid = localStorage.getItem('rr-player-id') || '';
+  if (pid) localStorage.setItem('rr-player-id', pid);
+  document.getElementById('debug-player-id').textContent = pid || '⚠️ NON CAPTURÉ';
 }
 
 // ─── DEMANDES EN ATTENTE ──────────────────────────────────────────────────────
@@ -428,12 +437,20 @@ async function registerAdminDevice(pin) {
 
 async function forceReRegister() {
   const pin = localStorage.getItem('rr-pin-admin') || '';
-  const playerId = localStorage.getItem('rr-player-id') || '';
   const retour = document.getElementById('debug-register-retour');
   retour.style.display = 'block';
+
+  // Récupérer l'ID directement depuis OneSignal en priorité
+  let playerId = '';
+  try {
+    if (window._OS) playerId = window._OS.User?.PushSubscription?.id || '';
+    if (playerId) localStorage.setItem('rr-player-id', playerId);
+  } catch(e) {}
+  if (!playerId) playerId = localStorage.getItem('rr-player-id') || '';
+
   if (!playerId) {
     retour.style.color = '#ff6b6b';
-    retour.textContent = '⚠️ Aucun player ID dans localStorage. Ouvre d\'abord index.html sur ce tel.';
+    retour.textContent = '⚠️ Aucun player ID. Assure-toi d\'avoir autorisé les notifications sur ce tel.';
     return;
   }
   try {
