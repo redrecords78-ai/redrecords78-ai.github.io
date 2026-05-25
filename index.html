@@ -167,7 +167,6 @@ nav {
 .nav-logo-text { display: flex; flex-direction: column; gap: 0px; line-height: 1; }
 .nav-logo-main { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 3px; color: var(--white); }
 .nav-logo-main em { color: var(--red); font-style: normal; }
-.nav-logo-sub { font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 300; color: #4a4a4a; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 2px; }
 .nav-links { display: flex; gap: 1.5rem; list-style: none; }
 .nav-links a { color: var(--gray); text-decoration: none; font-size: 13px; letter-spacing: 0.05em; transition: color 0.2s; }
 .nav-links a:hover { color: var(--white); }
@@ -1176,8 +1175,14 @@ splash.classList.add('hidden'); // désactivé pour les tests
   });
 
   document.getElementById('tp-login-btn').addEventListener('click', async () => {
-    const email = document.getElementById('tp-email').value;
+    const email = document.getElementById('tp-email').value.trim().toLowerCase();
     const password = document.getElementById('tp-password').value;
+    // Whitelist emails autorisés — seuls les membres de l'équipe peuvent se connecter
+    const emailsAutorises = MEMBRES_DEFAUT.map(m => m.email.toLowerCase());
+    if (!emailsAutorises.includes(email)) {
+      document.getElementById('tp-login-error').textContent = 'Accès réservé à l\'équipe Red Records.';
+      return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
