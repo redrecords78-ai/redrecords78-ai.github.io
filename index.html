@@ -1164,6 +1164,18 @@ splash.classList.add('hidden'); // désactivé pour les tests
         document.getElementById('tp-app').classList.add('visible');
         loadMessages();
         watchUnread();
+        // Enregistrer le player ID OneSignal pour les notifs équipe
+        setTimeout(() => {
+          try {
+            const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
+            if (pid && user.email) {
+              fetch(APPS_SCRIPT_URL, {
+                method: 'POST', mode: 'no-cors',
+                body: JSON.stringify({ action: 'registerTeamMember', email: user.email, playerId: pid })
+              }).catch(() => {});
+            }
+          } catch(e) {}
+        }, 2000);
       } else {
         currentUser = null;
         currentInge = null;
