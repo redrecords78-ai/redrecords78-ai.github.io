@@ -1107,11 +1107,11 @@ splash.classList.add('hidden'); // désactivé pour les tests
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
 
   const MEMBRES_DEFAUT = [
-    { email: 'red.records78@gmail.com', nom: 'RED',   couleur: '#f6bf26' },
-    { email: 'amoss@redrecords.fr',     nom: 'Amoss', couleur: '#46d6db' },
-    { email: 'remi@redrecords.fr',      nom: 'Remi',  couleur: '#d50000' },
-    { email: 'baloo@redrecords.fr',     nom: 'Baloo', couleur: '#33b679' },
-    { email: 'juss@redrecords.fr',      nom: 'JUSS',  couleur: '#8e24aa' },
+    { email: 'red@redrecords.fr',   nom: 'RED',   couleur: '#f6bf26' },
+    { email: 'amoss@redrecords.fr', nom: 'Amoss', couleur: '#46d6db' },
+    { email: 'remi@redrecords.fr',  nom: 'Remi',  couleur: '#d50000' },
+    { email: 'baloo@redrecords.fr', nom: 'Baloo', couleur: '#33b679' },
+    { email: 'juss@redrecords.fr',  nom: 'JUSS',  couleur: '#8e24aa' },
   ];
 
   const firebaseConfig = {
@@ -1134,7 +1134,10 @@ splash.classList.add('hidden'); // désactivé pour les tests
 
   async function chargerMembres() {
     const snap = await getDocs(collection(db, "team-members"));
-    if (snap.empty) {
+    const emails = [];
+    snap.forEach(d => emails.push(d.id));
+    const needsReseed = snap.empty || !emails.includes('red@redrecords.fr');
+    if (needsReseed) {
       for (const m of MEMBRES_DEFAUT) {
         await setDoc(doc(db, "team-members", m.email), m);
       }
