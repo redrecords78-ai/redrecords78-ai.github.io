@@ -1146,9 +1146,13 @@ splash.classList.add('hidden'); // désactivé pour les tests
         const ps = await getDocs(collection(db, 'team-presence'));
         ps.forEach(d => { if (d.id === email && d.data().online) multi = true; });
       }
+      let ip = '';
+      if (type === 'failed') {
+        try { const r = await fetch('https://api.ipify.org?format=json'); ip = (await r.json()).ip || ''; } catch(e) {}
+      }
       await addDoc(collection(db, 'team-activity'), {
         type, email: email||'', nom: nom||'', device: getDevice(),
-        timestamp: serverTimestamp(), multiDevice: multi
+        timestamp: serverTimestamp(), multiDevice: multi, ip
       });
       if (type === 'login') {
         await setDoc(doc(db, 'team-presence', email), {

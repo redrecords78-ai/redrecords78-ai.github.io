@@ -140,6 +140,22 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .btn-revoquer:hover { background: var(--red); color: white; }
 .btn-activer  { background: none; border: 1px solid #33b679; color: #33b679; padding: 8px 16px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; border-radius: 20px; flex-shrink: 0; }
 .btn-activer:hover { background: #33b679; color: white; }
+
+/* ─── ACCORDION ─── */
+.acc-trigger { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.acc-trigger .chev { font-size: 11px; color: var(--gray); transition: transform 0.25s; margin-left: 8px; }
+.acc-trigger.open .chev { transform: rotate(180deg); }
+.acc-body { display: none; margin-top: 10px; }
+.acc-body.open { display: block; }
+
+/* ─── ACTIVITÉ ÉQUIPE ─── */
+.act-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; background: var(--black2); border-radius: 6px; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.act-label { flex: 1; font-size: 12px; color: var(--white); line-height: 1.6; }
+.act-time { font-size: 10px; color: var(--gray2); white-space: nowrap; flex-shrink: 0; }
+.presence-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--black2); border-radius: 20px; font-size: 12px; border: 1px solid var(--gray2); }
+.presence-chip .dot { font-size: 8px; }
+
 .team-add-form { background: var(--black2); border: 1px dashed var(--gray2); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
 .team-add-form input { background: var(--black3); border: 1px solid var(--gray2); color: var(--white); padding: 10px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; border-radius: 8px; }
 .team-add-form input:focus { border-color: var(--red); }
@@ -287,29 +303,29 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="team-list" id="team-list">
         <div class="demande-vide">Chargement…</div>
       </div>
-      <div class="team-add-form">
-        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)">Ajouter un admin</div>
-        <div class="team-add-row">
-          <input id="new-user-name" type="text" placeholder="Prénom (ex: Marc)" maxlength="20">
-          <input id="new-user-pin" type="tel" inputmode="numeric" placeholder="PIN 4 chiffres" maxlength="4" pattern="[0-9]{4}">
-        </div>
-        <button class="btn-ajouter" onclick="ajouterUser()">+ Ajouter</button>
-        <div style="font-size:12px;height:16px" id="team-add-retour"></div>
+    </div>
+
+    <!-- ACTIVITÉ ÉQUIPE -->
+    <div>
+      <div class="section-label acc-trigger" onclick="toggleAcc('act-body', this)">
+        Activité &amp; présence équipe <span class="chev">▼</span>
       </div>
-      <div class="change-pin-wrap">
-        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)">Changer mon PIN</div>
-        <div class="change-pin-row">
-          <input class="change-pin-input" id="new-pin-input" type="tel" inputmode="numeric" placeholder="Nouveau PIN" maxlength="4" pattern="[0-9]{4}">
-          <button class="btn-changer-pin" onclick="changerMonPin()">Valider</button>
+      <div id="act-body" class="acc-body">
+        <div id="presence-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+        <div id="team-activity-list" style="display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:12px;color:var(--gray);padding:8px">Chargement…</div>
         </div>
-        <div style="font-size:11px;color:var(--gray);height:14px" id="change-pin-retour"></div>
       </div>
     </div>
 
-    <!-- HISTORIQUE ACCÈS -->
-    <div id="log-wrap" style="display:none">
-      <div class="section-label">Historique d'accès dashboard</div>
-      <div id="log-list" style="display:flex;flex-direction:column;gap:6px;font-size:12px;"></div>
+    <!-- HISTORIQUE ACCÈS DASHBOARD -->
+    <div id="log-wrap">
+      <div class="section-label acc-trigger" onclick="toggleAcc('log-body', this)">
+        Historique accès dashboard <span class="chev">▼</span>
+      </div>
+      <div id="log-body" class="acc-body">
+        <div id="log-list" style="display:flex;flex-direction:column;gap:4px;font-size:12px;"></div>
+      </div>
     </div>
 
     <!-- FOOTER -->
@@ -582,6 +598,11 @@ async function fetchStats() {
 
 function refreshAll() { fetchDemandes(); fetchStats(); if (currentUser?.role === 'OWNER') loadTeam(); }
 
+function toggleAcc(id, trigger) {
+  document.getElementById(id).classList.toggle('open');
+  trigger.classList.toggle('open');
+}
+
 function renderStats(data) {
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi-card accent"><div class="kpi-num">${data.sessionsWeek}</div><div class="kpi-label">Sessions · 7 jours</div></div>
@@ -633,16 +654,17 @@ function renderStats(data) {
   }
 
   const logs = data.accessLog || [];
-  if (logs.length > 0) {
-    document.getElementById('log-list').innerHTML = logs.slice(0, 20).map(l => {
-      const d     = new Date(l.ts);
-      const label = l.type === 'acces' ? `✅ ${l.user || 'Admin'} — accès` : '⚠️ Mauvais PIN';
-      const color = l.type === 'acces' ? '#33b679' : '#e63946';
-      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      return `<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--black2);border-left:3px solid ${color}"><span style="color:${color}">${label}</span><span style="color:var(--gray)">${dateStr}</span></div>`;
-    }).join('');
-    document.getElementById('log-wrap').style.display = 'block';
-  }
+  document.getElementById('log-list').innerHTML = logs.length > 0
+    ? logs.slice(0, 20).map(l => {
+        const d = new Date(l.ts);
+        const label = l.type === 'acces'
+          ? `✅ <strong>${l.user || 'Admin'}</strong> — accès dashboard`
+          : '⚠️ Mauvais PIN — tentative d\'accès dashboard';
+        const color = l.type === 'acces' ? '#33b679' : '#e63946';
+        const dateStr = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--black2);border-left:3px solid ${color};border-radius:4px;gap:8px"><span style="color:${color}">${label}</span><span style="color:var(--gray);white-space:nowrap;font-size:10px">${dateStr}</span></div>`;
+      }).join('')
+    : '<div style="font-size:12px;color:var(--gray);padding:8px">Aucun accès enregistré.</div>';
 }
 
 // ─── DIFFUSION PUSH ───────────────────────────────────────────────────────────
@@ -736,48 +758,104 @@ async function activerUser(userId) {
   } catch(e) { alert('Erreur réseau'); }
 }
 
-async function ajouterUser() {
-  const name   = document.getElementById('new-user-name').value.trim();
-  const newPin = document.getElementById('new-user-pin').value.trim();
-  const retour = document.getElementById('team-add-retour');
-  retour.style.display = 'block';
-  if (!name || newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-    retour.style.color = '#ff6b6b'; retour.textContent = 'Prénom + PIN 4 chiffres requis.'; return;
-  }
-  const pin = localStorage.getItem('rr-pin-admin') || '';
-  try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=addUser&pin=${pin}&name=${encodeURIComponent(name)}&newPin=${newPin}&role=ADMIN`);
-    const data = await res.json();
-    if (data.ok) {
-      retour.style.color = '#33b679'; retour.textContent = `✅ ${name} ajouté — PIN : ${newPin}`;
-      document.getElementById('new-user-name').value = '';
-      document.getElementById('new-user-pin').value  = '';
-      loadTeam();
-    } else if (data.error === 'pin_taken') {
-      retour.style.color = '#ff6b6b'; retour.textContent = '❌ Ce PIN est déjà utilisé.';
-    } else { retour.style.color = '#ff6b6b'; retour.textContent = '❌ ' + data.error; }
-  } catch(e) { retour.style.color = '#ff6b6b'; retour.textContent = '❌ Erreur réseau'; }
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const fb = initializeApp({
+  apiKey: "AIzaSyAu9o74RjXGJyWWlVkwNgVWisAHclBtkhs",
+  authDomain: "redapp-a85c9.firebaseapp.com",
+  projectId: "redapp-a85c9",
+  storageBucket: "redapp-a85c9.firebasestorage.app",
+  messagingSenderId: "738440248376",
+  appId: "1:738440248376:web:086c52e568a70702f37acd"
+}, 'admin-activity');
+
+const db = getFirestore(fb);
+
+const MEMBRES = [
+  { email: 'red@redrecords.fr',   nom: 'RED',   couleur: '#f6bf26' },
+  { email: 'amoss@redrecords.fr', nom: 'Amoss', couleur: '#46d6db' },
+  { email: 'remi@redrecords.fr',  nom: 'Remi',  couleur: '#d50000' },
+  { email: 'baloo@redrecords.fr', nom: 'Baloo', couleur: '#33b679' },
+  { email: 'juss@redrecords.fr',  nom: 'JUSS',  couleur: '#8e24aa' },
+];
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' })
+       + ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
 }
 
-async function changerMonPin() {
-  const newPin = document.getElementById('new-pin-input').value.trim();
-  const retour = document.getElementById('change-pin-retour');
-  if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-    retour.style.color = '#ff6b6b'; retour.textContent = 'PIN 4 chiffres requis'; return;
+// ── Présence temps réel ──
+onSnapshot(collection(db, 'team-presence'), snap => {
+  const grid = document.getElementById('presence-grid');
+  if (!grid) return;
+  const pres = {};
+  snap.forEach(d => { pres[d.id] = d.data(); });
+  grid.innerHTML = MEMBRES.map(m => {
+    const p = pres[m.email] || {};
+    const online = p.online === true;
+    const info = online ? (p.device || '') : 'hors ligne';
+    return `<div class="presence-chip" style="border-color:${online ? m.couleur : 'var(--gray2)'}">
+      <span class="dot" style="color:${online ? m.couleur : 'var(--gray2)'}">●</span>
+      <span style="color:${online ? m.couleur : 'var(--gray)'}">${m.nom}</span>
+      ${info ? `<span style="color:var(--gray2);font-size:10px">${info}</span>` : ''}
+    </div>`;
+  }).join('');
+});
+
+// ── Log d'activité temps réel ──
+onSnapshot(
+  query(collection(db, 'team-activity'), orderBy('timestamp', 'desc'), limit(30)),
+  snap => {
+    const list = document.getElementById('team-activity-list');
+    if (!list) return;
+    if (snap.empty) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--gray);padding:8px">Aucune activité.</div>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(d => {
+      const a = d.data();
+      const m = MEMBRES.find(x => x.email === a.email);
+      const couleur = m ? m.couleur : '#888';
+      const nom = a.nom || (m ? m.nom : a.email);
+      const time = fmtTime(a.timestamp);
+      let dot, label;
+
+      if (a.type === 'login') {
+        dot = couleur;
+        label = `<strong style="color:${couleur}">${nom}</strong> — connexion au chat`;
+        if (a.device) label += ` <span style="color:var(--gray)">· ${a.device}</span>`;
+        if (a.multiDevice) label += ` <span style="color:#f6bf26;font-size:10px"> ⚠️ multi-appareils</span>`;
+
+      } else if (a.type === 'failed') {
+        dot = '#e63946';
+        const qui = m ? `<strong style="color:#e63946">${nom}</strong>` : `<strong style="color:#e63946">Inconnu</strong> (${a.email || '?'})`;
+        label = `${qui} — tentative de connexion au chat échouée`;
+        if (a.device) label += ` <span style="color:var(--gray)">· ${a.device}</span>`;
+        if (a.ip) label += ` <span style="color:var(--gray2)">· IP : ${a.ip}</span>`;
+
+      } else if (a.type === 'logout') {
+        dot = 'var(--gray2)';
+        label = `<span style="color:var(--gray)">${nom} — déconnexion</span>`;
+        if (a.device) label += ` <span style="color:var(--gray2)">· ${a.device}</span>`;
+      } else {
+        dot = 'var(--gray2)'; label = a.type + ' — ' + (a.email || '');
+      }
+
+      return `<div class="act-row">
+        <div class="act-dot" style="background:${dot}"></div>
+        <div class="act-label">${label}</div>
+        <div class="act-time">${time}</div>
+      </div>`;
+    }).join('');
   }
-  const pin = localStorage.getItem('rr-pin-admin') || '';
-  try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=changePin&pin=${pin}&newPin=${newPin}`);
-    const data = await res.json();
-    if (data.ok) {
-      localStorage.setItem('rr-pin-admin', newPin);
-      retour.style.color = '#33b679'; retour.textContent = '✅ PIN changé !';
-      document.getElementById('new-pin-input').value = '';
-    } else if (data.error === 'pin_taken') {
-      retour.style.color = '#ff6b6b'; retour.textContent = '❌ Ce PIN est déjà utilisé';
-    } else { retour.style.color = '#ff6b6b'; retour.textContent = '❌ ' + data.error; }
-  } catch(e) { retour.style.color = '#ff6b6b'; retour.textContent = '❌ Erreur réseau'; }
-}
+);
 </script>
 </body>
 </html>
