@@ -410,6 +410,18 @@
           currentInge = ingeMap[user.email] || { nom: user.email.split("@")[0], couleur: '#aaa' };
           localStorage.setItem('rr-team', '1');
           logActivity('login', user.email, currentInge.nom, currentInge.couleur);
+          // Enregistrer le player ID OneSignal pour les notifs équipe
+          setTimeout(() => {
+            try {
+              const pid = (window._OS?.User?.PushSubscription?.id) || localStorage.getItem('rr-player-id') || '';
+              if (pid && user.email) {
+                fetch(APPS_SCRIPT_URL, {
+                  method: 'POST', mode: 'no-cors',
+                  body: JSON.stringify({ action: 'registerTeamMember', email: user.email, playerId: pid })
+                }).catch(() => {});
+              }
+            } catch(e) {}
+          }, 2000);
           document.getElementById("session-who-dot").style.background = currentInge.couleur;
           document.getElementById("session-who-name").textContent = currentInge.nom;
           document.getElementById("session-who-email").textContent = user.email;
@@ -481,8 +493,8 @@
         timestamp: serverTimestamp()
       });
       fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({ type: "message", expediteur: name, texte: text })
+        method: "POST", mode: "no-cors",
+        body: JSON.stringify({ action: "message", expediteur: name, texte: text })
       }).catch(() => {});
     }
 
