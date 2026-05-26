@@ -160,7 +160,7 @@
 
   <!-- LOGIN -->
   <div id="login-screen">
-    <a href="index.html" style="position:absolute;top:20px;left:20px;color:#aaa;font-size:24px;text-decoration:none;line-height:1;" title="Retour">&#8592;</a>
+    <a href="index.html" style="position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:6px;color:#aaa;font-size:13px;text-decoration:none;background:rgba(255,255,255,0.08);padding:8px 14px 8px 10px;border-radius:20px;">&#8592; Accueil</a>
     <h1>RED RECORDS</h1>
     <p style="color:#888; font-size:13px;">Espace privé équipe</p>
     <input type="email" id="email-input" placeholder="Email" />
@@ -283,6 +283,34 @@
     let currentInge = null;
     let ingeMap = {};
 
+    // ─── ACTIVITY LOGGING ─────────────────────────────────────────────────────────
+    function getDevice() {
+      const ua = navigator.userAgent;
+      const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : 'Desktop';
+      const browser = (/Safari/.test(ua) && !/Chrome/.test(ua)) ? 'Safari' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : 'Navigateur';
+      return device + ' · ' + browser;
+    }
+    async function logActivity(type, email, nom, couleur) {
+      try {
+        let multi = false;
+        if (type === 'login') {
+          const ps = await getDocs(collection(db, 'team-presence'));
+          ps.forEach(d => { if (d.id === email && d.data().online) multi = true; });
+        }
+        await addDoc(collection(db, 'team-activity'), {
+          type, email: email||'', nom: nom||'', device: getDevice(),
+          timestamp: serverTimestamp(), multiDevice: multi
+        });
+        if (type === 'login') {
+          await setDoc(doc(db, 'team-presence', email), {
+            email, nom, couleur: couleur||'#aaa', online: true, device: getDevice(), lastSeen: serverTimestamp()
+          });
+        } else if (type === 'logout') {
+          await setDoc(doc(db, 'team-presence', email), { online: false, lastSeen: serverTimestamp() }, { merge: true });
+        }
+      } catch(e) {}
+    }
+
     async function chargerMembres() {
       // Toujours reseed si les nouveaux emails ne sont pas présents
       const snap = await getDocs(collection(db, "team-members"));
@@ -376,6 +404,7 @@
           currentUser = user;
           currentInge = ingeMap[user.email] || { nom: user.email.split("@")[0], couleur: '#aaa' };
           localStorage.setItem('rr-team', '1');
+          logActivity('login', user.email, currentInge.nom, currentInge.couleur);
           document.getElementById("session-who-dot").style.background = currentInge.couleur;
           document.getElementById("session-who-name").textContent = currentInge.nom;
           document.getElementById("session-who-email").textContent = user.email;
@@ -401,11 +430,13 @@
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
+        logActivity('failed', email, '', '');
         document.getElementById("login-error").textContent = "Email ou mot de passe incorrect.";
       }
     });
 
     document.getElementById("logout-btn").addEventListener("click", () => {
+      if (currentUser) logActivity('logout', currentUser.email, currentInge?.nom||'', currentInge?.couleur||'');
       localStorage.removeItem('rr-team');
       signOut(auth);
     });

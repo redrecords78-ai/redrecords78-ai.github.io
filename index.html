@@ -1132,6 +1132,34 @@ splash.classList.add('hidden'); // désactivé pour les tests
   let ingeMap = {};
   let unsubMessages = null;
 
+  // ─── ACTIVITY LOGGING ─────────────────────────────────────────────────────────
+  function getDevice() {
+    const ua = navigator.userAgent;
+    const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : 'Desktop';
+    const browser = (/Safari/.test(ua) && !/Chrome/.test(ua)) ? 'Safari' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : 'Navigateur';
+    return device + ' · ' + browser;
+  }
+  async function logActivity(type, email, nom, couleur) {
+    try {
+      let multi = false;
+      if (type === 'login') {
+        const ps = await getDocs(collection(db, 'team-presence'));
+        ps.forEach(d => { if (d.id === email && d.data().online) multi = true; });
+      }
+      await addDoc(collection(db, 'team-activity'), {
+        type, email: email||'', nom: nom||'', device: getDevice(),
+        timestamp: serverTimestamp(), multiDevice: multi
+      });
+      if (type === 'login') {
+        await setDoc(doc(db, 'team-presence', email), {
+          email, nom, couleur: couleur||'#aaa', online: true, device: getDevice(), lastSeen: serverTimestamp()
+        });
+      } else if (type === 'logout') {
+        await setDoc(doc(db, 'team-presence', email), { online: false, lastSeen: serverTimestamp() }, { merge: true });
+      }
+    } catch(e) {}
+  }
+
   async function chargerMembres() {
     const snap = await getDocs(collection(db, "team-members"));
     const emails = [];
@@ -1162,6 +1190,7 @@ splash.classList.add('hidden'); // désactivé pour les tests
         currentUser = user;
         currentInge = ingeMap[user.email] || { nom: user.email.split('@')[0], couleur: '#aaa' };
         localStorage.setItem('rr-team', '1');
+        logActivity('login', user.email, currentInge.nom, currentInge.couleur);
         document.getElementById('private-bubble').style.display = 'flex';
         document.getElementById('tp-login').style.display = 'none';
         document.getElementById('tp-app').classList.add('visible');
@@ -1201,11 +1230,13 @@ splash.classList.add('hidden'); // désactivé pour les tests
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
+      logActivity('failed', email, '', '');
       document.getElementById('tp-login-error').textContent = 'Email ou mot de passe incorrect.';
     }
   });
 
   document.getElementById('tp-logout').addEventListener('click', () => {
+    if (currentUser) logActivity('logout', currentUser.email, currentInge?.nom||'', currentInge?.couleur||'');
     localStorage.removeItem('rr-team');
     document.getElementById('private-bubble').style.display = 'none';
     document.getElementById('team-panel').classList.remove('open');
