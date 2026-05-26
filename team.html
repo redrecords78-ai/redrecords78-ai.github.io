@@ -12,6 +12,7 @@
     #login-screen {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; height: 100vh; gap: 16px; padding: 24px;
+      position: relative;
     }
     #login-screen h1 { font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; }
     #login-screen input {
@@ -160,7 +161,7 @@
 
   <!-- LOGIN -->
   <div id="login-screen">
-    <a href="index.html" style="position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:6px;color:#aaa;font-size:13px;text-decoration:none;background:rgba(255,255,255,0.08);padding:8px 14px 8px 10px;border-radius:20px;">&#8592; Accueil</a>
+    <a href="index.html" style="position:absolute;top:env(safe-area-inset-top,16px);margin-top:16px;left:16px;display:flex;align-items:center;gap:6px;color:#ccc;font-size:14px;text-decoration:none;background:rgba(255,255,255,0.1);padding:9px 16px 9px 12px;border-radius:20px;font-family:sans-serif;">&#8592; Accueil</a>
     <h1>RED RECORDS</h1>
     <p style="color:#888; font-size:13px;">Espace privé équipe</p>
     <input type="email" id="email-input" placeholder="Email" />
