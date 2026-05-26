@@ -38,6 +38,11 @@
     #app-header-left { display: flex; align-items: center; gap: 12px; }
     #back-btn { background: none; border: none; color: #aaa; font-size: 22px; cursor: pointer; }
     #app-header h2 { font-size: 15px; letter-spacing: 1px; }
+    #header-right { display: flex; align-items: center; gap: 10px; }
+    #change-pw-btn {
+      background: none; border: none; color: #aaa;
+      font-size: 20px; cursor: pointer; padding: 4px;
+    }
     #logout-btn {
       background: none; border: 1px solid #555; color: #aaa;
       padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
@@ -118,6 +123,37 @@
       font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 4px;
     }
     #session-feedback { font-size: 14px; text-align: center; min-height: 20px; }
+
+    /* MODAL CHANGER MOT DE PASSE */
+    #pw-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); z-index: 999;
+      align-items: center; justify-content: center;
+    }
+    #pw-modal-overlay.open { display: flex; }
+    #pw-modal {
+      background: #1a1a1a; border-radius: 16px; padding: 28px 24px;
+      width: 90%; max-width: 340px; display: flex; flex-direction: column; gap: 16px;
+      border: 1px solid #333;
+    }
+    #pw-modal h3 { font-size: 18px; text-align: center; }
+    #pw-modal p { font-size: 13px; color: #888; text-align: center; line-height: 1.5; }
+    #pw-modal input {
+      width: 100%; padding: 12px 14px; border-radius: 8px;
+      border: 1px solid #333; background: #111;
+      color: #fff; font-size: 15px;
+    }
+    #pw-modal-submit {
+      padding: 13px; background: #e63946; border: none;
+      border-radius: 8px; color: #fff; font-size: 15px;
+      font-weight: bold; cursor: pointer;
+    }
+    #pw-modal-skip {
+      background: none; border: none; color: #555;
+      font-size: 13px; cursor: pointer; text-align: center;
+    }
+    #pw-modal-error { color: #e63946; font-size: 13px; text-align: center; min-height: 18px; }
+    #pw-modal-success { color: #4caf50; font-size: 14px; text-align: center; }
   </style>
 </head>
 <body>
@@ -140,7 +176,10 @@
         <button id="back-btn" onclick="window.location.href='index.html'">&#8592;</button>
         <h2>RED RECORDS — TEAM</h2>
       </div>
-      <button id="logout-btn">Déconnexion</button>
+      <div id="header-right">
+        <button id="change-pw-btn" title="Changer mon mot de passe">🔑</button>
+        <button id="logout-btn">Déconnexion</button>
+      </div>
     </div>
 
     <div id="tabs">
@@ -162,13 +201,11 @@
       <div id="open-agenda-btn">
         <a href="https://calendar.google.com/calendar/r" target="_blank">Ouvrir Google Agenda ↗</a>
       </div>
-      <!-- src chargé en JS seulement quand on ouvre l'onglet → évite erreur au démarrage -->
       <iframe id="agenda-iframe" src="" allowfullscreen></iframe>
     </div>
 
     <!-- MA SESSION -->
     <div id="session-panel">
-
       <div id="session-who">
         <div id="session-who-dot"></div>
         <div>
@@ -176,12 +213,10 @@
           <div id="session-who-email"></div>
         </div>
       </div>
-
       <div class="form-group">
         <label>Date de la session</label>
         <input type="date" id="s-date" />
       </div>
-
       <div class="form-group">
         <label>Créneau (si plusieurs sessions ce jour)</label>
         <select id="s-creneau">
@@ -196,16 +231,27 @@
           <option value="Format Court 3h apres 20h">Format Court 3h apres 20h</option>
         </select>
       </div>
-
       <button id="session-submit">Je prends cette session</button>
       <div id="session-feedback"></div>
+    </div>
+  </div>
 
+  <!-- MODAL CHANGER MOT DE PASSE -->
+  <div id="pw-modal-overlay">
+    <div id="pw-modal">
+      <h3>🔑 Changer mon mot de passe</h3>
+      <p id="pw-modal-desc">Choisis ton mot de passe personnel.</p>
+      <input type="password" id="pw-new" placeholder="Nouveau mot de passe" />
+      <input type="password" id="pw-confirm" placeholder="Confirmer" />
+      <div id="pw-modal-error"></div>
+      <button id="pw-modal-submit">Valider</button>
+      <button id="pw-modal-skip">Plus tard</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
@@ -213,11 +259,11 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
 
     const MEMBRES_DEFAUT = [
-      { email: 'red.records78@gmail.com', nom: 'RED',   couleur: '#f6bf26' },
-      { email: 'amoss@redrecords.fr',     nom: 'Amoss', couleur: '#46d6db' },
-      { email: 'remi@redrecords.fr',      nom: 'Remi',  couleur: '#d50000' },
-      { email: 'baloo@redrecords.fr',     nom: 'Baloo', couleur: '#33b679' },
-      { email: 'juss@redrecords.fr',      nom: 'JUSS',  couleur: '#8e24aa' },
+      { email: 'red@redrecords.fr',   nom: 'RED',   couleur: '#f6bf26' },
+      { email: 'amoss@redrecords.fr', nom: 'Amoss', couleur: '#46d6db' },
+      { email: 'remi@redrecords.fr',  nom: 'Remi',  couleur: '#d50000' },
+      { email: 'baloo@redrecords.fr', nom: 'Baloo', couleur: '#33b679' },
+      { email: 'juss@redrecords.fr',  nom: 'JUSS',  couleur: '#8e24aa' },
     ];
 
     const firebaseConfig = {
@@ -238,8 +284,12 @@
     let ingeMap = {};
 
     async function chargerMembres() {
+      // Toujours reseed si les nouveaux emails ne sont pas présents
       const snap = await getDocs(collection(db, "team-members"));
-      if (snap.empty) {
+      const emails = [];
+      snap.forEach(d => emails.push(d.id));
+      const needsReseed = !emails.includes('red@redrecords.fr');
+      if (snap.empty || needsReseed) {
         for (const m of MEMBRES_DEFAUT) {
           await setDoc(doc(db, "team-members", m.email), m);
         }
@@ -269,24 +319,72 @@
       document.getElementById(tab + "-panel").style.display = "flex";
       document.getElementById("tab-" + tab).classList.add("active");
       if (tab === "chat") scrollToBottom();
-      // Charger l'iframe agenda seulement au premier clic (évite l'erreur au démarrage)
       if (tab === "agenda" && !agendaLoaded) {
         document.getElementById("agenda-iframe").src = AGENDA_URL;
         agendaLoaded = true;
       }
     };
 
+    // ---- MODAL MOT DE PASSE ----
+    const overlay = document.getElementById("pw-modal-overlay");
+    const pwDesc  = document.getElementById("pw-modal-desc");
+
+    function openPwModal(isFirstTime) {
+      document.getElementById("pw-new").value = "";
+      document.getElementById("pw-confirm").value = "";
+      document.getElementById("pw-modal-error").textContent = "";
+      pwDesc.textContent = isFirstTime
+        ? "C'est ta première connexion — choisis ton mot de passe personnel pour remplacer le mot de passe temporaire."
+        : "Choisis ton nouveau mot de passe.";
+      document.getElementById("pw-modal-skip").style.display = isFirstTime ? "none" : "block";
+      overlay.classList.add("open");
+    }
+
+    document.getElementById("change-pw-btn").addEventListener("click", () => openPwModal(false));
+    document.getElementById("pw-modal-skip").addEventListener("click", () => overlay.classList.remove("open"));
+
+    document.getElementById("pw-modal-submit").addEventListener("click", async () => {
+      const newPw  = document.getElementById("pw-new").value;
+      const confPw = document.getElementById("pw-confirm").value;
+      const errEl  = document.getElementById("pw-modal-error");
+
+      if (newPw.length < 6) { errEl.textContent = "Minimum 6 caractères."; return; }
+      if (newPw !== confPw) { errEl.textContent = "Les mots de passe ne correspondent pas."; return; }
+
+      try {
+        await updatePassword(currentUser, newPw);
+        localStorage.setItem('rr-pw-set-' + currentUser.email, '1');
+        errEl.textContent = "";
+        // Afficher succès puis fermer
+        document.getElementById("pw-modal").innerHTML = `
+          <div id="pw-modal-success">✅ Mot de passe mis à jour !</div>
+        `;
+        setTimeout(() => overlay.classList.remove("open"), 1500);
+      } catch (e) {
+        if (e.code === "auth/requires-recent-login") {
+          errEl.textContent = "Reconnecte-toi d'abord pour pouvoir changer le mot de passe.";
+        } else {
+          errEl.textContent = "Erreur : " + e.message;
+        }
+      }
+    });
+
+    // ---- AUTH ----
     chargerMembres().then(() => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUser = user;
           currentInge = ingeMap[user.email] || { nom: user.email.split("@")[0], couleur: '#aaa' };
-
-            localStorage.setItem('rr-team', '1');
+          localStorage.setItem('rr-team', '1');
           document.getElementById("session-who-dot").style.background = currentInge.couleur;
+          document.getElementById("session-who-name").textContent = currentInge.nom;
+          document.getElementById("session-who-email").textContent = user.email;
           document.getElementById("login-screen").style.display = "none";
           document.getElementById("app-screen").style.display = "flex";
           loadMessages();
+          // Première connexion → forcer changement mot de passe
+          const pwSet = localStorage.getItem('rr-pw-set-' + user.email);
+          if (!pwSet) openPwModal(true);
         } else {
           currentUser = null;
           currentInge = null;
@@ -297,8 +395,9 @@
     });
 
     document.getElementById("login-btn").addEventListener("click", async () => {
-      const email = document.getElementById("email-input").value;
+      const email = document.getElementById("email-input").value.trim();
       const password = document.getElementById("password-input").value;
+      document.getElementById("login-error").textContent = "";
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
@@ -360,16 +459,13 @@
       const date    = document.getElementById("s-date").value;
       const creneau = document.getElementById("s-creneau").value;
       const feedback = document.getElementById("session-feedback");
-
       if (!date) {
         feedback.style.color = "#e63946";
         feedback.textContent = "Sélectionne une date.";
         return;
       }
-
       feedback.style.color = "#aaa";
       feedback.textContent = "En cours...";
-
       fetch(APPS_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({
@@ -379,7 +475,6 @@
           inge: currentInge.nom
         })
       }).catch(() => {});
-
       feedback.style.color = "#4caf50";
       feedback.textContent = "Session prise ! L'agenda va se mettre à jour.";
     });
