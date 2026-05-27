@@ -910,17 +910,33 @@ splash.classList.add('hidden'); // désactivé pour les tests
     #private-bubble { bottom: 68px; }
   }
   #tp-badge {
-    position: absolute; top: -4px; right: -4px;
-    background: #e63946; color: #fff;
-    font-size: 11px; font-weight: bold; font-family: sans-serif;
+    position: absolute; top: -5px; right: -5px;
+    background: #fff; color: #e63946; /* blanc sur rouge = visible */
+    font-size: 10px; font-weight: 800; font-family: -apple-system, sans-serif;
     min-width: 18px; height: 18px; border-radius: 9px;
     padding: 0 4px;
     display: none; align-items: center; justify-content: center;
     line-height: 1; transition: transform 0.15s;
-    box-shadow: 0 0 0 2px #111;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    pointer-events: none;
   }
-  @keyframes badge-bump { 0%,100%{transform:scale(1)} 40%{transform:scale(1.45)} }
+  @keyframes badge-bump { 0%,100%{transform:scale(1)} 40%{transform:scale(1.5)} }
   #tp-badge.bump { animation: badge-bump 0.35s cubic-bezier(.36,.07,.19,.97); }
+
+  /* Badge sur le bouton Équipe de la bottom nav */
+  #bn-equipe-badge {
+    position: absolute; top: -3px; right: -4px;
+    background: #e63946; color: #fff;
+    font-size: 9px; font-weight: 800; font-family: -apple-system, sans-serif;
+    min-width: 15px; height: 15px; border-radius: 7.5px;
+    padding: 0 3px;
+    display: none; align-items: center; justify-content: center;
+    line-height: 1;
+    box-shadow: 0 0 0 1.5px rgba(10,10,10,0.98);
+    pointer-events: none;
+  }
+  @keyframes bn-badge-bump { 0%,100%{transform:scale(1)} 40%{transform:scale(1.5)} }
+  #bn-equipe-badge.bump { animation: bn-badge-bump 0.35s cubic-bezier(.36,.07,.19,.97); }
 
   #team-panel {
     position: fixed; inset: 0; z-index: 9500;
@@ -1089,17 +1105,29 @@ splash.classList.add('hidden'); // désactivé pour les tests
 
   let _lastBadgeCount = 0;
   function updateBadge(count) {
-    const badge = document.getElementById('tp-badge');
+    const badge   = document.getElementById('tp-badge');
+    const bnBadge = document.getElementById('bn-equipe-badge');
+    const label   = count > 99 ? '99+' : String(count);
     if (count > 0) {
-      badge.textContent = count > 99 ? '99+' : count;
+      // Badge bulle flottante
+      badge.textContent = label;
       badge.style.display = 'flex';
+      // Badge bottom nav
+      if (bnBadge) { bnBadge.textContent = label; bnBadge.style.display = 'flex'; }
+      // Animation bump si nouveau message
       if (count > _lastBadgeCount) {
         badge.classList.remove('bump');
         void badge.offsetWidth; // force reflow
         badge.classList.add('bump');
+        if (bnBadge) {
+          bnBadge.classList.remove('bump');
+          void bnBadge.offsetWidth;
+          bnBadge.classList.add('bump');
+        }
       }
     } else {
       badge.style.display = 'none';
+      if (bnBadge) bnBadge.style.display = 'none';
     }
     _lastBadgeCount = count;
   }
@@ -1400,10 +1428,13 @@ splash.classList.add('hidden'); // désactivé pour les tests
     </svg>
     Réserver
   </a>
-  <button class="bn-item" onclick="localStorage.getItem('rr-team')==='1' ? toggleTeamPanel() : window.location.href='team.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
+  <button class="bn-item" id="bn-equipe-btn" onclick="localStorage.getItem('rr-team')==='1' ? toggleTeamPanel() : window.location.href='team.html'">
+    <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span id="bn-equipe-badge"></span>
+    </div>
     Équipe
   </button>
 </div>
