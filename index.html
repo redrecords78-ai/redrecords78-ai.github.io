@@ -911,12 +911,16 @@ splash.classList.add('hidden'); // désactivé pour les tests
   }
   #tp-badge {
     position: absolute; top: -4px; right: -4px;
-    background: #fff; color: #e63946;
+    background: #e63946; color: #fff;
     font-size: 11px; font-weight: bold; font-family: sans-serif;
-    width: 18px; height: 18px; border-radius: 50%;
+    min-width: 18px; height: 18px; border-radius: 9px;
+    padding: 0 4px;
     display: none; align-items: center; justify-content: center;
-    line-height: 1;
+    line-height: 1; transition: transform 0.15s;
+    box-shadow: 0 0 0 2px #111;
   }
+  @keyframes badge-bump { 0%,100%{transform:scale(1)} 40%{transform:scale(1.45)} }
+  #tp-badge.bump { animation: badge-bump 0.35s cubic-bezier(.36,.07,.19,.97); }
 
   #team-panel {
     position: fixed; inset: 0; z-index: 9500;
@@ -1077,19 +1081,27 @@ splash.classList.add('hidden'); // désactivé pour les tests
     const panel = document.getElementById('team-panel');
     panel.classList.toggle('open');
     if (panel.classList.contains('open')) {
-      localStorage.setItem('rr-last-seen', Date.now());
+      if (window.markChatRead) window.markChatRead();
+      else localStorage.setItem('rr-last-seen', Date.now());
       updateBadge(0);
     }
   }
 
+  let _lastBadgeCount = 0;
   function updateBadge(count) {
     const badge = document.getElementById('tp-badge');
     if (count > 0) {
-      badge.textContent = count > 9 ? '9+' : count;
+      badge.textContent = count > 99 ? '99+' : count;
       badge.style.display = 'flex';
+      if (count > _lastBadgeCount) {
+        badge.classList.remove('bump');
+        void badge.offsetWidth; // force reflow
+        badge.classList.add('bump');
+      }
     } else {
       badge.style.display = 'none';
     }
+    _lastBadgeCount = count;
   }
 
   if (localStorage.getItem('rr-team') === '1') {
@@ -1101,7 +1113,7 @@ splash.classList.add('hidden'); // désactivé pour les tests
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-  import { getFirestore, collection, doc, setDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
@@ -1195,6 +1207,24 @@ splash.classList.add('hidden'); // désactivé pour les tests
         currentInge = ingeMap[user.email] || { nom: user.email.split('@')[0], couleur: '#aaa' };
         localStorage.setItem('rr-team', '1');
         logActivity('login', user.email, currentInge.nom, currentInge.couleur);
+        // Sync lastReadChat depuis Firestore → localStorage (cross-device)
+        getDoc(doc(db, 'team-presence', user.email)).then(snap => {
+          const d = snap.data();
+          if (d?.lastReadChat) {
+            const ft = d.lastReadChat.toMillis?.() || 0;
+            const lt = parseInt(localStorage.getItem('rr-last-seen') || '0');
+            if (ft > lt) localStorage.setItem('rr-last-seen', ft);
+          }
+        }).catch(() => {});
+        // Exposer markChatRead pour toggleTeamPanel
+        window.markChatRead = async () => {
+          const now = Date.now();
+          localStorage.setItem('rr-last-seen', now);
+          try {
+            await setDoc(doc(db, 'team-presence', user.email),
+              { lastReadChat: serverTimestamp() }, { merge: true });
+          } catch(e) {}
+        };
         document.getElementById('private-bubble').style.display = 'flex';
         document.getElementById('tp-login').style.display = 'none';
         document.getElementById('tp-app').classList.add('visible');
