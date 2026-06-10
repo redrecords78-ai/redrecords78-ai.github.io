@@ -1305,6 +1305,17 @@ splash.classList.add('hidden'); // désactivé pour les tests
     signOut(auth);
   });
 
+  // Securite : echappe le HTML des contenus utilisateur (anti-XSS dans le chat).
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  // N'accepte qu'une vraie couleur hex, sinon fallback (anti-injection dans style).
+  function safeColor(c, fallback) {
+    return (typeof c === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(c)) ? c : fallback;
+  }
+
   function loadMessages() {
     const q = query(collection(db, 'team-chat'), orderBy('timestamp', 'asc'));
     unsubMessages = onSnapshot(q, (snapshot) => {
@@ -1314,12 +1325,12 @@ splash.classList.add('hidden'); // désactivé pour les tests
         const msg = d.data();
         const isMine = msg.uid === currentUser.uid;
         const time = msg.timestamp?.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || '';
-        const couleur = msg.couleur || (isMine ? '#e63946' : '#2a2a2a');
+        const couleur = safeColor(msg.couleur, isMine ? '#e63946' : '#2a2a2a');
         const el = document.createElement('div');
         el.className = 'tp-msg ' + (isMine ? 'mine' : 'other');
         el.innerHTML = `
-          ${!isMine ? `<div class="tp-msg-name" style="color:${couleur}">${msg.name}</div>` : ''}
-          <div class="tp-msg-bubble" style="background:${couleur}">${msg.text}</div>
+          ${!isMine ? `<div class="tp-msg-name" style="color:${couleur}">${esc(msg.name)}</div>` : ''}
+          <div class="tp-msg-bubble" style="background:${couleur}">${esc(msg.text)}</div>
           <div class="tp-msg-time">${time}</div>
         `;
         div.appendChild(el);
