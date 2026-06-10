@@ -346,7 +346,7 @@ function renderList() {
   }
 
   list.innerHTML = filtered.map((t, i) => `
-    <div class="instru-row" data-id="${t.id}" onclick="playTrack('${t.id}','${t.title}','${t.genre}','${t.src}')">
+    <div class="instru-row" data-id="${t.id}" onclick="playTrack('${t.id}')">
       <div class="instru-num">${String(i+1).padStart(2,'0')}</div>
       <div class="instru-play-btn">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -393,14 +393,16 @@ function setPlayIcon(p) {
   document.getElementById('mp-icon-pause').style.display = p ? 'block' : 'none';
 }
 
-function playTrack(id, title, genre, src) {
+function playTrack(id) {
   if (currentId === id) { togglePlay(); return; }
+  const t = allInstrus.find(x => x.id === id);
+  if (!t) return;
   currentId = id;
-  audio.src = src;
+  audio.src = t.src;
   audio.play().catch(() => {});
   setPlayIcon(true);
-  document.getElementById('mp-title').textContent = title;
-  document.getElementById('mp-sub').textContent = genre + ' · Red Records';
+  document.getElementById('mp-title').textContent = t.title;
+  document.getElementById('mp-sub').textContent = t.genre + ' · Red Records';
   document.getElementById('mini-player').classList.add('visible');
   document.querySelectorAll('.instru-row').forEach(r => r.classList.remove('active'));
   const row = document.querySelector('.instru-row[data-id="' + id + '"]');
