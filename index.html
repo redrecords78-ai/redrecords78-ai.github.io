@@ -208,6 +208,10 @@ nav {
 .hero-cta:hover { background: var(--red2); transform: translateY(-2px); }
 .hero-cta svg { transition: transform 0.2s; }
 .hero-cta:hover svg { transform: translateX(4px); }
+.hero-cta.ghost { background: var(--black3); border: 1px solid var(--gray2); }
+.hero-cta.ghost:hover { background: var(--black4); }
+.hero-ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.8s 0.3s ease both; }
+.hero-ctas .hero-cta { animation: none; }
 .hero-stats { display: flex; gap: 3rem; margin-top: 5rem; animation: fadeUp 0.8s 0.4s ease both; }
 .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--white); line-height: 1; }
 .stat-label { font-size: 12px; color: var(--gray); letter-spacing: 0.05em; margin-top: 4px; }
@@ -243,17 +247,30 @@ section { padding: 2.5rem 2rem; max-width: 1000px; margin: 0 auto; }
 .actu-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
 
 /* TARIFS */
-.tarif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gray2); margin-bottom: 1px; border-radius: 12px; overflow: hidden; }
-.tarif-card { background: var(--black2); padding: 1.1rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.tarif-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--gray2); margin-bottom: 1px; border-radius: 12px; overflow: hidden; }
+.tarif-card { background: var(--black2); padding: 1.1rem 1.25rem; transition: background 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
 .tarif-card:hover { background: var(--black3); }
 .tarif-card.featured { background: var(--black3); border-left: 2px solid var(--red); padding-left: calc(1.25rem - 2px); }
+.tarif-card.selected, .format-card.selected { background: var(--black3); box-shadow: inset 0 0 0 1px var(--red); }
+.tarif-icon {
+  width: 38px; height: 38px; border-radius: 11px; background: var(--black3);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background 0.2s;
+}
+.tarif-card.selected .tarif-icon, .tarif-card.featured .tarif-icon { background: rgba(232,25,44,0.12); }
+.tarif-card-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tarif-pop {
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
+  background: var(--red); color: #fff; padding: 2px 7px; border-radius: 6px;
+  margin-left: 8px; vertical-align: middle; font-family: 'DM Sans', sans-serif;
+}
 .tarif-type { display: none; }
 .tarif-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; line-height: 1; }
 .tarif-hours { font-size: 11px; color: var(--gray); margin-top: 2px; }
 .tarif-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--red); line-height: 1; }
 .tarif-price span { font-size: 14px; color: var(--gray); }
 .formats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray2); border-radius: 12px; overflow: hidden; }
-.format-card { background: var(--black2); padding: 0.9rem 1.25rem; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
+.format-card { background: var(--black2); padding: 0.9rem 1.25rem; transition: background 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
 .format-card:hover { background: var(--black3); }
 .format-label { font-size: 11px; color: var(--gray); }
 .format-price { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); }
@@ -469,6 +486,18 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   background: var(--red);
   position: absolute; bottom: 6px;
 }
+/* CTA central Réserver — disque surélevé */
+.bn-cta {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+.bn-disc {
+  width: 52px; height: 52px; border-radius: 50%; background: var(--red);
+  display: flex; align-items: center; justify-content: center; margin-top: -26px;
+  box-shadow: 0 8px 24px rgba(232,25,44,0.45), 0 0 0 5px var(--black);
+  transition: transform 0.15s;
+}
+.bn-cta:active .bn-disc { transform: scale(0.92); }
 
 /* RESPONSIVE */
 @media (max-width: 700px) {
@@ -483,9 +512,9 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   footer { flex-direction: column; gap: 1rem; text-align: center; }
   .footer-info { text-align: center; }
   .mp-progress-wrap { display: none; }
-  #bottom-nav { display: flex; top: calc(68px + var(--safe-top)); bottom: auto; }
-  #mini-player { bottom: 16px; }
-  body { padding-top: calc(132px + var(--safe-top)); padding-bottom: 80px; }
+  #bottom-nav { display: flex; }
+  #mini-player { bottom: calc(72px + var(--safe-bottom)); }
+  body { padding-top: calc(80px + var(--safe-top)); padding-bottom: calc(96px + var(--safe-bottom)); }
 }
 </style>
 </head>
@@ -522,10 +551,16 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <div class="hero-tag">Studio · Mantes-la-Jolie · 78</div>
   <h1 class="hero-title">RED<br><span>RECORDS</span></h1>
   <p class="hero-sub">Enregistrement · Mix · Mastering · Production.<br>Un son professionnel, une vraie vision.</p>
-  <a href="#reservation" class="hero-cta">
-    Réserver une session
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </a>
+  <div class="hero-ctas">
+    <a href="#reservation" class="hero-cta">
+      Réserver une session
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="https://wa.me/33759476247" target="_blank" rel="noopener" class="hero-cta ghost">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
 </div>
 
 <div class="divider"></div>
@@ -544,30 +579,63 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <div class="section-tag reveal">Fonctionnement 2026</div>
   <h2 class="section-title reveal reveal-delay-1">Nos tarifs</h2>
   <div class="tarif-grid reveal reveal-delay-2">
-    <div class="tarif-card">
-      <div class="tarif-type">Session principale</div>
-      <div class="tarif-name">Jour</div>
-      <div class="tarif-hours">12h – 16h &nbsp;/&nbsp; 16h – 20h</div>
+    <div class="tarif-card" data-type="Session Jour 12h-16h" onclick="choisirTarif(this)">
+      <div class="tarif-card-left">
+        <div class="tarif-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </div>
+        <div>
+          <div class="tarif-name">Jour</div>
+          <div class="tarif-hours">12h – 16h</div>
+        </div>
+      </div>
       <div class="tarif-price">100<span>€</span></div>
     </div>
-    <div class="tarif-card featured">
-      <div class="tarif-type">Session principale</div>
-      <div class="tarif-name">Soir</div>
-      <div class="tarif-hours">20h – 00h</div>
+    <div class="tarif-card" data-type="Session Jour 16h-20h" onclick="choisirTarif(this)">
+      <div class="tarif-card-left">
+        <div class="tarif-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9v2M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M16 5l-4 4-4-4"/></svg>
+        </div>
+        <div>
+          <div class="tarif-name">Jour</div>
+          <div class="tarif-hours">16h – 20h</div>
+        </div>
+      </div>
+      <div class="tarif-price">100<span>€</span></div>
+    </div>
+    <div class="tarif-card featured" data-type="Session Soir 20h-00h" onclick="choisirTarif(this)">
+      <div class="tarif-card-left">
+        <div class="tarif-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <div>
+          <div class="tarif-name">Soir<span class="tarif-pop">Populaire</span></div>
+          <div class="tarif-hours">20h – 00h</div>
+        </div>
+      </div>
       <div class="tarif-price">130<span>€</span></div>
     </div>
-    <div class="tarif-card">
-      <div class="tarif-type">Session principale</div>
-      <div class="tarif-name">Nuit</div>
-      <div class="tarif-hours">00h – 04h</div>
+    <div class="tarif-card" data-type="Session Nuit 00h-04h" onclick="choisirTarif(this)">
+      <div class="tarif-card-left">
+        <div class="tarif-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="M19 3v4M17 5h4" stroke-width="1.2"/></svg>
+        </div>
+        <div>
+          <div class="tarif-name">Nuit</div>
+          <div class="tarif-hours">00h – 04h</div>
+        </div>
+      </div>
       <div class="tarif-price">140<span>€</span></div>
     </div>
   </div>
   <div class="formats-grid">
-    <div class="format-card"><div class="format-label">2h avant 20h</div><div class="format-price">60€</div></div>
-    <div class="format-card"><div class="format-label">3h avant 20h</div><div class="format-price">90€</div></div>
-    <div class="format-card"><div class="format-label">2h après 20h</div><div class="format-price">80€</div></div>
-    <div class="format-card"><div class="format-label">3h après 20h</div><div class="format-price">120€</div></div>
+    <div class="format-card" data-type="Format Court 2h avant 20h" onclick="choisirTarif(this)"><div class="format-label">2h avant 20h</div><div class="format-price">60€</div></div>
+    <div class="format-card" data-type="Format Court 3h avant 20h" onclick="choisirTarif(this)"><div class="format-label">3h avant 20h</div><div class="format-price">90€</div></div>
+    <div class="format-card" data-type="Format Court 2h apres 20h" onclick="choisirTarif(this)"><div class="format-label">2h après 20h</div><div class="format-price">80€</div></div>
+    <div class="format-card" data-type="Format Court 3h apres 20h" onclick="choisirTarif(this)"><div class="format-label">3h après 20h</div><div class="format-price">120€</div></div>
+  </div>
+  <div id="tarif-confirm" style="display:none;margin-top:12px;font-size:13px;color:var(--gray);">
+    <span style="color:var(--red)">✓</span> <span style="color:var(--white)" id="tarif-confirm-txt"></span> &nbsp;—&nbsp; <a href="#reservation" style="color:var(--red);font-weight:500;text-decoration:none">finaliser ma réservation →</a>
   </div>
   <div class="acompte-banner reveal reveal-delay-3">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -616,6 +684,16 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <h2 class="section-title reveal reveal-delay-1">Réserver</h2>
   <div class="form-wrap reveal reveal-delay-2">
     <form id="demandeForm">
+      <div class="price-tag" id="price-tag">
+        <div class="price-tag-row">
+          <div>
+            <div class="price-tag-label">Créneau choisi</div>
+            <div style="font-size:14px;color:var(--white);font-weight:500" id="pt-name">—</div>
+          </div>
+          <div class="price-tag-amount" id="pt-amount">—</div>
+        </div>
+        <div class="price-tag-acompte">dont acompte de réservation <span>30€</span> via SumUp</div>
+      </div>
       <div class="form-group">
         <label class="form-label">Nom d'artiste</label>
         <input class="form-input" type="text" id="artiste" placeholder="Ton nom d'artiste" required>
@@ -724,7 +802,9 @@ const NEWS = {
     const ytId = NEWS.lien.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
     if (ytId) imgSrc = 'https://img.youtube.com/vi/' + ytId[1] + '/maxresdefault.jpg';
   }
-  const outer = NEWS.lien ? `<a href="${NEWS.lien}" target="_blank" style="text-decoration:none;color:inherit;display:block">` : '<div>';
+  // target _blank uniquement pour les liens externes (les ancres #... restent dans l'app)
+  const isExterne = NEWS.lien && /^https?:/i.test(NEWS.lien);
+  const outer = NEWS.lien ? `<a href="${NEWS.lien}"${isExterne ? ' target="_blank" rel="noopener"' : ''} style="text-decoration:none;color:inherit;display:block">` : '<div>';
   const outerClose = NEWS.lien ? '</a>' : '</div>';
   wrap.innerHTML = `${outer}<div class="actu-card">
     ${imgSrc ? `<img class="actu-card-img" src="${imgSrc}" alt="${NEWS.title}">` : ''}
@@ -740,8 +820,45 @@ const NEWS = {
   document.getElementById('actu-divider').style.display = 'block';
 })();
 
+// ─── TARIFS CLIQUABLES + RÉCAP PRIX ──────────────────────────────────────────
+const TARIF_INFOS = {
+  'Session Jour 12h-16h':      ['Session Jour · 12h – 16h', 100],
+  'Session Jour 16h-20h':      ['Session Jour · 16h – 20h', 100],
+  'Session Soir 20h-00h':      ['Session Soir · 20h – 00h', 130],
+  'Session Nuit 00h-04h':      ['Session Nuit · 00h – 04h', 140],
+  'Format Court 2h avant 20h': ['Format Court 2h · avant 20h', 60],
+  'Format Court 3h avant 20h': ['Format Court 3h · avant 20h', 90],
+  'Format Court 2h apres 20h': ['Format Court 2h · après 20h', 80],
+  'Format Court 3h apres 20h': ['Format Court 3h · après 20h', 120],
+};
+
+function majRecap(val) {
+  const tag  = document.getElementById('price-tag');
+  const info = TARIF_INFOS[val];
+  document.querySelectorAll('.tarif-card, .format-card').forEach(c =>
+    c.classList.toggle('selected', c.dataset.type === val));
+  if (!info) { tag.style.display = 'none'; return; }
+  document.getElementById('pt-name').textContent   = info[0];
+  document.getElementById('pt-amount').textContent = info[1] + '€';
+  tag.style.display = 'block';
+}
+
+function choisirTarif(el) {
+  document.getElementById('type').value = el.dataset.type;
+  majRecap(el.dataset.type);
+  const confirm = document.getElementById('tarif-confirm');
+  const info = TARIF_INFOS[el.dataset.type];
+  document.getElementById('tarif-confirm-txt').textContent = info ? info[0] + ' sélectionné' : '';
+  confirm.style.display = 'block';
+}
+
 // ─── FORMULAIRE RESERVATION ───────────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
+
+// Choix manuel dans le menu déroulant → met aussi à jour le récap
+document.getElementById('type').addEventListener('change', e => majRecap(e.target.value));
+// On ne peut pas réserver une date passée
+document.getElementById('date').min = new Date().toISOString().split('T')[0];
 
 // Gérer ?reset=1 (depuis push "refusé") + état en cours
 (function() {
@@ -759,6 +876,15 @@ document.getElementById('demandeForm').addEventListener('submit', async function
 
   const btn = document.getElementById('btnEnvoyer');
   const msg = document.getElementById('msgRetour');
+
+  // Pas de réseau → on prévient au lieu de faire croire que c'est envoyé
+  if (!navigator.onLine) {
+    msg.style.display = 'block';
+    msg.style.color   = 'var(--red)';
+    msg.textContent   = 'Pas de connexion internet — réessaie une fois connecté.';
+    return;
+  }
+  msg.style.display = 'none';
 
   btn.disabled    = true;
   btn.textContent = 'Envoi en cours...';
@@ -813,6 +939,11 @@ splash.classList.add('hidden'); // désactivé pour les tests
     timer = setTimeout(() => { clicks = 0; }, 600);
   });
 })();
+
+// ─── SERVICE WORKER (filet de sécurité si le CDN OneSignal ne répond pas) ────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 // ─── SCROLL REVEAL ────────────────────────────────────────────────────────────
 (function() {
@@ -907,7 +1038,7 @@ splash.classList.add('hidden'); // désactivé pour les tests
   }
   #private-bubble:hover { transform: scale(1.1); }
   @media (max-width: 700px) {
-    #private-bubble { bottom: 68px; }
+    #private-bubble { bottom: calc(88px + var(--safe-bottom)); }
   }
   #tp-badge {
     position: absolute; top: -5px; right: -5px;
@@ -1135,6 +1266,11 @@ splash.classList.add('hidden'); // désactivé pour les tests
   if (localStorage.getItem('rr-team') === '1') {
     document.getElementById('private-bubble').style.display = 'flex';
   }
+
+  // Touche Entrée = se connecter (login équipe)
+  document.getElementById('tp-password').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('tp-login-btn').click();
+  });
 </script>
 
 <script type="module">
@@ -1411,12 +1547,6 @@ splash.classList.add('hidden'); // désactivé pour les tests
     </svg>
     Accueil
   </a>
-  <a href="#tarifs" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-    </svg>
-    Tarifs
-  </a>
   <a href="instrus.html" class="bn-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
@@ -1425,19 +1555,20 @@ splash.classList.add('hidden'); // désactivé pour les tests
     </svg>
     Instrus
   </a>
+  <a href="#reservation" class="bn-cta" aria-label="Réserver">
+    <div class="bn-disc">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/>
+      </svg>
+    </div>
+  </a>
   <a href="playlist.html" class="bn-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
       <path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/>
     </svg>
     Playlist
-  </a>
-  <a href="#reservation" class="bn-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2"/>
-      <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/>
-    </svg>
-    Réserver
   </a>
   <button class="bn-item" id="bn-equipe-btn" onclick="localStorage.getItem('rr-team')==='1' ? toggleTeamPanel() : window.location.href='team.html'">
     <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
@@ -1451,7 +1582,7 @@ splash.classList.add('hidden'); // désactivé pour les tests
 </div>
 
 <!-- Bannière notifs custom -->
-<div id="notif-banner" style="display:none;position:fixed;bottom:88px;left:16px;right:16px;z-index:500;
+<div id="notif-banner" style="display:none;position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;z-index:500;
   background:#141414;border:1px solid #2a2a2a;border-left:3px solid var(--red);border-radius:14px;
   padding:14px 16px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);
   transform:translateY(20px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease;">
