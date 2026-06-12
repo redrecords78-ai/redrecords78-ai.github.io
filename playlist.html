@@ -106,6 +106,17 @@ nav {
 .slot-vide { cursor: default; opacity: 0.5; }
 .slot-vide:hover { background: var(--black2) !important; }
 
+/* Égaliseur animé sur le morceau en lecture */
+.eq { display: none; align-items: flex-end; gap: 2px; height: 14px; min-width: 26px; justify-content: center; flex-shrink: 0; }
+.eq span { width: 3px; height: 100%; background: var(--red); border-radius: 1px; transform-origin: bottom; animation: eqb 0.9s ease-in-out infinite; }
+.eq span:nth-child(1) { animation-delay: -0.4s; }
+.eq span:nth-child(2) { animation-delay: -0.15s; }
+.eq span:nth-child(3) { animation-delay: -0.65s; }
+@keyframes eqb { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+.playlist-track.active .eq { display: flex; }
+.playlist-track.active .playlist-num { display: none; }
+body.audio-paused .eq span { animation-play-state: paused; }
+
 /* MINI PLAYER */
 #mini-player {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
@@ -320,6 +331,7 @@ PLAYLIST.forEach((t, i) => {
   div.dataset.id = t.id;
   div.innerHTML = `
     <div class="playlist-num">${String(i+1).padStart(2,'0')}</div>
+    <div class="eq"><span></span><span></span><span></span></div>
     <div class="playlist-play-icon">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
     </div>
@@ -376,6 +388,7 @@ function shuffleArray(arr) {
 function setPlayIcon(playing) {
   document.getElementById('mp-icon-play').style.display  = playing ? 'none'  : 'block';
   document.getElementById('mp-icon-pause').style.display = playing ? 'block' : 'none';
+  document.body.classList.toggle('audio-paused', !playing);
 }
 
 function setActive(id) {

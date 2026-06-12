@@ -435,10 +435,22 @@ section { padding: 2.5rem 2rem; max-width: 1000px; margin: 0 auto; }
 .success-msg p { font-size: 14px; color: var(--gray); line-height: 1.7; }
 
 /* FOOTER */
-footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; align-items: center; justify-content: space-between; max-width: 1000px; margin: 0 auto; }
+footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; text-align: center; max-width: 1000px; margin: 0 auto; }
 .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--gray); }
 .footer-logo span { color: var(--red); }
-.footer-info { font-size: 12px; color: var(--gray); text-align: right; line-height: 1.8; }
+.footer-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.f-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 30px;
+  background: var(--black2); border: 1px solid var(--gray2);
+  color: var(--white); text-decoration: none; font-size: 13px;
+  transition: border-color 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.f-btn:hover { border-color: var(--red); color: var(--red); }
+.f-btn:active { transform: scale(0.97); }
+.f-btn svg { flex-shrink: 0; }
+.footer-info { font-size: 12px; color: var(--gray); text-align: center; line-height: 1.8; }
 .divider { width: 100%; height: 1px; background: var(--gray2); max-width: 1000px; margin: 0 auto; }
 .pages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .page-card {
@@ -644,7 +656,10 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
     <div class="acompte-text">Acompte de réservation <strong>30€ obligatoire</strong> via SumUp · Valide définitivement ta session</div>
   </div>
   <div class="saison-block reveal">
-    <div class="saison-label">🎙 Opportunité · Chaque saison</div>
+    <div class="saison-label" style="display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      Opportunité · Chaque saison
+    </div>
     <div class="saison-title">Le Son de la Saison</div>
     <p class="saison-desc">Un projet est sélectionné chaque saison et bénéficie d'une production complète + clip vidéo <em>gratuitement</em>.</p>
     <div class="saison-items">
@@ -738,7 +753,9 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 
   <!-- État en cours de traitement -->
   <div id="demande-en-cours" style="display:none;text-align:center;padding:3rem 1rem;">
-    <div style="font-size:52px;margin-bottom:1.25rem">⏳</div>
+    <div style="width:64px;height:64px;background:rgba(232,25,44,0.1);border:1px solid var(--red);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
     <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:0.75rem;color:var(--white)">Demande en cours</h3>
     <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:2rem;">On revient vers toi rapidement.<br>Tu recevras une notification dès confirmation.</p>
     <button onclick="annulerDemande()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
@@ -751,6 +768,20 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 
 <footer>
   <div class="footer-logo"><span>RED</span> RECORDS 78</div>
+  <div class="footer-links">
+    <a class="f-btn" href="https://www.google.com/maps/search/?api=1&query=1+Rue+Armand+Cassan+78200+Mantes-la-Jolie" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Itinéraire
+    </a>
+    <a class="f-btn" href="https://www.instagram.com/red_records78" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      Instagram
+    </a>
+    <a class="f-btn" href="https://wa.me/33759476247" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
   <div class="footer-info">1 Rue Armand Cassan, Mantes-la-Jolie 78200<br>@red_records78 · Studio de production musicale</div>
 </footer>
 
@@ -964,7 +995,10 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <!-- BULLE TEAM -->
-<button id="private-bubble" title="Espace équipe" onclick="toggleTeamPanel()">💬<span id="tp-badge"></span></button>
+<button id="private-bubble" title="Espace équipe" onclick="toggleTeamPanel()">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span id="tp-badge"></span>
+</button>
 
 <!-- PANNEAU TEAM -->
 <div id="team-panel">
