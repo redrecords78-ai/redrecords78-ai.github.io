@@ -1222,6 +1222,12 @@ if ('serviceWorker' in navigator) {
   .mine .tp-msg-bubble { border-radius: 18px 18px 4px 18px; }
   .other .tp-msg-bubble { border-radius: 18px 18px 18px 4px; }
   .tp-msg-time { font-size: 10px; color: #333; margin-top: 4px; }
+  .tp-day-sep {
+    align-self: center; margin: 8px 0 2px;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #666; background: rgba(255,255,255,0.05);
+    padding: 4px 14px; border-radius: 12px;
+  }
 
   /* INPUT */
   #tp-input-area {
@@ -1269,6 +1275,9 @@ if ('serviceWorker' in navigator) {
       if (window.markChatRead) window.markChatRead();
       else localStorage.setItem('rr-last-seen', Date.now());
       updateBadge(0);
+      // Atterrir sur le dernier message (le panneau vient d'être affiché)
+      const m = document.getElementById('tp-messages');
+      if (m) setTimeout(() => { m.scrollTop = m.scrollHeight; }, 60);
     }
   }
 
@@ -1490,15 +1499,37 @@ if ('serviceWorker' in navigator) {
     return (typeof c === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(c)) ? c : fallback;
   }
 
+  // Libellé de jour pour les séparateurs du chat : "Aujourd'hui", "Hier", sinon date.
+  function dayLabel(d) {
+    if (!d) return '';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const that  = new Date(d); that.setHours(0,0,0,0);
+    const diff  = Math.round((today - that) / 86400000);
+    if (diff === 0) return "Aujourd'hui";
+    if (diff === 1) return "Hier";
+    return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
   function loadMessages() {
     const q = query(collection(db, 'team-chat'), orderBy('timestamp', 'asc'));
     unsubMessages = onSnapshot(q, (snapshot) => {
       const div = document.getElementById('tp-messages');
       div.innerHTML = '';
+      let lastDayKey = null;
       snapshot.forEach((d) => {
         const msg = d.data();
         const isMine = msg.uid === currentUser.uid;
-        const time = msg.timestamp?.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || '';
+        const dt = msg.timestamp?.toDate?.() || null;
+        const time = dt ? dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+        // Séparateur de date quand on change de jour
+        const dayKey = dt ? dt.toDateString() : 'pending';
+        if (dayKey !== lastDayKey) {
+          lastDayKey = dayKey;
+          const sep = document.createElement('div');
+          sep.className = 'tp-day-sep';
+          sep.textContent = dt ? dayLabel(dt) : "Aujourd'hui";
+          div.appendChild(sep);
+        }
         const couleur = safeColor(msg.couleur, isMine ? '#e63946' : '#2a2a2a');
         const el = document.createElement('div');
         el.className = 'tp-msg ' + (isMine ? 'mine' : 'other');
