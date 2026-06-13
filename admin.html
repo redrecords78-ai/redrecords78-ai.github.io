@@ -557,12 +557,24 @@ async function forceReRegister() {
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
+function prixBloc(h, duree) {
+  if (duree >= 4) { if (h === 0 || h < 4) return 140; if (h >= 20) return 130; return 100; }
+  if (h >= 20 || h < 4) return duree === 2 ? 80 : 120;
+  return duree === 2 ? 60 : 90;
+}
 function calcPrix(start, end) {
   const d = new Date(start), f = new Date(end);
-  const duree = Math.round((f - d) / 3600000), h = d.getHours();
-  if (duree >= 4) { if (h === 0 || h < 4) return 140; if (h >= 20) return 130; return 100; }
-  if (h >= 20) return duree === 2 ? 80 : 120;
-  return duree === 2 ? 60 : 90;
+  let total = Math.round((f - d) / 3600000);
+  if (total <= 0) return 0;
+  if (total <= 4) return prixBloc(d.getHours(), total);
+  let prix = 0, reste = total; const cur = new Date(d);
+  while (reste > 0) {
+    const bloc = reste >= 4 ? 4 : reste;
+    prix += prixBloc(cur.getHours(), bloc);
+    cur.setHours(cur.getHours() + bloc);
+    reste -= bloc;
+  }
+  return prix;
 }
 
 function fmtDate(dateStr) {
