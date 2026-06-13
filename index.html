@@ -1320,13 +1320,24 @@ if ('serviceWorker' in navigator) {
   document.getElementById('tp-password').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('tp-login-btn').click();
   });
+
+  // Ouverture directe du chat depuis une notif message (?chat=1)
+  (function() {
+    if (new URLSearchParams(location.search).get('chat') !== '1') return;
+    window.addEventListener('load', () => setTimeout(() => {
+      const panel = document.getElementById('team-panel');
+      if (panel && !panel.classList.contains('open')) toggleTeamPanel();
+      if (window.tpSwitchTab) tpSwitchTab('chat');
+      history.replaceState({}, '', location.pathname);
+    }, 400));
+  })();
 </script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
@@ -1443,6 +1454,7 @@ if ('serviceWorker' in navigator) {
         document.getElementById('tp-app').classList.add('visible');
         loadMessages();
         watchUnread();
+        nettoyerVieuxMessages(); // purge les messages de +7 jours
         // Enregistrer le player ID OneSignal pour les notifs équipe
         setTimeout(() => {
           try {
@@ -1510,6 +1522,21 @@ if ('serviceWorker' in navigator) {
     if (diff === 0) return "Aujourd'hui";
     if (diff === 1) return "Hier";
     return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  // Suppression auto des messages de +7 jours (definitif, aucune sauvegarde).
+  async function nettoyerVieuxMessages() {
+    try {
+      const limite = Date.now() - 7 * 86400000;
+      const snap = await getDocs(query(collection(db, 'team-chat'), orderBy('timestamp', 'asc')));
+      const morts = [];
+      snap.forEach(d => {
+        const ts = d.data().timestamp?.toMillis?.() || 0;
+        if (ts && ts < limite) morts.push(d.ref);
+      });
+      for (const ref of morts) { await deleteDoc(ref).catch(() => {}); }
+      if (morts.length) console.log(morts.length + ' message(s) de +7j supprime(s)');
+    } catch(e) {}
   }
 
   function loadMessages() {
