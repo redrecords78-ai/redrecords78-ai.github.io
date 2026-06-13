@@ -683,7 +683,7 @@
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp }
+    import { getFirestore, collection, doc, setDoc, getDocs, addDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
@@ -884,6 +884,7 @@
           document.getElementById("app-screen").style.display   = "flex";
 
           loadMessages();
+          nettoyerVieuxMessages(); // purge les messages de +7 jours
 
           const pwSet = localStorage.getItem('rr-pw-set-' + user.email);
           if (!pwSet) openPwModal(true);
@@ -918,6 +919,20 @@
       localStorage.removeItem('rr-team');
       signOut(auth);
     });
+
+    // Suppression auto des messages de +7 jours (definitif, aucune sauvegarde)
+    async function nettoyerVieuxMessages() {
+      try {
+        const limite = Date.now() - 7 * 86400000;
+        const snap = await getDocs(query(collection(db, "team-chat"), orderBy("timestamp", "asc")));
+        const morts = [];
+        snap.forEach(d => {
+          const ts = d.data().timestamp?.toMillis?.() || 0;
+          if (ts && ts < limite) morts.push(d.ref);
+        });
+        for (const ref of morts) { await deleteDoc(ref).catch(() => {}); }
+      } catch(e) {}
+    }
 
     // ─── MESSAGES ─────────────────────────────────────────────────────────────────
     function loadMessages() {
