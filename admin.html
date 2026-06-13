@@ -604,11 +604,13 @@ function toggleAcc(id, trigger) {
 }
 
 function renderStats(data) {
+  const netW = data.netWeek != null ? data.netWeek : '—';
+  const netM = data.netMonth != null ? data.netMonth : '—';
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi-card accent"><div class="kpi-num">${data.sessionsWeek}</div><div class="kpi-label">Sessions · 7 jours</div></div>
-    <div class="kpi-card"><div class="kpi-num">${data.caWeek}<span>€</span></div><div class="kpi-label">CA semaine estimé</div><div class="kpi-sub">hors acomptes</div></div>
+    <div class="kpi-card"><div class="kpi-num">${data.caWeek}<span>€</span></div><div class="kpi-label">CA semaine estimé</div><div class="kpi-sub" style="color:#33b679">Net ${netW}€ <span style="color:var(--gray2)">· hors acomptes</span></div></div>
     <div class="kpi-card accent"><div class="kpi-num">${data.sessionsMonth}</div><div class="kpi-label">Sessions · ce mois</div></div>
-    <div class="kpi-card"><div class="kpi-num">${data.caMonth}<span>€</span></div><div class="kpi-label">CA mois estimé</div><div class="kpi-sub">hors acomptes</div></div>
+    <div class="kpi-card"><div class="kpi-num">${data.caMonth}<span>€</span></div><div class="kpi-label">CA mois estimé</div><div class="kpi-sub" style="color:#33b679">Net ${netM}€ <span style="color:var(--gray2)">· hors acomptes</span></div></div>
   `;
 
   const listEl = document.getElementById('next-sessions-list');
