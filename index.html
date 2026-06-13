@@ -885,6 +885,8 @@ function choisirTarif(el) {
   const info = TARIF_INFOS[el.dataset.type];
   document.getElementById('tarif-confirm-txt').textContent = info ? info[0] + ' sélectionné' : '';
   confirm.style.display = 'block';
+  // Amene directement au formulaire de reservation, deja prerempli
+  document.getElementById('reservation').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ─── FORMULAIRE RESERVATION ───────────────────────────────────────────────────
