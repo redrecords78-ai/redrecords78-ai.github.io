@@ -774,6 +774,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       Payer l'acompte (CB)
     </a>
     <p style="color:var(--gray);font-size:13px;line-height:1.7;margin-top:1.75rem;">…ou au studio en <strong style="color:var(--white)">CB / espèces</strong>, <strong style="color:var(--white)">2 jours max</strong> avant ta session.<br>Si tu ne peux pas, préviens-nous <strong style="color:var(--white)">la veille minimum</strong> 🙏</p>
+    <button onclick="acompteRegle()" style="margin-top:1.5rem;background:none;border:none;color:var(--gray);font-size:12px;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;">J'ai déjà réglé mon acompte</button>
   </div>
 </section>
 
@@ -910,26 +911,26 @@ document.getElementById('type').addEventListener('change', e => majRecap(e.targe
 // On ne peut pas réserver une date passée
 document.getElementById('date').min = new Date().toISOString().split('T')[0];
 
-// Gérer ?reset=1 (push "refusé"), ?confirmed=1 (push "accepté" → acompte) + état en cours
+// Gérer ?reset=1 (push "refusé"), ?confirmed=1 (push "accepté" → acompte) + états persistants
 (function() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('reset') === '1') {
     localStorage.removeItem('rr-demande-pending');
+    localStorage.removeItem('rr-acompte-pending');
     history.replaceState({}, '', window.location.pathname);
   }
   if (params.get('confirmed') === '1') {
     localStorage.removeItem('rr-demande-pending');
+    localStorage.setItem('rr-acompte-pending', '1'); // persiste jusqu'à "C'est réglé"
     history.replaceState({}, '', window.location.pathname);
-    const form = document.getElementById('demandeForm');
-    const enc  = document.getElementById('demande-en-cours');
-    const conf = document.getElementById('demande-confirmee');
-    if (form) form.style.display = 'none';
-    if (enc)  enc.style.display  = 'none';
-    if (conf) conf.style.display = 'block';
-    document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
-    return;
   }
-  if (localStorage.getItem('rr-demande-pending') === '1') {
+  // Affichage selon l'état — persiste entre les visites (même si le client quitte et revient)
+  if (localStorage.getItem('rr-acompte-pending') === '1') {
+    afficherAcompte();
+    if (params.get('confirmed') === '1') {
+      document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
+    }
+  } else if (localStorage.getItem('rr-demande-pending') === '1') {
     afficherEtatEnCours();
   }
 })();
@@ -985,6 +986,24 @@ function annulerDemande() {
   if (form)    { form.style.display = 'block'; form.reset(); }
   if (encours)   encours.style.display = 'none';
   if (msg)       msg.style.display     = 'none';
+}
+
+// Écran "Session confirmée + acompte" — persiste tant que l'acompte n'est pas réglé
+function afficherAcompte() {
+  const form = document.getElementById('demandeForm');
+  const enc  = document.getElementById('demande-en-cours');
+  const conf = document.getElementById('demande-confirmee');
+  if (form) form.style.display = 'none';
+  if (enc)  enc.style.display  = 'none';
+  if (conf) conf.style.display = 'block';
+}
+
+function acompteRegle() {
+  localStorage.removeItem('rr-acompte-pending');
+  const form = document.getElementById('demandeForm');
+  const conf = document.getElementById('demande-confirmee');
+  if (conf) conf.style.display = 'none';
+  if (form) { form.style.display = 'block'; form.reset(); }
 }
 // ─── SPLASH INTRO ────────────────────────────────────────────────────────────
 const splash = document.getElementById('splash');
