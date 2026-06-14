@@ -253,6 +253,15 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       </div>
     </div>
 
+    <!-- ACOMPTES EN ATTENTE -->
+    <div id="acomptes-wrap" style="display:none">
+      <div class="section-label">
+        En attente d'acompte
+        <span class="demande-badge" id="acomptes-badge" style="display:none;background:#33b679">0</span>
+      </div>
+      <div class="demandes-list" id="acomptes-list"></div>
+    </div>
+
     <!-- KPIs -->
     <div>
       <div class="section-label">Vue d'ensemble · 30 prochains jours</div>
@@ -430,6 +439,7 @@ function unlockWithData(data, pin) {
   }
 
   fetchDemandes(pin);
+  fetchAcomptes(pin);
   renderStats(data);
   document.getElementById('error-box').style.display  = 'none';
   document.getElementById('last-updated').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -501,7 +511,7 @@ async function traiterDemande(id, action) {
     const data = await res.json();
     if (data.ok) {
       fetchDemandes();
-      if (action === 'accepter') fetchStats();
+      if (action === 'accepter') { fetchStats(); fetchAcomptes(); }
     } else {
       if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
       alert('Erreur : ' + (data.error || 'réessaie'));
@@ -608,7 +618,54 @@ async function fetchStats() {
   }
 }
 
-function refreshAll() { fetchDemandes(); fetchStats(); if (currentUser?.role === 'OWNER') loadTeam(); }
+// ─── ACOMPTES EN ATTENTE ──────────────────────────────────────────────────────
+async function fetchAcomptes(pin) {
+  const p = pin || localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getAcomptes&pin=' + p);
+    const data = await res.json();
+    renderAcomptes(data.acomptes || []);
+  } catch(e) {}
+}
+
+function renderAcomptes(list) {
+  const wrap  = document.getElementById('acomptes-wrap');
+  const el    = document.getElementById('acomptes-list');
+  const badge = document.getElementById('acomptes-badge');
+  if (!list.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display  = 'block';
+  badge.textContent   = list.length;
+  badge.style.display = 'inline-flex';
+  el.innerHTML = list.map(a => {
+    const dateFmt = a.date
+      ? new Date(a.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' })
+      : a.date;
+    return `<div class="demande-card" id="acompte-${a.id}" style="border-left-color:#33b679">
+      <div>
+        <div class="demande-artiste">${a.artiste}</div>
+        <div class="demande-session" style="color:#33b679">${dateFmt}${a.heure ? ' · ' + a.heure : ''} · ${a.type}</div>
+        <div class="demande-contact">En attente de l'acompte 30€</div>
+      </div>
+      <div class="demande-actions">
+        <button class="btn-accepter" onclick="validerAcompte('${a.id}')">✓ Acompte réglé</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function validerAcompte(id) {
+  const pin  = localStorage.getItem('rr-pin-admin') || '';
+  const card = document.getElementById('acompte-' + id);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=acompteRegle&id=${encodeURIComponent(id)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) fetchAcomptes();
+    else { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur : ' + (data.error || 'réessaie')); }
+  } catch(e) { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur réseau'); }
+}
+
+function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') loadTeam(); }
 
 function toggleAcc(id, trigger) {
   document.getElementById(id).classList.toggle('open');
