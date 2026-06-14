@@ -762,6 +762,19 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       Faire une nouvelle demande
     </button>
   </div>
+
+  <!-- Session confirmée → acompte (affiché au clic sur la notif de confirmation) -->
+  <div id="demande-confirmee" style="display:none;text-align:center;padding:3rem 1rem;">
+    <div style="width:64px;height:64px;background:rgba(232,25,44,0.12);border:1px solid var(--red);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:30px;">🎉</div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:0.75rem;color:var(--white)">Session confirmée</h3>
+    <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:1rem;">Pour la valider définitivement, pose ton <strong style="color:var(--red)">acompte de 30€</strong> :</p>
+    <div style="background:rgba(232,25,44,0.08);border:1px solid rgba(232,25,44,0.25);border-radius:10px;padding:10px 14px;margin:0 auto 1.5rem;max-width:360px;font-size:13px;color:var(--white);line-height:1.6;">⚠️ Au paiement, écris bien ton <strong>nom d'artiste</strong> dans le champ « Nom complet » — c'est ce qui nous permet de retrouver ta réservation.</div>
+    <a href="https://pay.sumup.com/b2c/Q7RVHXRU" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;text-decoration:none;padding:15px 32px;border-radius:50px;font-size:14px;letter-spacing:0.05em;text-transform:uppercase;font-weight:500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Payer l'acompte (CB)
+    </a>
+    <p style="color:var(--gray);font-size:13px;line-height:1.7;margin-top:1.75rem;">…ou au studio en <strong style="color:var(--white)">CB / espèces</strong>, <strong style="color:var(--white)">2 jours max</strong> avant ta session.<br>Si tu ne peux pas, préviens-nous <strong style="color:var(--white)">la veille minimum</strong> 🙏</p>
+  </div>
 </section>
 
 <div class="divider"></div>
@@ -897,11 +910,24 @@ document.getElementById('type').addEventListener('change', e => majRecap(e.targe
 // On ne peut pas réserver une date passée
 document.getElementById('date').min = new Date().toISOString().split('T')[0];
 
-// Gérer ?reset=1 (depuis push "refusé") + état en cours
+// Gérer ?reset=1 (push "refusé"), ?confirmed=1 (push "accepté" → acompte) + état en cours
 (function() {
-  if (new URLSearchParams(window.location.search).get('reset') === '1') {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('reset') === '1') {
     localStorage.removeItem('rr-demande-pending');
     history.replaceState({}, '', window.location.pathname);
+  }
+  if (params.get('confirmed') === '1') {
+    localStorage.removeItem('rr-demande-pending');
+    history.replaceState({}, '', window.location.pathname);
+    const form = document.getElementById('demandeForm');
+    const enc  = document.getElementById('demande-en-cours');
+    const conf = document.getElementById('demande-confirmee');
+    if (form) form.style.display = 'none';
+    if (enc)  enc.style.display  = 'none';
+    if (conf) conf.style.display = 'block';
+    document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
+    return;
   }
   if (localStorage.getItem('rr-demande-pending') === '1') {
     afficherEtatEnCours();
