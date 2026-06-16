@@ -738,7 +738,9 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 
       <div class="form-group" id="heure-group" style="display:none">
         <label class="form-label">Heure de début souhaitée</label>
-        <input class="form-input" type="time" id="heure">
+        <select class="form-select" id="heure">
+          <option value="">-- Choisir l'heure --</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -892,12 +894,38 @@ const TARIF_INFOS = {
   'Format Court 3h apres 20h': ['Format Court 3h · après 20h', 120, null],
 };
 
+// Heures de début possibles par format court (heures pleines, cohérentes : min 2h, jour ≤20h, nuit ≤04h)
+const HEURES_FORMAT = {
+  'Format Court 2h avant 20h': [12,13,14,15,16,17,18],
+  'Format Court 3h avant 20h': [12,13,14,15,16,17],
+  'Format Court 2h apres 20h': [20,21,22,23,0,1,2],
+  'Format Court 3h apres 20h': [20,21,22,23,0,1],
+};
+function majHeures(val) {
+  const hg  = document.getElementById('heure-group');
+  const sel = document.getElementById('heure');
+  if (!hg || !sel) return;
+  const heures = HEURES_FORMAT[val];
+  if (heures) {
+    sel.innerHTML = '<option value="">-- Choisir l\'heure --</option>' +
+      heures.map(h => {
+        const v = String(h).padStart(2, '0') + ':00';
+        return '<option value="' + v + '">' + String(h).padStart(2, '0') + 'h00</option>';
+      }).join('');
+    hg.style.display = 'block';
+    sel.required = true;
+  } else {
+    hg.style.display = 'none';
+    sel.required = false;
+    sel.value = '';
+  }
+}
+
 function majRecap(val) {
   const tag  = document.getElementById('price-tag');
   const info = TARIF_INFOS[val];
-  // Champ heure visible uniquement pour les Formats Courts (les sessions pleines ont une heure fixe)
-  const hg = document.getElementById('heure-group');
-  if (hg) hg.style.display = (val && val.indexOf('Format Court') === 0) ? 'block' : 'none';
+  // Champ heure (heures pleines) visible uniquement pour les Formats Courts
+  majHeures(val);
   document.querySelectorAll('.tarif-card, .format-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.type === val));
   if (!info) { tag.style.display = 'none'; return; }
