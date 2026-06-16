@@ -951,6 +951,10 @@ document.getElementById('date').min = new Date().toISOString().split('T')[0];
     if (params.get('confirmed') === '1') {
       document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
     }
+    // Filet de sécurité : si le studio a validé l'acompte (sans que le client clique la notif),
+    // on vérifie auprès du serveur et on remet l'app à zéro automatiquement.
+    setTimeout(verifierAcompte, 1500);
+    document.addEventListener('visibilitychange', function() { if (!document.hidden) verifierAcompte(); });
   } else if (localStorage.getItem('rr-demande-pending') === '1') {
     afficherEtatEnCours();
   }
@@ -1018,6 +1022,27 @@ function afficherAcompte() {
   if (form) form.style.display = 'none';
   if (enc)  enc.style.display  = 'none';
   if (conf) conf.style.display = 'block';
+}
+
+// Demande au serveur si l'acompte est encore en attente pour ce client ; sinon remet à zéro.
+function verifierAcompte() {
+  if (localStorage.getItem('rr-acompte-pending') !== '1') return;
+  const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
+  if (!pid) return; // pas d'ID → on garde l'écran (le clic sur la notif le fermera)
+  fetch(APPS_SCRIPT_URL + '?action=acompteStatus&playerId=' + encodeURIComponent(pid))
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.pending === false) {
+        localStorage.removeItem('rr-acompte-pending');
+        const form = document.getElementById('demandeForm');
+        const enc  = document.getElementById('demande-en-cours');
+        const conf = document.getElementById('demande-confirmee');
+        if (conf) conf.style.display = 'none';
+        if (enc)  enc.style.display  = 'none';
+        if (form) form.style.display = 'block';
+      }
+    })
+    .catch(() => {});
 }
 
 // ─── SPLASH INTRO ────────────────────────────────────────────────────────────
