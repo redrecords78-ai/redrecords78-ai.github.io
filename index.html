@@ -2,6 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<!-- Securite : anti-clickjacking (empeche d'integrer la page dans une iframe tierce) -->
+<script>if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Red Records 78 · Studio d'enregistrement à Mantes-la-Jolie</title>
 
@@ -1664,7 +1666,7 @@ if ('serviceWorker' in navigator) {
         if (ts && ts < limite) morts.push(d.ref);
       });
       for (const ref of morts) { await deleteDoc(ref).catch(() => {}); }
-      if (morts.length) console.log(morts.length + ' message(s) de +7j supprime(s)');
+      // messages de +7 jours purges (silencieux)
     } catch(e) {}
   }
 

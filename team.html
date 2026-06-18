@@ -718,6 +718,10 @@
     let ingeMap     = {};
 
     // ─── HELPERS ──────────────────────────────────────────────────────────────────
+    // Securite : n'accepte qu'un vrai code couleur hexa (sinon defaut) — empeche
+    // d'injecter du HTML via le champ couleur dans un attribut style.
+    function safeColor(c) { return (typeof c === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(c)) ? c : ''; }
+
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g,  '&amp;')
@@ -963,7 +967,7 @@
           const isMine = msg.uid === currentUser.uid;
           const ts     = msg.timestamp?.toDate();
           const time   = ts ? ts.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
-          const couleur = msg.couleur || (isMine ? "#e63946" : "#555");
+          const couleur = safeColor(msg.couleur) || (isMine ? "#e63946" : "#555");
 
           // ── Date separator ──
           if (ts) {

@@ -570,9 +570,8 @@ async function registerAdminDevice(pin) {
     const playerId = localStorage.getItem('rr-player-id') || '';
     if (playerId) {
       await fetch(`${APPS_SCRIPT_URL}?action=registerAdmin&playerId=${encodeURIComponent(playerId)}&pin=${pin}`);
-      console.log('Admin enregistré avec ID:', playerId);
     }
-  } catch(e) { console.error('registerAdminDevice error:', e); }
+  } catch(e) { /* enregistrement device admin echoue silencieusement */ }
 }
 
 async function forceReRegister() {
