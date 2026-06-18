@@ -753,6 +753,13 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
         <input class="form-input" type="text" id="precision" placeholder="Ex : mix, voix, feat...">
       </div>
 
+      <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;margin-top:0.25rem">
+        <input type="checkbox" id="rgpd-consent" required style="margin-top:3px;flex-shrink:0;accent-color:var(--red);width:16px;height:16px;">
+        <label for="rgpd-consent" style="font-size:12px;color:var(--gray);line-height:1.5;cursor:pointer">
+          J'accepte que mes informations soient utilisées pour traiter ma demande de réservation.
+          Voir la <a href="legal.html" target="_blank" rel="noopener" style="color:var(--red);text-decoration:underline">politique de confidentialité</a>.
+        </label>
+      </div>
       <button type="submit" class="submit-btn" id="btnEnvoyer">Envoyer ma demande</button>
       <p id="msgRetour" style="display:none;margin-top:1rem;font-size:14px;"></p>
     </form>
