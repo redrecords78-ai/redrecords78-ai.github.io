@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instrumentales · Red Records 78</title>
+<meta name="description" content="Catalogue d'instrumentales (beats) Red Records — 30€ le beat. Rap, trap, drill et plus. Studio à Mantes-la-Jolie (78).">
+<link rel="canonical" href="https://redrecords78-ai.github.io/instrus.html">
+<link rel="icon" href="icons/icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Red Records 78">
+<meta property="og:title" content="Instrumentales · Red Records 78">
+<meta property="og:description" content="Catalogue de beats à 30€. Studio Red Records, Mantes-la-Jolie (78).">
+<meta property="og:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
+<meta property="og:url" content="https://redrecords78-ai.github.io/instrus.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#E8192C">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -343,11 +354,18 @@ async function loadInstrus() {
   renderList();
 }
 
+// Securite : echappe le HTML des donnees (titres/genres viennent du Google Sheet).
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function buildFilters() {
   const genres = ['Tous', ...new Set(allInstrus.map(t => t.genre))];
   const wrap = document.getElementById('filters');
   wrap.innerHTML = genres.map(g =>
-    `<button class="filter-btn${g === activeFilter ? ' active' : ''}" onclick="setFilter('${g}')">${g}</button>`
+    `<button class="filter-btn${g === activeFilter ? ' active' : ''}" onclick="setFilter('${g}')">${esc(g)}</button>`
   ).join('');
 }
 
@@ -375,10 +393,10 @@ function renderList() {
         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </div>
       <div class="instru-info">
-        <div class="instru-name">${t.title}</div>
-        <div class="instru-meta">${t.bpm && t.bpm !== '—' ? t.bpm + ' BPM' : ''}</div>
+        <div class="instru-name">${esc(t.title)}</div>
+        <div class="instru-meta">${t.bpm && t.bpm !== '—' ? esc(t.bpm) + ' BPM' : ''}</div>
       </div>
-      <span class="instru-genre-tag">${t.genre}</span>
+      <span class="instru-genre-tag">${esc(t.genre)}</span>
       <div class="instru-price">${t.price}<span>€</span></div>
       <a class="instru-buy-btn" href="${t.buyLink}" target="_blank" onclick="event.stopPropagation()">Acheter</a>
     </div>`

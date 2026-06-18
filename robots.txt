@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /team.html
+
+Sitemap: https://redrecords78-ai.github.io/sitemap.xml

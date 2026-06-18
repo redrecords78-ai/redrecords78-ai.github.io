@@ -2,8 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- Securite : empeche d'integrer le dashboard dans une autre page (anti-clickjacking) -->
+<script>if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }</script>
+<!-- Empeche de divulguer l'adresse du dashboard aux services tiers -->
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Dashboard · Red Records</title>
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#E8192C">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -306,6 +311,16 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       </div>
     </div>
 
+    <!-- ─── VERROU D'URGENCE — visible OWNER uniquement ─── -->
+    <div id="killswitch-section" style="display:none">
+      <div class="section-label">🚨 Verrou d'urgence</div>
+      <div style="background:var(--black2);border:1px solid var(--gray2);border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:12px">
+        <div id="lock-state" style="font-size:13px;color:var(--gray)">Statut : vérification…</div>
+        <div style="font-size:11px;color:var(--gray2);line-height:1.6">En cas de problème grave (piratage, abus…), bloque instantanément les réservations et messages publics. Le dashboard reste accessible pour toi, et tu débloques quand tout est réglé.</div>
+        <button onclick="toggleAppLock()" id="lock-btn" style="background:var(--red);color:#fff;border:none;padding:12px;border-radius:8px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">🔴 Bloquer l'app</button>
+      </div>
+    </div>
+
     <!-- ─── ÉQUIPE — visible OWNER uniquement ─── -->
     <div id="team-section" style="display:none">
       <div class="section-label">Équipe &amp; accès</div>
@@ -359,12 +374,22 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
 
+// Couleurs des INGÉS (pour colorer les sessions du dashboard).
+// Amoss n'y est PAS : c'est un admin, il ne prend pas de sessions.
 const COULEURS_INGE = {
   'RED':   '#f6bf26',
   'Remi':  '#d50000',
   'Baloo': '#33b679',
   'JUSS':  '#8e24aa',
 };
+
+// Securite : echappe le HTML des donnees affichees (anti-XSS).
+// artiste/contact/precision viennent du formulaire PUBLIC → toujours echapper.
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 // ─── USER COURANT ─────────────────────────────────────────────────────────────
 let currentUser = null;
@@ -435,6 +460,8 @@ function unlockWithData(data, pin) {
     if (currentUser.role === 'OWNER') {
       document.getElementById('team-section').style.display = 'block';
       loadTeam();
+      document.getElementById('killswitch-section').style.display = 'block';
+      refreshLockState();
     }
   }
 
@@ -484,17 +511,17 @@ function renderDemandes(demandes) {
       day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
     });
     return `
-    <div class="demande-card" id="demande-${d.id}">
+    <div class="demande-card" id="demande-${esc(d.id)}">
       <div>
-        <div class="demande-artiste">${d.artiste}</div>
-        <div class="demande-session">${dateFormatee} · ${d.type}</div>
-        ${d.contact   ? `<div class="demande-contact">📞 ${d.contact}</div>`  : ''}
-        ${d.precision ? `<div class="demande-note">💬 ${d.precision}</div>`   : ''}
+        <div class="demande-artiste">${esc(d.artiste)}</div>
+        <div class="demande-session">${dateFormatee} · ${esc(d.type)}</div>
+        ${d.contact   ? `<div class="demande-contact">📞 ${esc(d.contact)}</div>`  : ''}
+        ${d.precision ? `<div class="demande-note">💬 ${esc(d.precision)}</div>`   : ''}
         <div class="demande-ts">Reçu le ${tsFormatee}</div>
       </div>
       <div class="demande-actions">
-        <button class="btn-accepter" onclick="traiterDemande('${d.id}','accepter')">✅ Accepter</button>
-        <button class="btn-refuser"  onclick="traiterDemande('${d.id}','refuser')">❌ Refuser</button>
+        <button class="btn-accepter" onclick="traiterDemande('${esc(d.id)}','accepter')">✅ Accepter</button>
+        <button class="btn-refuser"  onclick="traiterDemande('${esc(d.id)}','refuser')">❌ Refuser</button>
       </div>
     </div>`;
   }).join('');
@@ -640,14 +667,14 @@ function renderAcomptes(list) {
     const dateFmt = a.date
       ? new Date(a.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' })
       : a.date;
-    return `<div class="demande-card" id="acompte-${a.id}" style="border-left-color:#33b679">
+    return `<div class="demande-card" id="acompte-${esc(a.id)}" style="border-left-color:#33b679">
       <div>
-        <div class="demande-artiste">${a.artiste}</div>
-        <div class="demande-session" style="color:#33b679">${dateFmt}${a.heure ? ' · ' + a.heure : ''} · ${a.type}</div>
+        <div class="demande-artiste">${esc(a.artiste)}</div>
+        <div class="demande-session" style="color:#33b679">${dateFmt}${a.heure ? ' · ' + esc(a.heure) : ''} · ${esc(a.type)}</div>
         <div class="demande-contact">En attente de l'acompte 30€</div>
       </div>
       <div class="demande-actions">
-        <button class="btn-accepter" onclick="validerAcompte('${a.id}')">✓ Acompte réglé</button>
+        <button class="btn-accepter" onclick="validerAcompte('${esc(a.id)}')">✓ Acompte réglé</button>
       </div>
     </div>`;
   }).join('');
@@ -691,9 +718,9 @@ function renderStats(data) {
       const couleur = COULEURS_INGE[s.inge] || '#888';
       return `<div class="session-row">
         <div class="session-date">${fmtDate(s.start)}</div>
-        <div class="session-title">${s.title}</div>
+        <div class="session-title">${esc(s.title)}</div>
         <div class="session-hours">${fmtHeures(s.start, s.end)}</div>
-        <div class="session-inge" style="background:${couleur}22;color:${couleur}">${s.inge}</div>
+        <div class="session-inge" style="background:${couleur}22;color:${couleur}">${esc(s.inge)}</div>
         <div class="session-ca">${prix}€</div>
       </div>`;
     }).join('');
@@ -827,6 +854,45 @@ async function activerUser(userId) {
     if (data.ok) loadTeam();
     else alert('Erreur : ' + (data.error || 'réessaie'));
   } catch(e) { alert('Erreur réseau'); }
+}
+
+// ─── VERROU D'URGENCE (kill switch) ───────────────────────────────────────────
+let _appLocked = false;
+async function refreshLockState() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=appStatus');
+    const data = await res.json();
+    _appLocked = !!data.locked;
+  } catch(e) {}
+  renderLockState();
+}
+function renderLockState() {
+  const st  = document.getElementById('lock-state');
+  const btn = document.getElementById('lock-btn');
+  if (!st || !btn) return;
+  if (_appLocked) {
+    st.innerHTML   = '🔴 <strong style="color:var(--red)">App VERROUILLÉE</strong> — réservations et messages publics bloqués.';
+    btn.textContent = '🟢 Débloquer l\'app';
+    btn.style.background = '#33b679';
+  } else {
+    st.innerHTML   = '🟢 App active — tout fonctionne normalement.';
+    btn.textContent = '🔴 Bloquer l\'app';
+    btn.style.background = 'var(--red)';
+  }
+}
+async function toggleAppLock() {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  const action = _appLocked ? 'unlockApp' : 'lockApp';
+  if (!_appLocked && !confirm('Bloquer toute l\'app ? Les clients ne pourront plus réserver tant que tu n\'auras pas débloqué.')) return;
+  const btn = document.getElementById('lock-btn');
+  if (btn) btn.disabled = true;
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=${action}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) { _appLocked = !!data.locked; renderLockState(); }
+    else alert('Erreur : ' + (data.error || 'réessaie'));
+  } catch(e) { alert('Erreur réseau'); }
+  finally { if (btn) btn.disabled = false; }
 }
 
 </script>

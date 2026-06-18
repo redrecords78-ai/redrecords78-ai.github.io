@@ -1,0 +1,3 @@
+# Sauvegardes locales (ne pas publier sur GitHub Pages)
+.backup-*/
+*.bak-*

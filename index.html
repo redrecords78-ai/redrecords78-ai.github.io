@@ -2,8 +2,24 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Red Records 78 · Studio d'enregistrement</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Red Records 78 · Studio d'enregistrement à Mantes-la-Jolie</title>
+
+<!-- SEO + partage (Open Graph) -->
+<meta name="description" content="Studio d'enregistrement à Mantes-la-Jolie (78) : enregistrement, mix, mastering et production musicale. Réserve ta session de studio en ligne.">
+<link rel="canonical" href="https://redrecords78-ai.github.io/">
+<link rel="icon" href="icons/icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Red Records 78">
+<meta property="og:title" content="Red Records 78 · Studio d'enregistrement">
+<meta property="og:description" content="Enregistrement · Mix · Mastering · Production à Mantes-la-Jolie (78). Réserve ta session en ligne.">
+<meta property="og:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
+<meta property="og:url" content="https://redrecords78-ai.github.io/">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Red Records 78 · Studio d'enregistrement">
+<meta name="twitter:description" content="Enregistrement · Mix · Mastering · Production à Mantes-la-Jolie (78).">
+<meta name="twitter:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -129,19 +145,6 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   padding-bottom: 80px;
-}
-
-/* SPLASH INTRO */
-#splash {
-  position: fixed; inset: 0; z-index: 9999;
-  background: #080808;
-  display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.6s ease;
-}
-#splash.hidden { opacity: 0; pointer-events: none; }
-#splash-video {
-  width: 100%; height: 100%;
-  object-fit: cover;
 }
 
 body::before {
@@ -535,11 +538,6 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
 <body>
 
 <div id="page-overlay"></div>
-
-<!-- INTRO SPLASH -->
-<div id="splash">
-  <video id="splash-video" src="logo red after (04.26).mp4" autoplay muted playsinline></video>
-</div>
 
 <nav>
   <a href="#" class="nav-logo">
@@ -949,6 +947,22 @@ function choisirTarif(el) {
 // ─── FORMULAIRE RESERVATION ───────────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
 
+// ─── VERROU D'URGENCE : si l'app est bloquée côté serveur, on affiche l'écran maintenance.
+// Fail-open : si la vérif échoue, le site reste accessible (on ne casse jamais le site).
+let _appEstBloquee = false;
+(function() {
+  fetch(APPS_SCRIPT_URL + '?action=appStatus')
+    .then(r => r.json())
+    .then(d => {
+      if (d && d.locked === true) {
+        _appEstBloquee = true;
+        const o = document.getElementById('app-lock-overlay');
+        if (o) o.style.display = 'flex';
+      }
+    })
+    .catch(() => {});
+})();
+
 // Choix manuel dans le menu déroulant → met aussi à jour le récap
 document.getElementById('type').addEventListener('change', e => majRecap(e.target.value));
 // On ne peut pas réserver une date passée
@@ -993,6 +1007,14 @@ document.getElementById('demandeForm').addEventListener('submit', async function
 
   const btn = document.getElementById('btnEnvoyer');
   const msg = document.getElementById('msgRetour');
+
+  // App verrouillée (verrou d'urgence) → on n'envoie rien
+  if (_appEstBloquee) {
+    msg.style.display = 'block';
+    msg.style.color   = 'var(--red)';
+    msg.textContent   = 'Réservations momentanément indisponibles. Réessaie plus tard ou contacte-nous sur WhatsApp.';
+    return;
+  }
 
   // Pas de réseau → on prévient au lieu de faire croire que c'est envoyé
   if (!navigator.onLine) {
@@ -1072,12 +1094,6 @@ function verifierAcompte() {
     })
     .catch(() => {});
 }
-
-// ─── SPLASH INTRO ────────────────────────────────────────────────────────────
-const splash = document.getElementById('splash');
-const splashVideo = document.getElementById('splash-video');
-splash.classList.add('hidden'); // désactivé pour les tests
-
 
 // ─── SECRET ADMIN ACCESS (triple-clic sur le logo R) ─────────────────────────
 (function() {
@@ -1818,5 +1834,13 @@ if ('serviceWorker' in navigator) {
 <style>
 #notif-banner.show { transform: translateY(0) !important; opacity: 1 !important; }
 </style>
+
+<!-- ÉCRAN MAINTENANCE (verrou d'urgence) — masqué par défaut, affiché si l'app est bloquée -->
+<div id="app-lock-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#080808;color:#F2F2F2;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:3px;color:#E8192C;line-height:1;">MAINTENANCE</div>
+  <div style="font-size:15px;color:#888;max-width:340px;line-height:1.6;">L'application est momentanément indisponible. On revient très vite — réessaie dans quelques minutes.</div>
+  <a href="https://wa.me/33759476247" target="_blank" rel="noopener" style="margin-top:0.5rem;color:#E8192C;text-decoration:none;font-size:13px;">Nous contacter sur WhatsApp →</a>
+</div>
 </body>
 </html>

@@ -1,7 +1,8 @@
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = 'red-records-v8';
-const PAGES = ['index.html', 'instrus.html', 'playlist.html', 'admin.html', 'team.html'];
+const CACHE = 'red-records-v9';
+const PAGES = ['index.html', 'instrus.html', 'playlist.html'];   // pages publiques (mises en cache)
+const PRIVATE = ['admin.html', 'team.html'];                     // pages privees : jamais en cache, toujours reseau
 const ASSETS = ['manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -20,6 +21,13 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+
+  // Pages privees (dashboard, equipe) : toujours le reseau, jamais de cache.
+  if (PRIVATE.some(p => url.pathname.endsWith(p))) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   const isPage = PAGES.some(p => url.pathname.endsWith(p)) || url.pathname === '/';
 
   if (isPage) {
