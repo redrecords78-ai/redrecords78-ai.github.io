@@ -45,7 +45,10 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
 /* ─── DASHBOARD ─── */
 #dashboard { display: none; min-height: 100vh; padding-bottom: 3rem; }
-.dash-header { position: sticky; top: 0; z-index: 10; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); gap: 1rem; }
+.dash-header { position: sticky; top: 0; z-index: 10; padding: calc(1rem + env(safe-area-inset-top)) 1.25rem 1rem; display: flex; align-items: center; justify-content: space-between; background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); gap: 1rem; }
+.dash-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dash-logout { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: rgba(232,25,44,0.12); border: 1px solid rgba(232,25,44,0.4); color: var(--red); cursor: pointer; transition: background 0.15s; flex-shrink: 0; padding: 0; }
+.dash-logout:hover { background: rgba(232,25,44,0.25); }
 .dash-logo { display: flex; align-items: center; gap: 10px; }
 .dash-logo .r { width: 32px; height: 32px; background: var(--red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
 .dash-logo span { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; color: var(--gray); }
@@ -200,7 +203,7 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
 <!-- ─── PIN SCREEN ─── -->
 <div id="pin-screen">
-  <a href="index.html" style="position:absolute;top:1.25rem;left:1.25rem;display:flex;align-items:center;gap:6px;color:#555;font-size:13px;text-decoration:none;padding:8px 14px 8px 10px;border-radius:20px;background:rgba(255,255,255,0.05);transition:color 0.2s,background 0.2s;font-family:'DM Sans',sans-serif;">
+  <a href="index.html" style="position:absolute;top:calc(1.25rem + env(safe-area-inset-top));left:1.25rem;display:flex;align-items:center;gap:6px;color:#555;font-size:13px;text-decoration:none;padding:8px 14px 8px 10px;border-radius:20px;background:rgba(255,255,255,0.05);transition:color 0.2s,background 0.2s;font-family:'DM Sans',sans-serif;">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     Accueil
   </a>
@@ -244,7 +247,12 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="r">R</div>
       <span>Red Records 78</span>
     </div>
-    <div class="dash-tag" id="dash-role-tag">DASHBOARD</div>
+    <div class="dash-header-right">
+      <div class="dash-tag" id="dash-role-tag">DASHBOARD</div>
+      <button class="dash-logout" onclick="logout()" title="Se déconnecter" aria-label="Se déconnecter">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
   </div>
 
   <div class="dash-body">
@@ -425,6 +433,12 @@ function updateDots() {
   for (let i = 1; i <= 6; i++) {
     document.getElementById('d' + i).classList.toggle('filled', i <= entered.length);
   }
+}
+
+function logout() {
+  if (!confirm('Se déconnecter du dashboard ?')) return;
+  localStorage.removeItem('rr-pin-admin');
+  location.reload();
 }
 
 async function checkPin() {
