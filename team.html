@@ -928,10 +928,20 @@
       signOut(auth);
     });
 
-    // Suppression auto des messages de +7 jours (definitif, aucune sauvegarde)
+    // Purge hebdo : on efface tout ce qui date d'avant le lundi 8h de la semaine en cours.
+    // Le chat repart propre chaque lundi matin (au lieu d'un effacement glissant a +7j).
+    function debutSemaineLundi8h() {
+      const d = new Date();
+      d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // recule jusqu'au lundi
+      d.setHours(8, 0, 0, 0);
+      if (d.getTime() > Date.now()) d.setDate(d.getDate() - 7); // lundi avant 8h -> semaine d'avant
+      return d.getTime();
+    }
+
+    // Suppression auto des messages d'avant lundi 8h (definitif, aucune sauvegarde)
     async function nettoyerVieuxMessages() {
       try {
-        const limite = Date.now() - 7 * 86400000;
+        const limite = debutSemaineLundi8h();
         const snap = await getDocs(query(collection(db, "team-chat"), orderBy("timestamp", "asc")));
         const morts = [];
         snap.forEach(d => {
