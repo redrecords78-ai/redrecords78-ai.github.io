@@ -1,7 +1,7 @@
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = 'red-records-v9';
-const PAGES = ['index.html', 'instrus.html', 'playlist.html'];   // pages publiques (mises en cache)
+const CACHE = 'red-records-v10';
+const PAGES = ['index.html', 'instrus.html', 'playlist.html', 'legal.html'];   // pages publiques (mises en cache)
 const PRIVATE = ['admin.html', 'team.html'];                     // pages privees : jamais en cache, toujours reseau
 const ASSETS = ['manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
