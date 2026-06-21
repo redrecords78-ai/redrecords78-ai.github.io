@@ -593,26 +593,14 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <div class="section-tag reveal">Fonctionnement 2026</div>
   <h2 class="section-title reveal reveal-delay-1">Nos tarifs</h2>
   <div class="tarif-grid reveal reveal-delay-2">
-    <div class="tarif-card" data-type="Session Jour 12h-16h" onclick="choisirTarif(this)">
+    <div class="tarif-card" data-type="Session Jour 4h" onclick="choisirTarif(this)" style="grid-column: 1 / -1;">
       <div class="tarif-card-left">
         <div class="tarif-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         </div>
         <div>
           <div class="tarif-name">Jour</div>
-          <div class="tarif-hours">12h – 16h</div>
-        </div>
-      </div>
-      <div class="tarif-price"><s class="tarif-old">120€</s>100<span>€</span></div>
-    </div>
-    <div class="tarif-card" data-type="Session Jour 16h-20h" onclick="choisirTarif(this)">
-      <div class="tarif-card-left">
-        <div class="tarif-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9v2M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M16 5l-4 4-4-4"/></svg>
-        </div>
-        <div>
-          <div class="tarif-name">Jour</div>
-          <div class="tarif-hours">16h – 20h</div>
+          <div class="tarif-hours">4h · entre 12h et 20h</div>
         </div>
       </div>
       <div class="tarif-price"><s class="tarif-old">120€</s>100<span>€</span></div>
@@ -725,8 +713,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
         <label class="form-label">Type de session</label>
         <select class="form-select" id="type" required>
           <option value="">-- Choisir --</option>
-          <option value="Session Jour 12h-16h">Session Jour 4h - 12h a 16h</option>
-          <option value="Session Jour 16h-20h">Session Jour 4h - 16h a 20h</option>
+          <option value="Session Jour 4h">Session Jour 4h - entre 12h et 20h</option>
           <option value="Session Soir 20h-00h">Session Soir 4h - 20h a 00h</option>
           <option value="Session Nuit 00h-04h">Session Nuit 4h - 00h a 04h</option>
           <option value="Format Court 2h avant 20h">Format Court 2h - avant 20h</option>
@@ -796,6 +783,22 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
     </a>
     <p style="color:var(--gray);font-size:13px;line-height:1.7;margin-top:1.75rem;">…ou au studio en <strong style="color:var(--white)">CB / espèces</strong>, <strong style="color:var(--white)">2 jours max</strong> avant ta session.<br>Si tu ne peux pas, préviens-nous <strong style="color:var(--white)">la veille minimum</strong> 🙏</p>
     <a href="https://wa.me/33759476247?text=Bonjour%2C%20c'est%20pour%20mon%20acompte%20de%20session." target="_blank" rel="noopener" style="display:inline-block;margin-top:1.5rem;color:var(--gray);font-size:12px;">Une question ? Écris-nous sur WhatsApp</a>
+  </div>
+
+  <!-- Acompte validé par le studio → écran final : ouvre la discussion WhatsApp pour caler les détails -->
+  <div id="demande-finale" style="display:none;text-align:center;padding:3rem 1rem;">
+    <div style="width:64px;height:64px;background:rgba(76,175,80,0.12);border:1px solid #4caf50;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:30px;">✅</div>
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:0.75rem;color:var(--white)">Session validée !</h3>
+    <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:1.5rem;">Ton acompte est bien reçu, ta session est <strong style="color:#4caf50">100% confirmée</strong>.<br>On finalise les derniers détails ensemble sur WhatsApp 👇</p>
+    <a id="finale-wa-link" href="https://wa.me/33759476247" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#fff;text-decoration:none;padding:15px 32px;border-radius:50px;font-size:14px;letter-spacing:0.05em;text-transform:uppercase;font-weight:500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Caler les détails sur WhatsApp
+    </a>
+    <div style="margin-top:1.75rem;">
+      <button onclick="fermerFinale()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
+        Retour à l'accueil
+      </button>
+    </div>
   </div>
 </section>
 
@@ -891,8 +894,7 @@ const NEWS = {
 // ─── TARIFS CLIQUABLES + RÉCAP PRIX ──────────────────────────────────────────
 // [libellé, prix actuel, ancien prix barré (null = pas de promo affichée)]
 const TARIF_INFOS = {
-  'Session Jour 12h-16h':      ['Session Jour · 12h – 16h', 100, 120],
-  'Session Jour 16h-20h':      ['Session Jour · 16h – 20h', 100, 120],
+  'Session Jour 4h':           ['Session Jour · 4h', 100, 120],
   'Session Soir 20h-00h':      ['Session Soir · 20h – 00h', 130, 160],
   'Session Nuit 00h-04h':      ['Session Nuit · 00h – 04h', 140, 160],
   'Format Court 2h avant 20h': ['Format Court 2h · avant 20h', 60, null],
@@ -901,8 +903,9 @@ const TARIF_INFOS = {
   'Format Court 3h apres 20h': ['Format Court 3h · après 20h', 120, null],
 };
 
-// Heures de début possibles par format court (heures pleines, cohérentes : min 2h, jour ≤20h, nuit ≤04h)
+// Heures de début possibles selon le format (heures pleines, cohérentes : min 2h, jour ≤20h, nuit ≤04h)
 const HEURES_FORMAT = {
+  'Session Jour 4h':           [12,13,14,15,16],
   'Format Court 2h avant 20h': [12,13,14,15,16,17,18],
   'Format Court 3h avant 20h': [12,13,14,15,16,17],
   'Format Court 2h apres 20h': [20,21,22,23,0,1,2],
@@ -991,19 +994,26 @@ document.getElementById('date').min = new Date().toISOString().split('T')[0];
     history.replaceState({}, '', window.location.pathname);
   }
   if (params.get('paid') === '1') {
-    // Le studio a validé l'acompte → on efface l'écran acompte, retour à la normale
+    // Le studio a validé l'acompte → on affiche l'écran final (push WhatsApp pour caler les détails)
     localStorage.removeItem('rr-demande-pending');
     localStorage.removeItem('rr-acompte-pending');
+    localStorage.setItem('rr-finale-pending', '1');
     history.replaceState({}, '', window.location.pathname);
   }
   // Affichage selon l'état — persiste entre les visites (même si le client quitte et revient)
-  if (localStorage.getItem('rr-acompte-pending') === '1') {
+  if (localStorage.getItem('rr-finale-pending') === '1') {
+    afficherFinale();
+    if (params.get('paid') === '1' || params.get('confirmed') === '0') {
+      document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
+    }
+    localStorage.removeItem('rr-finale-pending');
+  } else if (localStorage.getItem('rr-acompte-pending') === '1') {
     afficherAcompte();
     if (params.get('confirmed') === '1') {
       document.getElementById('reservation').scrollIntoView({ behavior: 'smooth' });
     }
     // Filet de sécurité : si le studio a validé l'acompte (sans que le client clique la notif),
-    // on vérifie auprès du serveur et on remet l'app à zéro automatiquement.
+    // on vérifie auprès du serveur et on bascule sur l'écran final automatiquement.
     setTimeout(verifierAcompte, 1500);
     document.addEventListener('visibilitychange', function() { if (!document.hidden) verifierAcompte(); });
   } else if (localStorage.getItem('rr-demande-pending') === '1') {
@@ -1053,6 +1063,10 @@ document.getElementById('demandeForm').addEventListener('submit', async function
     .catch(() => {}); // ignorer les erreurs reseau silencieusement
   // On considere la demande envoyee des qu'on envoie (le mail + push confirment cote serveur)
   localStorage.setItem('rr-demande-pending', '1');
+  // Mémorise les infos pour préremplir le message WhatsApp final (étape post-acompte)
+  localStorage.setItem('rr-derniere-demande', JSON.stringify({
+    artiste: data.artiste, type: data.type, date: data.date, heure: data.heure
+  }));
   afficherEtatEnCours();
 });
 
@@ -1083,7 +1097,47 @@ function afficherAcompte() {
   if (conf) conf.style.display = 'block';
 }
 
-// Demande au serveur si l'acompte est encore en attente pour ce client ; sinon remet à zéro.
+// Écran final post-acompte : ouvre la discussion WhatsApp avec un message prérempli
+function afficherFinale() {
+  const form = document.getElementById('demandeForm');
+  const enc  = document.getElementById('demande-en-cours');
+  const conf = document.getElementById('demande-confirmee');
+  const fin  = document.getElementById('demande-finale');
+  if (form) form.style.display = 'none';
+  if (enc)  enc.style.display  = 'none';
+  if (conf) conf.style.display = 'none';
+  if (fin)  fin.style.display  = 'block';
+
+  // Prérempli le message WhatsApp avec les infos de la session (mémorisées au moment de la demande)
+  try {
+    const d = JSON.parse(localStorage.getItem('rr-derniere-demande') || '{}');
+    const lib = (d.type || '').replace(/^Session /, '').replace(/^Format Court /, 'Court ');
+    const dateLisible = d.date
+      ? new Date(d.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+      : '';
+    const heureLisible = d.heure ? d.heure.replace(':', 'h') : '';
+    let msg = "Bonjour Red Records, c'est " + (d.artiste || '') + ". Mon acompte est posé pour ma session";
+    if (lib)          msg += ' ' + lib;
+    if (dateLisible)  msg += ' du ' + dateLisible;
+    if (heureLisible) msg += ' à ' + heureLisible;
+    msg += '. On peut caler les derniers détails ensemble ? Merci 🙏';
+    const link = document.getElementById('finale-wa-link');
+    if (link) link.href = 'https://wa.me/33759476247?text=' + encodeURIComponent(msg);
+  } catch(e) {}
+}
+
+// Ferme l'écran final et remet le formulaire normal — efface aussi la mémo de la dernière demande
+function fermerFinale() {
+  localStorage.removeItem('rr-derniere-demande');
+  const form = document.getElementById('demandeForm');
+  const fin  = document.getElementById('demande-finale');
+  if (fin)  fin.style.display  = 'none';
+  if (form) { form.style.display = 'block'; form.reset(); }
+  // Scroll vers le haut pour repartir propre
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Demande au serveur si l'acompte est encore en attente pour ce client ; sinon on bascule sur l'écran final.
 function verifierAcompte() {
   if (localStorage.getItem('rr-acompte-pending') !== '1') return;
   const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
@@ -1093,12 +1147,7 @@ function verifierAcompte() {
     .then(data => {
       if (data && data.pending === false) {
         localStorage.removeItem('rr-acompte-pending');
-        const form = document.getElementById('demandeForm');
-        const enc  = document.getElementById('demande-en-cours');
-        const conf = document.getElementById('demande-confirmee');
-        if (conf) conf.style.display = 'none';
-        if (enc)  enc.style.display  = 'none';
-        if (form) form.style.display = 'block';
+        afficherFinale();
       }
     })
     .catch(() => {});
