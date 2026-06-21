@@ -530,7 +530,7 @@ function renderDemandes(demandes) {
     <div class="demande-card" id="demande-${esc(d.id)}">
       <div>
         <div class="demande-artiste">${esc(d.artiste)}</div>
-        <div class="demande-session">${dateFormatee} · ${esc(d.type)}</div>
+        <div class="demande-session">${dateFormatee}${d.heure ? ' · ' + esc(d.heure) : ''} · ${esc(d.type)}</div>
         ${d.contact   ? `<div class="demande-contact">📞 ${esc(d.contact)}</div>`  : ''}
         ${d.precision ? `<div class="demande-note">💬 ${esc(d.precision)}</div>`   : ''}
         <div class="demande-ts">Reçu le ${tsFormatee}</div>
