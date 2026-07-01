@@ -332,36 +332,13 @@ const LOCAL_INSTRUS = [
 ];
 
 // ─── CATALOGUE ────────────────────────────────────────────────────────────────
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMGdbGRVe-iXOlvevi3Chp1NfRbApr2k2GZ1K7qWFgQSQ6QBaQTAicXx9o8V3ylQccDW_Ofc_GpU0v/pub?output=csv';
 const wa = t => 'https://wa.me/33759476247?text=' + encodeURIComponent('Bonjour, je souhaite acheter l\'instrumentale "' + t + '" (30€)');
 
 let allInstrus = [];
 let activeFilter = 'Tous';
 
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(',').map(h => h.trim());
-  return lines.slice(1).map(line => {
-    const vals = line.split(',');
-    const row = {};
-    headers.forEach((h, i) => row[h] = (vals[i] || '').trim());
-    return row;
-  });
-}
-
-async function loadInstrus() {
-  try {
-    const res = await fetch(SHEET_URL);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    allInstrus = rows.filter(r => r.statut === 'disponible').map(r => ({
-      id: r.id, title: r.titre, genre: r.genre, bpm: r.bpm,
-      price: '30', src: 'audio/instrus/' + r.fichier, buyLink: wa(r.titre)
-    }));
-    if (allInstrus.length === 0) throw new Error('vide');
-  } catch(e) {
-    allInstrus = LOCAL_INSTRUS.map(t => ({ ...t, price: '30', buyLink: wa(t.title) }));
-  }
+function loadInstrus() {
+  allInstrus = LOCAL_INSTRUS.map(t => ({ ...t, price: '30', buyLink: wa(t.title) }));
   buildFilters();
   renderList();
 }
