@@ -1240,13 +1240,16 @@
       };
       messagesDiv.addEventListener('touchstart', (e) => {
         const t = e.touches[0];
+        if (e.target.closest('.msg')) e.preventDefault(); // bloque le comportement natif iOS (selection/callout) sur un message
         startPress(t.clientX, t.clientY, e.target);
-      }, { passive: true });
+      }, { passive: false });
       messagesDiv.addEventListener('touchend', clearPress);
       messagesDiv.addEventListener('touchmove', clearPress);
       messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
       messagesDiv.addEventListener('mouseup', clearPress);
       messagesDiv.addEventListener('mouseleave', clearPress);
+      // Android/desktop : bloque le menu contextuel natif sur un message (equivalent du callout iOS)
+      messagesDiv.addEventListener('contextmenu', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
 
       // Tap sur un badge de réaction -> qui a réagi
       messagesDiv.addEventListener('click', (e) => {
