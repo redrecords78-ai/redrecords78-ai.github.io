@@ -347,6 +347,9 @@
       white-space: pre-wrap;
       display: inline-block; /* clé : la bulle prend la taille de son texte, pas plus */
       max-width: 100%;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none; /* iOS : evite le menu Copier/Partager au long-press */
     }
     .other .msg-bubble {
       background: var(--surface2);
