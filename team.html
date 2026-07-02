@@ -1232,23 +1232,42 @@
     (function attachLongPress() {
       const messagesDiv = document.getElementById("messages");
       let pressTimer = null;
-      const clearPress = () => clearTimeout(pressTimer);
+      let startX = 0, startY = 0;
+      const TOLERANCE = 12; // px de jitter tolérés pendant l'appui (le doigt bouge toujours un peu)
+
+      const clearPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+
       const startPress = (clientX, clientY, target) => {
         const msgEl = target.closest('.msg');
         if (!msgEl) return;
+        startX = clientX; startY = clientY;
         pressTimer = setTimeout(() => showReactionPicker(msgEl.dataset.id, clientX, clientY), 420);
       };
+
+      const moveTolerant = (clientX, clientY) => {
+        if (!pressTimer) return;
+        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress();
+      };
+
       messagesDiv.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.msg')) e.preventDefault(); // bloque selection/callout iOS des le depart
         const t = e.touches[0];
-        if (e.target.closest('.msg')) e.preventDefault(); // bloque le comportement natif iOS (selection/callout) sur un message
         startPress(t.clientX, t.clientY, e.target);
       }, { passive: false });
+      messagesDiv.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        moveTolerant(t.clientX, t.clientY);
+      }, { passive: true });
       messagesDiv.addEventListener('touchend', clearPress);
-      messagesDiv.addEventListener('touchmove', clearPress);
+      messagesDiv.addEventListener('touchcancel', clearPress);
+
       messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
+      messagesDiv.addEventListener('mousemove', (e) => moveTolerant(e.clientX, e.clientY));
       messagesDiv.addEventListener('mouseup', clearPress);
       messagesDiv.addEventListener('mouseleave', clearPress);
-      // Android/desktop : bloque le menu contextuel natif sur un message (equivalent du callout iOS)
+
+      // Bloque aussi selectstart (Chrome/Firefox/Android) et le menu contextuel natif sur un message
+      messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
       messagesDiv.addEventListener('contextmenu', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
 
       // Tap sur un badge de réaction -> qui a réagi
