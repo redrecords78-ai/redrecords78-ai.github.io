@@ -715,6 +715,13 @@ function toggleAcc(id, trigger) {
 }
 
 function renderStats(data) {
+  if (data.locked) {
+    document.getElementById('kpi-grid').innerHTML = `
+      <div class="kpi-card" style="grid-column:1/-1;text-align:center;color:var(--red)">🔒 Alerte Rouge active — chiffres masqués</div>
+    `;
+    document.getElementById('next-sessions-list').innerHTML = '<div class="session-row"><div style="font-size:13px;color:var(--gray)">Masqué pendant le verrou</div></div>';
+    return;
+  }
   const netW = data.netWeek != null ? data.netWeek : '—';
   const netM = data.netMonth != null ? data.netMonth : '—';
   document.getElementById('kpi-grid').innerHTML = `
