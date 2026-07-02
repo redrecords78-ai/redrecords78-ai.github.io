@@ -365,6 +365,91 @@
       padding: 0 4px;
     }
 
+    /* RÉACTIONS */
+    .msg-reactions {
+      display: flex;
+      gap: 5px;
+      padding: 0 4px;
+      margin-top: 2px;
+    }
+    .reaction-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .reaction-badge.like    { color: #33b679; }
+    .reaction-badge.dislike { color: #e63946; }
+
+    .reaction-picker {
+      position: fixed;
+      z-index: 998;
+      display: flex;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 6px 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: pickerPop 0.15s ease;
+    }
+    @keyframes pickerPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .reaction-choice {
+      font-size: 22px;
+      background: none;
+      border: none;
+      padding: 4px 6px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .reaction-choice:active { transform: scale(1.2); }
+
+    #reaction-who-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 999;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    #reaction-who-overlay.open { display: flex; }
+    #reaction-who-modal {
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      padding: 8px 24px 28px;
+      padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      animation: sheetUp 0.32s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    #reaction-who-modal h3 { font-size: 16px; font-weight: 700; text-align: center; }
+    .reaction-who-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 4px;
+      font-size: 14px;
+    }
+    .reaction-who-row .who-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
     /* INPUT */
     #chat-input-area {
       display: flex;
@@ -682,12 +767,20 @@
     </div>
   </div>
 
+  <div id="reaction-who-overlay">
+    <div id="reaction-who-modal">
+      <div class="modal-handle"></div>
+      <h3 id="reaction-who-title">Réactions</h3>
+      <div id="reaction-who-list"></div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, addDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp }
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, deleteDoc, updateDoc, deleteField, query, orderBy, onSnapshot, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec";
@@ -974,6 +1067,7 @@
 
         snapshot.forEach((docSnap) => {
           const msg   = docSnap.data();
+          const msgId = docSnap.id;
           const isMine = msg.uid === currentUser.uid;
           const ts     = msg.timestamp?.toDate();
           const time   = ts ? ts.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
@@ -1006,6 +1100,9 @@
             sameGroup ? "grouped" : "new-group",
             isNewMsg ? "pop" : ""
           ].join(" ").trim();
+          div.dataset.id = msgId;
+
+          const reactionsHtml = buildReactionsHtml(msg.reactions);
 
           if (!isMine) {
             div.innerHTML = `
@@ -1013,12 +1110,14 @@
               <div class="msg-content">
                 ${!sameGroup ? `<div class="msg-name" style="color:${couleur}">${escapeHtml(msg.name)}</div>` : ''}
                 <div class="msg-bubble">${escapeHtml(msg.text)}</div>
+                ${reactionsHtml}
                 <div class="msg-time">${time}</div>
               </div>`;
           } else {
             div.innerHTML = `
               <div class="msg-content">
                 <div class="msg-bubble" style="background:${couleur};color:${textColor(couleur)}">${escapeHtml(msg.text)}</div>
+                ${reactionsHtml}
                 <div class="msg-time">${time}</div>
               </div>`;
           }
@@ -1041,6 +1140,117 @@
       });
     }
 
+    // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
+    function buildReactionsHtml(reactions) {
+      if (!reactions) return '';
+      const entries = Object.values(reactions);
+      const likes = entries.filter(r => r.type === 'like').length;
+      const dislikes = entries.filter(r => r.type === 'dislike').length;
+      if (!likes && !dislikes) return '';
+      return `<div class="msg-reactions">
+        ${likes ? `<span class="reaction-badge like">👍 ${likes}</span>` : ''}
+        ${dislikes ? `<span class="reaction-badge dislike">👎 ${dislikes}</span>` : ''}
+      </div>`;
+    }
+
+    let activePicker = null;
+    function closeReactionPicker() {
+      if (activePicker) { activePicker.remove(); activePicker = null; }
+    }
+
+    function showReactionPicker(msgId, x, y) {
+      closeReactionPicker();
+      const picker = document.createElement('div');
+      picker.className = 'reaction-picker';
+      picker.innerHTML = `<button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
+      document.body.appendChild(picker);
+      const left = Math.min(Math.max(x - 40, 8), window.innerWidth - 90);
+      const top  = Math.max(y - 56, 8);
+      picker.style.left = left + 'px';
+      picker.style.top  = top + 'px';
+      picker.querySelectorAll('.reaction-choice').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          setReaction_(msgId, btn.dataset.type);
+        });
+      });
+      activePicker = picker;
+      setTimeout(() => document.addEventListener('click', closeReactionPicker, { once: true }), 50);
+    }
+
+    async function setReaction_(msgId, type) {
+      closeReactionPicker();
+      const ref  = doc(db, "team-chat", msgId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const data      = snap.data();
+      const reactions = data.reactions || {};
+      const uid       = currentUser.uid;
+      const name      = currentInge ? currentInge.nom : currentUser.email.split("@")[0];
+      const field     = `reactions.${uid}`;
+      const dejaMemeType = reactions[uid] && reactions[uid].type === type;
+
+      if (dejaMemeType) {
+        await updateDoc(ref, { [field]: deleteField() });
+        return; // on retire sa reaction -> pas de notif
+      }
+      await updateDoc(ref, { [field]: { type, name } });
+
+      // Notif façon Snap à l'auteur du message (pas à soi-même)
+      const authorEmail = (data.email || '').toLowerCase();
+      if (authorEmail && authorEmail !== (currentUser.email || '').toLowerCase()) {
+        fetch(`${APPS_SCRIPT_URL}?action=notifyReaction&email=${encodeURIComponent(authorEmail)}&reactor=${encodeURIComponent(name)}&type=${type}`)
+          .catch(() => {});
+      }
+    }
+
+    async function showWhoReacted(msgId, type) {
+      const ref  = doc(db, "team-chat", msgId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const reactions = snap.data().reactions || {};
+      const names = Object.entries(reactions).filter(([, r]) => r.type === type).map(([, r]) => r.name);
+      if (!names.length) return;
+      document.getElementById('reaction-who-title').textContent = (type === 'like' ? '👍 Ont aimé' : '👎 N\'ont pas aimé');
+      document.getElementById('reaction-who-list').innerHTML = names.map(n => {
+        const c = MEMBRES_DEFAUT.find(m => m.nom === n)?.couleur || '#888';
+        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml((n||'?')[0].toUpperCase())}</div>${escapeHtml(n)}</div>`;
+      }).join('');
+      document.getElementById('reaction-who-overlay').classList.add('open');
+    }
+    document.getElementById('reaction-who-overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'reaction-who-overlay') e.target.classList.remove('open');
+    });
+
+    // Appui long (mobile + souris) sur une bulle -> picker like/dislike
+    (function attachLongPress() {
+      const messagesDiv = document.getElementById("messages");
+      let pressTimer = null;
+      const clearPress = () => clearTimeout(pressTimer);
+      const startPress = (clientX, clientY, target) => {
+        const msgEl = target.closest('.msg');
+        if (!msgEl) return;
+        pressTimer = setTimeout(() => showReactionPicker(msgEl.dataset.id, clientX, clientY), 420);
+      };
+      messagesDiv.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        startPress(t.clientX, t.clientY, e.target);
+      }, { passive: true });
+      messagesDiv.addEventListener('touchend', clearPress);
+      messagesDiv.addEventListener('touchmove', clearPress);
+      messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
+      messagesDiv.addEventListener('mouseup', clearPress);
+      messagesDiv.addEventListener('mouseleave', clearPress);
+
+      // Tap sur un badge de réaction -> qui a réagi
+      messagesDiv.addEventListener('click', (e) => {
+        const badge = e.target.closest('.reaction-badge');
+        if (!badge) return;
+        const msgEl = badge.closest('.msg');
+        showWhoReacted(msgEl.dataset.id, badge.classList.contains('like') ? 'like' : 'dislike');
+      });
+    })();
+
     // ─── SEND ─────────────────────────────────────────────────────────────────────
     async function sendMessage() {
       const msgInput = document.getElementById("msg-input");
@@ -1050,6 +1260,7 @@
       msgInput.value = "";
       await addDoc(collection(db, "team-chat"), {
         text, uid: currentUser.uid, name,
+        email: (currentUser.email || '').toLowerCase(),
         couleur: currentInge ? currentInge.couleur : "#e63946",
         timestamp: serverTimestamp()
       });
