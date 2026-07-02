@@ -1165,6 +1165,7 @@
     }
 
     function showReactionPicker(msgId, x, y) {
+      dbg('showReactionPicker(' + (msgId || '?').slice(0,6) + ')');
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
@@ -1228,6 +1229,24 @@
       if (e.target.id === 'reaction-who-overlay') e.target.classList.remove('open');
     });
 
+    // ─── DEBUG TEMPORAIRE long-press (ouvrir team.html?debug=1) — À RETIRER après diagnostic ───
+    const DEBUG_LP = new URLSearchParams(location.search).has('debug');
+    let dbgEl = null;
+    function dbg(msg) {
+      if (!DEBUG_LP) return;
+      if (!dbgEl) {
+        dbgEl = document.createElement('div');
+        dbgEl.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99999;background:rgba(0,0,0,0.88);color:#4ade80;font:11px/1.5 Menlo,monospace;padding:8px 10px;border-radius:10px;pointer-events:none;white-space:pre-wrap;max-height:45vh;overflow:hidden;';
+        document.body.appendChild(dbgEl);
+      }
+      const t = new Date();
+      const stamp = t.toTimeString().slice(0,8) + '.' + String(t.getMilliseconds()).padStart(3,'0');
+      dbgEl.textContent = (stamp + '  ' + msg + '\n' + dbgEl.textContent).split('\n').slice(0, 14).join('\n');
+    }
+    window.addEventListener('error', (e) => dbg('❌ JS: ' + e.message + ' (L' + (e.lineno||'?') + ')'));
+    window.addEventListener('unhandledrejection', (e) => dbg('❌ Promesse: ' + (e.reason && e.reason.message || e.reason)));
+    dbg('debug actif — module chargé');
+
     // Appui long (mobile + souris) sur une bulle -> picker like/dislike
     (function attachLongPress() {
       const messagesDiv = document.getElementById("messages");
@@ -1235,21 +1254,26 @@
       let startX = 0, startY = 0;
       const TOLERANCE = 12; // px de jitter tolérés pendant l'appui (le doigt bouge toujours un peu)
 
-      const clearPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+      const clearPress = (why) => {
+        if (pressTimer) dbg('timer annulé (' + why + ')');
+        clearTimeout(pressTimer); pressTimer = null;
+      };
 
       const startPress = (clientX, clientY, target) => {
         const msgEl = target.closest('.msg');
-        if (!msgEl) return;
+        if (!msgEl) { dbg('appui hors message'); return; }
+        dbg('appui sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' — timer 420ms lancé');
         startX = clientX; startY = clientY;
-        pressTimer = setTimeout(() => showReactionPicker(msgEl.dataset.id, clientX, clientY), 420);
+        pressTimer = setTimeout(() => { dbg('⏱️ 420ms atteint → picker'); showReactionPicker(msgEl.dataset.id, clientX, clientY); }, 420);
       };
 
       const moveTolerant = (clientX, clientY) => {
         if (!pressTimer) return;
-        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress();
+        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress('mouvement > ' + TOLERANCE + 'px');
       };
 
       messagesDiv.addEventListener('touchstart', (e) => {
+        dbg('touchstart (cancelable=' + e.cancelable + ')');
         if (e.target.closest('.msg')) e.preventDefault(); // bloque selection/callout iOS des le depart
         const t = e.touches[0];
         startPress(t.clientX, t.clientY, e.target);
@@ -1258,13 +1282,14 @@
         const t = e.touches[0];
         moveTolerant(t.clientX, t.clientY);
       }, { passive: true });
-      messagesDiv.addEventListener('touchend', clearPress);
-      messagesDiv.addEventListener('touchcancel', clearPress);
+      messagesDiv.addEventListener('touchend', () => clearPress('touchend'));
+      messagesDiv.addEventListener('touchcancel', () => clearPress('⚠️ TOUCHCANCEL — iOS a pris la main'));
+      dbg('attachLongPress OK — listeners posés');
 
       messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
       messagesDiv.addEventListener('mousemove', (e) => moveTolerant(e.clientX, e.clientY));
-      messagesDiv.addEventListener('mouseup', clearPress);
-      messagesDiv.addEventListener('mouseleave', clearPress);
+      messagesDiv.addEventListener('mouseup', () => clearPress('mouseup'));
+      messagesDiv.addEventListener('mouseleave', () => clearPress('mouseleave'));
 
       // Bloque aussi selectstart (Chrome/Firefox/Android) et le menu contextuel natif sur un message
       messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
