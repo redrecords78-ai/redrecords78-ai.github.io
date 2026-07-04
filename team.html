@@ -1211,6 +1211,7 @@
       const name      = currentInge ? currentInge.nom : currentUser.email.split("@")[0];
       const field     = `reactions.${uid}`;
       const dejaMemeType = reactions[uid] && reactions[uid].type === type;
+      const premiereReaction = !reactions[uid]; // changer d'emoji ensuite = pas de nouveau push
 
       if (dejaMemeType) {
         await updateDoc(ref, { [field]: deleteField() });
@@ -1218,9 +1219,9 @@
       }
       await updateDoc(ref, { [field]: { type, name } });
 
-      // Notif façon Snap à l'auteur du message (pas à soi-même)
+      // Notif façon Snap à l'auteur du message (pas à soi-même, et seulement la 1re réaction de cette personne sur ce message)
       const authorEmail = (data.email || '').toLowerCase();
-      if (authorEmail && authorEmail !== (currentUser.email || '').toLowerCase()) {
+      if (premiereReaction && authorEmail && authorEmail !== (currentUser.email || '').toLowerCase()) {
         fetch(`${APPS_SCRIPT_URL}?action=notifyReaction&email=${encodeURIComponent(authorEmail)}&reactor=${encodeURIComponent(name)}&type=${type}`)
           .catch(() => {});
       }
