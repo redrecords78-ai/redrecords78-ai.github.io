@@ -343,6 +343,7 @@
     }
 
     .msg-bubble {
+      cursor: pointer; /* obligatoire pour qu'iOS envoie le clic (délégation) — sinon tap muet sur iPhone */
       padding: 9px 13px;
       font-size: 15px;
       line-height: 1.45;
