@@ -937,12 +937,16 @@
       pwDesc.textContent = isFirstTime
         ? "C'est ta première connexion — choisis ton mot de passe personnel pour remplacer le mot de passe temporaire."
         : "Choisis ton nouveau mot de passe.";
-      document.getElementById("pw-modal-skip").style.display = isFirstTime ? "none" : "block";
+      document.getElementById("pw-modal-skip").textContent = isFirstTime ? "J'ai déjà mon mot de passe" : "Plus tard";
       overlay.classList.add("open");
     }
 
     document.getElementById("change-pw-btn").addEventListener("click", () => openPwModal(false));
-    document.getElementById("pw-modal-skip").addEventListener("click", () => overlay.classList.remove("open"));
+    document.getElementById("pw-modal-skip").addEventListener("click", () => {
+      // "déjà fait sur un autre appareil" : on pose le flag local pour ne plus redemander ici
+      if (currentUser) localStorage.setItem('rr-pw-set-' + currentUser.email, '1');
+      overlay.classList.remove("open");
+    });
 
     document.getElementById("pw-modal-submit").addEventListener("click", async () => {
       const newPw  = document.getElementById("pw-new").value;
