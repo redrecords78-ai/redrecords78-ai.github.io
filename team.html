@@ -1247,61 +1247,33 @@
     window.addEventListener('unhandledrejection', (e) => dbg('❌ Promesse: ' + (e.reason && e.reason.message || e.reason)));
     dbg('debug actif — module chargé');
 
-    // Appui long (mobile + souris) sur une bulle -> picker like/dislike
-    (function attachLongPress() {
+    // Tap sur une bulle -> picker like/dislike (l'appui long était tué par iOS, cf CERVEAU 02-04/07)
+    (function attachTapReactions() {
       const messagesDiv = document.getElementById("messages");
-      let pressTimer = null;
-      let startX = 0, startY = 0;
-      const TOLERANCE = 12; // px de jitter tolérés pendant l'appui (le doigt bouge toujours un peu)
+      let pickerMsgId = null;
 
-      const clearPress = (why) => {
-        if (pressTimer) dbg('timer annulé (' + why + ')');
-        clearTimeout(pressTimer); pressTimer = null;
-      };
-
-      const startPress = (clientX, clientY, target) => {
-        const msgEl = target.closest('.msg');
-        if (!msgEl) { dbg('appui hors message'); return; }
-        dbg('appui sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' — timer 420ms lancé');
-        startX = clientX; startY = clientY;
-        pressTimer = setTimeout(() => { dbg('⏱️ 420ms atteint → picker'); showReactionPicker(msgEl.dataset.id, clientX, clientY); }, 420);
-      };
-
-      const moveTolerant = (clientX, clientY) => {
-        if (!pressTimer) return;
-        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress('mouvement > ' + TOLERANCE + 'px');
-      };
-
-      messagesDiv.addEventListener('touchstart', (e) => {
-        dbg('touchstart (cancelable=' + e.cancelable + ')');
-        if (e.target.closest('.msg')) e.preventDefault(); // bloque selection/callout iOS des le depart
-        const t = e.touches[0];
-        startPress(t.clientX, t.clientY, e.target);
-      }, { passive: false });
-      messagesDiv.addEventListener('touchmove', (e) => {
-        const t = e.touches[0];
-        moveTolerant(t.clientX, t.clientY);
-      }, { passive: true });
-      messagesDiv.addEventListener('touchend', () => clearPress('touchend'));
-      messagesDiv.addEventListener('touchcancel', () => clearPress('⚠️ TOUCHCANCEL — iOS a pris la main'));
-      dbg('attachLongPress OK — listeners posés');
-
-      messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
-      messagesDiv.addEventListener('mousemove', (e) => moveTolerant(e.clientX, e.clientY));
-      messagesDiv.addEventListener('mouseup', () => clearPress('mouseup'));
-      messagesDiv.addEventListener('mouseleave', () => clearPress('mouseleave'));
-
-      // Bloque aussi selectstart (Chrome/Firefox/Android) et le menu contextuel natif sur un message
-      messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
-      messagesDiv.addEventListener('contextmenu', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
-
-      // Tap sur un badge de réaction -> qui a réagi
       messagesDiv.addEventListener('click', (e) => {
+        // Tap sur un badge de réaction -> qui a réagi
         const badge = e.target.closest('.reaction-badge');
-        if (!badge) return;
-        const msgEl = badge.closest('.msg');
-        showWhoReacted(msgEl.dataset.id, badge.classList.contains('like') ? 'like' : 'dislike');
+        if (badge) {
+          const msgEl = badge.closest('.msg');
+          showWhoReacted(msgEl.dataset.id, badge.classList.contains('like') ? 'like' : 'dislike');
+          return;
+        }
+        // Tap sur la bulle -> ouvre le picker (re-tap sur le même message -> ferme)
+        const msgEl = e.target.closest('.msg');
+        if (!msgEl) return;
+        e.stopPropagation(); // sinon le listener document (fermeture) tue le picker qu'on ouvre
+        if (pickerMsgId === msgEl.dataset.id && activePicker) {
+          dbg('re-tap même msg → fermeture');
+          closeReactionPicker(); pickerMsgId = null;
+          return;
+        }
+        dbg('tap sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' → picker');
+        pickerMsgId = msgEl.dataset.id;
+        showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
       });
+      dbg('attachTapReactions OK — tap simple actif');
     })();
 
     // ─── SEND ─────────────────────────────────────────────────────────────────────
