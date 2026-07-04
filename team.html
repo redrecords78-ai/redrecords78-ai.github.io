@@ -1333,6 +1333,10 @@
       feedback.style.color = "#34c759";
       feedback.textContent = "Session prise ! L'agenda va se mettre à jour.";
     });
+
+    // Purge des caches fossiles : des iPhones restaient bloqués sur une vieille version de la page
+    if ('caches' in window) caches.keys().then(ks => ks.filter(k => k.startsWith('red-records-') && k !== 'red-records-v11').forEach(k => caches.delete(k))).catch(() => {});
+    if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(() => {});
   </script>
 
 </body>

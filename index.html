@@ -1151,6 +1151,9 @@ function verifierAcompte() {
 // ─── SERVICE WORKER (filet de sécurité si le CDN OneSignal ne répond pas) ────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  // Purge des caches fossiles : des iPhones restaient bloqués sur une vieille version des pages
+  if ('caches' in window) caches.keys().then(ks => ks.filter(k => k.startsWith('red-records-') && k !== 'red-records-v11').forEach(k => caches.delete(k))).catch(() => {});
+  if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(() => {});
 }
 
 // ─── SCROLL REVEAL ────────────────────────────────────────────────────────────
