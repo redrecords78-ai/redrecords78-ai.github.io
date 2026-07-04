@@ -1176,15 +1176,17 @@
       if (activePicker) { activePicker.remove(); activePicker = null; }
     }
 
-    function showReactionPicker(msgId, x, y) {
+    function showReactionPicker(msgId, msgEl) {
       dbg('showReactionPicker(' + (msgId || '?').slice(0,6) + ')');
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
       picker.innerHTML = `<button class="reaction-choice" data-type="heart">❤️</button><button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
       document.body.appendChild(picker);
-      const left = Math.min(Math.max(x - 40, 8), window.innerWidth - 90);
-      const top  = Math.max(y - 56, 8);
+      // Position FIXE : ancré au bord gauche de la bulle, au-dessus — peu importe où le doigt tape
+      const r = msgEl.getBoundingClientRect();
+      const left = Math.min(Math.max(r.left, 8), window.innerWidth - picker.offsetWidth - 8);
+      const top  = Math.max(r.top - picker.offsetHeight - 6, 8);
       picker.style.left = left + 'px';
       picker.style.top  = top + 'px';
       picker.querySelectorAll('.reaction-choice').forEach(btn => {
@@ -1286,7 +1288,7 @@
         }
         dbg('tap sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' → picker');
         pickerMsgId = msgEl.dataset.id;
-        showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
+        showReactionPicker(msgEl.dataset.id, msgEl.querySelector('.msg-bubble') || msgEl);
       });
       dbg('attachTapReactions OK — tap simple actif');
     })();
