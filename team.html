@@ -371,27 +371,27 @@
       padding: 0 4px;
     }
 
-    /* RÉACTIONS */
+    /* RÉACTIONS — pastille compacte façon WhatsApp, chevauche le bas de la bulle */
     .msg-reactions {
-      display: flex;
-      gap: 5px;
-      padding: 0 4px;
-      margin-top: 2px;
-    }
-    .reaction-badge {
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      font-size: 11px;
+      gap: 1px;
+      margin-top: -9px;
+      margin-left: 8px; margin-right: 8px;
+      position: relative; z-index: 2;
+      font-size: 13px;
       padding: 2px 7px;
       border-radius: 12px;
       background: var(--surface2);
       border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       cursor: pointer;
       user-select: none;
+      -webkit-user-select: none;
+      animation: reactPop 0.18s cubic-bezier(.2,.9,.3,1.3);
     }
-    .reaction-badge.like    { color: #33b679; }
-    .reaction-badge.dislike { color: #e63946; }
+    @keyframes reactPop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .msg-reactions .count { font-size: 11px; font-weight: 600; color: var(--text2); margin-left: 4px; }
 
     .reaction-picker {
       position: fixed;
@@ -407,14 +407,19 @@
     }
     @keyframes pickerPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .reaction-choice {
-      font-size: 22px;
+      font-size: 26px;
       background: none;
       border: none;
-      padding: 4px 6px;
+      padding: 4px 7px;
       cursor: pointer;
       line-height: 1;
+      transition: transform 0.12s cubic-bezier(.2,.7,.2,1);
+      animation: choiceIn 0.3s cubic-bezier(.2,.9,.3,1.45) both;
     }
-    .reaction-choice:active { transform: scale(1.2); }
+    .reaction-choice:nth-child(2) { animation-delay: 0.05s; }
+    .reaction-choice:nth-child(3) { animation-delay: 0.10s; }
+    @keyframes choiceIn { from { transform: translateY(10px) scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
+    .reaction-choice:active { transform: scale(1.35) translateY(-3px); }
 
     #reaction-who-overlay {
       display: none;
@@ -450,6 +455,7 @@
       padding: 8px 4px;
       font-size: 14px;
     }
+    .reaction-who-row .who-emoji { margin-left: auto; font-size: 18px; }
     .reaction-who-row .who-avatar {
       width: 28px; height: 28px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -1147,16 +1153,17 @@
     }
 
     // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
+    const REACTION_EMOJI = { heart: '❤️', like: '👍', dislike: '👎' };
     function buildReactionsHtml(reactions) {
       if (!reactions) return '';
       const entries = Object.values(reactions);
-      const likes = entries.filter(r => r.type === 'like').length;
-      const dislikes = entries.filter(r => r.type === 'dislike').length;
-      if (!likes && !dislikes) return '';
-      return `<div class="msg-reactions">
-        ${likes ? `<span class="reaction-badge like">👍 ${likes}</span>` : ''}
-        ${dislikes ? `<span class="reaction-badge dislike">👎 ${dislikes}</span>` : ''}
-      </div>`;
+      if (!entries.length) return '';
+      // Pastille façon WhatsApp : les emojis présents + le total si plusieurs
+      const emojis = Object.keys(REACTION_EMOJI)
+        .filter(t => entries.some(r => r.type === t))
+        .map(t => REACTION_EMOJI[t]).join('');
+      const count = entries.length > 1 ? `<span class="count">${entries.length}</span>` : '';
+      return `<div class="msg-reactions">${emojis}${count}</div>`;
     }
 
     let activePicker = null;
@@ -1169,7 +1176,7 @@
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
-      picker.innerHTML = `<button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
+      picker.innerHTML = `<button class="reaction-choice" data-type="heart">❤️</button><button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
       document.body.appendChild(picker);
       const left = Math.min(Math.max(x - 40, 8), window.innerWidth - 90);
       const top  = Math.max(y - 56, 8);
@@ -1178,6 +1185,7 @@
       picker.querySelectorAll('.reaction-choice').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
+          if (navigator.vibrate) navigator.vibrate(10); // petit retour haptique (Android)
           setReaction_(msgId, btn.dataset.type);
         });
       });
@@ -1211,17 +1219,19 @@
       }
     }
 
-    async function showWhoReacted(msgId, type) {
+    async function showWhoReacted(msgId) {
       const ref  = doc(db, "team-chat", msgId);
       const snap = await getDoc(ref);
       if (!snap.exists()) return;
       const reactions = snap.data().reactions || {};
-      const names = Object.entries(reactions).filter(([, r]) => r.type === type).map(([, r]) => r.name);
-      if (!names.length) return;
-      document.getElementById('reaction-who-title').textContent = (type === 'like' ? '👍 Ont aimé' : '👎 N\'ont pas aimé');
-      document.getElementById('reaction-who-list').innerHTML = names.map(n => {
+      const rows = Object.values(reactions);
+      if (!rows.length) return;
+      document.getElementById('reaction-who-title').textContent =
+        rows.length + (rows.length > 1 ? ' réactions' : ' réaction');
+      document.getElementById('reaction-who-list').innerHTML = rows.map(r => {
+        const n = r.name || '?';
         const c = MEMBRES_DEFAUT.find(m => m.nom === n)?.couleur || '#888';
-        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml((n||'?')[0].toUpperCase())}</div>${escapeHtml(n)}</div>`;
+        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml(n[0].toUpperCase())}</div>${escapeHtml(n)}<span class="who-emoji">${REACTION_EMOJI[r.type] || '👍'}</span></div>`;
       }).join('');
       document.getElementById('reaction-who-overlay').classList.add('open');
     }
@@ -1253,11 +1263,11 @@
       let pickerMsgId = null;
 
       messagesDiv.addEventListener('click', (e) => {
-        // Tap sur un badge de réaction -> qui a réagi
-        const badge = e.target.closest('.reaction-badge');
-        if (badge) {
-          const msgEl = badge.closest('.msg');
-          showWhoReacted(msgEl.dataset.id, badge.classList.contains('like') ? 'like' : 'dislike');
+        // Tap sur la pastille de réactions -> qui a réagi (avec quoi)
+        const pill = e.target.closest('.msg-reactions');
+        if (pill) {
+          const msgEl = pill.closest('.msg');
+          showWhoReacted(msgEl.dataset.id);
           return;
         }
         // Tap sur la bulle -> ouvre le picker (re-tap sur le même message -> ferme)
