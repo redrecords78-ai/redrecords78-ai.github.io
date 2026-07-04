@@ -1171,7 +1171,7 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <!-- BULLE TEAM -->
-<button id="private-bubble" title="Espace équipe" onclick="toggleTeamPanel()">
+<button id="private-bubble" title="Espace équipe" onclick="window.location.href='team.html'">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   <span id="tp-badge"></span>
 </button>
@@ -1495,15 +1495,10 @@ if ('serviceWorker' in navigator) {
     if (e.key === 'Enter') document.getElementById('tp-login-btn').click();
   });
 
-  // Ouverture directe du chat depuis une notif message (?chat=1)
+  // Ouverture directe du chat depuis une notif message (?chat=1) → le vrai chat (team.html)
   (function() {
     if (new URLSearchParams(location.search).get('chat') !== '1') return;
-    window.addEventListener('load', () => setTimeout(() => {
-      const panel = document.getElementById('team-panel');
-      if (panel && !panel.classList.contains('open')) toggleTeamPanel();
-      if (window.tpSwitchTab) tpSwitchTab('chat');
-      history.replaceState({}, '', location.pathname);
-    }, 400));
+    window.location.replace('team.html');
   })();
 </script>
 
