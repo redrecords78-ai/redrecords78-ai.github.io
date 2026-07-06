@@ -758,7 +758,7 @@ function renderStats(data) {
     document.getElementById('inge-grid').innerHTML = ingeKeys.map(nom => {
       const couleur = COULEURS_INGE[nom] || '#888';
       const pct = Math.round(ingeMap[nom] / max * 100);
-      return `<div class="inge-card"><div class="inge-name" style="color:${couleur}">${nom}</div><div class="inge-count">${ingeMap[nom]} session${ingeMap[nom] > 1 ? 's' : ''}</div><div class="inge-bar-wrap"><div class="inge-bar" style="width:${pct}%;background:${couleur}"></div></div></div>`;
+      return `<div class="inge-card"><div class="inge-name" style="color:${couleur}">${esc(nom)}</div><div class="inge-count">${ingeMap[nom]} session${ingeMap[nom] > 1 ? 's' : ''}</div><div class="inge-bar-wrap"><div class="inge-bar" style="width:${pct}%;background:${couleur}"></div></div></div>`;
     }).join('');
     document.getElementById('inges-wrap').style.display = 'block';
   }
@@ -771,7 +771,7 @@ function renderStats(data) {
       .sort((a, b) => creneaux[b] - creneaux[a])
       .map(slot => {
         const pct = Math.round(creneaux[slot] / maxCr * 100);
-        return `<div class="creneau-row"><div class="creneau-label">${slot}</div><div class="creneau-bar-wrap"><div class="creneau-bar" style="width:${pct}%"></div></div><div class="creneau-count">${creneaux[slot]}</div></div>`;
+        return `<div class="creneau-row"><div class="creneau-label">${esc(slot)}</div><div class="creneau-bar-wrap"><div class="creneau-bar" style="width:${pct}%"></div></div><div class="creneau-count">${creneaux[slot]}</div></div>`;
       }).join('');
     document.getElementById('creneaux-wrap').style.display = 'block';
   }
@@ -781,7 +781,7 @@ function renderStats(data) {
     ? logs.slice(0, 20).map(l => {
         const d = new Date(l.ts);
         const label = l.type === 'acces'
-          ? `✅ <strong>${l.user || 'Admin'}</strong> — accès dashboard`
+          ? `✅ <strong>${esc(l.user || 'Admin')}</strong> — accès dashboard`
           : '⚠️ Mauvais PIN — tentative d\'accès dashboard';
         const color = l.type === 'acces' ? '#33b679' : '#e63946';
         const dateStr = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
@@ -850,7 +850,7 @@ function renderTeam(users) {
     );
     return `<div class="team-row" id="team-row-${u.id}">
       <div class="team-info">
-        <div class="team-name">${u.name} ${badge}</div>
+        <div class="team-name">${esc(u.name)} ${badge}</div>
         <div class="team-meta">${status}${devices}</div>
       </div>
       ${btn}
@@ -991,23 +991,23 @@ onSnapshot(
 
       if (a.type === 'login') {
         dot = couleur;
-        label = `<strong style="color:${couleur}">${nom}</strong> — connexion au chat`;
-        if (a.device) label += ` <span style="color:var(--gray)">· ${a.device}</span>`;
+        label = `<strong style="color:${couleur}">${esc(nom)}</strong> — connexion au chat`;
+        if (a.device) label += ` <span style="color:var(--gray)">· ${esc(a.device)}</span>`;
         if (a.multiDevice) label += ` <span style="color:#f6bf26;font-size:10px"> ⚠️ multi-appareils</span>`;
 
       } else if (a.type === 'failed') {
         dot = '#e63946';
-        const qui = m ? `<strong style="color:#e63946">${nom}</strong>` : `<strong style="color:#e63946">Inconnu</strong> (${a.email || '?'})`;
+        const qui = m ? `<strong style="color:#e63946">${esc(nom)}</strong>` : `<strong style="color:#e63946">Inconnu</strong> (${esc(a.email || '?')})`;
         label = `${qui} — tentative de connexion au chat échouée`;
-        if (a.device) label += ` <span style="color:var(--gray)">· ${a.device}</span>`;
-        if (a.ip) label += ` <span style="color:var(--gray2)">· IP : ${a.ip}</span>`;
+        if (a.device) label += ` <span style="color:var(--gray)">· ${esc(a.device)}</span>`;
+        if (a.ip) label += ` <span style="color:var(--gray2)">· IP : ${esc(a.ip)}</span>`;
 
       } else if (a.type === 'logout') {
         dot = 'var(--gray2)';
-        label = `<span style="color:var(--gray)">${nom} — déconnexion</span>`;
-        if (a.device) label += ` <span style="color:var(--gray2)">· ${a.device}</span>`;
+        label = `<span style="color:var(--gray)">${esc(nom)} — déconnexion</span>`;
+        if (a.device) label += ` <span style="color:var(--gray2)">· ${esc(a.device)}</span>`;
       } else {
-        dot = 'var(--gray2)'; label = a.type + ' — ' + (a.email || '');
+        dot = 'var(--gray2)'; label = esc(a.type) + ' — ' + esc(a.email || '');
       }
 
       return `<div class="act-row">
