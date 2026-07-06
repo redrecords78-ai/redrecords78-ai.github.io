@@ -1179,7 +1179,6 @@
     }
 
     function showReactionPicker(msgId, msgEl) {
-      dbg('showReactionPicker(' + (msgId || '?').slice(0,6) + ')');
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
@@ -1249,24 +1248,6 @@
       if (e.target.id === 'reaction-who-overlay') e.target.classList.remove('open');
     });
 
-    // ─── DEBUG TEMPORAIRE long-press (ouvrir team.html?debug=1) — À RETIRER après diagnostic ───
-    const DEBUG_LP = new URLSearchParams(location.search).has('debug');
-    let dbgEl = null;
-    function dbg(msg) {
-      if (!DEBUG_LP) return;
-      if (!dbgEl) {
-        dbgEl = document.createElement('div');
-        dbgEl.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99999;background:rgba(0,0,0,0.88);color:#4ade80;font:11px/1.5 Menlo,monospace;padding:8px 10px;border-radius:10px;pointer-events:none;white-space:pre-wrap;max-height:45vh;overflow:hidden;';
-        document.body.appendChild(dbgEl);
-      }
-      const t = new Date();
-      const stamp = t.toTimeString().slice(0,8) + '.' + String(t.getMilliseconds()).padStart(3,'0');
-      dbgEl.textContent = (stamp + '  ' + msg + '\n' + dbgEl.textContent).split('\n').slice(0, 14).join('\n');
-    }
-    window.addEventListener('error', (e) => dbg('❌ JS: ' + e.message + ' (L' + (e.lineno||'?') + ')'));
-    window.addEventListener('unhandledrejection', (e) => dbg('❌ Promesse: ' + (e.reason && e.reason.message || e.reason)));
-    dbg('debug actif — module chargé');
-
     // Tap sur une bulle -> picker like/dislike (l'appui long était tué par iOS, cf CERVEAU 02-04/07)
     (function attachTapReactions() {
       const messagesDiv = document.getElementById("messages");
@@ -1285,15 +1266,12 @@
         if (!msgEl) return;
         e.stopPropagation(); // sinon le listener document (fermeture) tue le picker qu'on ouvre
         if (pickerMsgId === msgEl.dataset.id && activePicker) {
-          dbg('re-tap même msg → fermeture');
           closeReactionPicker(); pickerMsgId = null;
           return;
         }
-        dbg('tap sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' → picker');
         pickerMsgId = msgEl.dataset.id;
         showReactionPicker(msgEl.dataset.id, msgEl.querySelector('.msg-bubble') || msgEl);
       });
-      dbg('attachTapReactions OK — tap simple actif');
     })();
 
     // ─── SEND ─────────────────────────────────────────────────────────────────────
