@@ -1196,7 +1196,7 @@
         });
       });
       activePicker = picker;
-      setTimeout(() => document.addEventListener('click', closeReactionPicker, { once: true }), 50);
+      setTimeout(() => document.addEventListener('touchstart', closeReactionPicker, { once: true, passive: true }), 400);
     }
 
     async function setReaction_(msgId, type) {
