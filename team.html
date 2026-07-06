@@ -1247,9 +1247,37 @@
     // Tap sur bulle → picker | tap sur pastille → qui a réagi
     (function attachTapHandlers() {
       const messagesDiv = document.getElementById("messages");
+      let touchMoved = false;
+      let fromTouch  = false;
+
       messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
       messagesDiv.addEventListener('contextmenu',  (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
+
+      // iOS/Android : touchend = seul event fiable sur un div non-interactif
+      messagesDiv.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+      messagesDiv.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
+      messagesDiv.addEventListener('touchend', (e) => {
+        if (touchMoved) return;
+        fromTouch = true; setTimeout(() => { fromTouch = false; }, 600);
+        const touch = e.changedTouches[0];
+        const bubble = e.target.closest('.msg-bubble');
+        if (bubble) {
+          e.preventDefault();
+          const msgEl = bubble.closest('.msg');
+          if (msgEl) showReactionPicker(msgEl.dataset.id, touch.clientX, touch.clientY);
+          return;
+        }
+        const badge = e.target.closest('.reaction-badge');
+        if (badge) {
+          e.preventDefault();
+          const msgEl = badge.closest('.msg');
+          if (msgEl) showWhoReacted(msgEl.dataset.id);
+        }
+      });
+
+      // Desktop (souris) — évite le double-déclenchement après touch
       messagesDiv.addEventListener('click', (e) => {
+        if (fromTouch) return;
         const bubble = e.target.closest('.msg-bubble');
         if (bubble) {
           const msgEl = bubble.closest('.msg');
