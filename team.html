@@ -1229,6 +1229,7 @@
       const msgEl = badgeEl.closest('.msg');
       if (msgEl) showWhoReacted(msgEl.dataset.id);
     };
+    window.showReactionPicker = function(msgId, x, y) { showReactionPicker(msgId, x, y); };
     async function showWhoReacted(msgId) {
       const ref  = doc(db, "team-chat", msgId);
       const snap = await getDoc(ref);
