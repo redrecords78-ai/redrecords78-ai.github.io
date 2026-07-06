@@ -1260,34 +1260,32 @@
         if (touchMoved) return;
         fromTouch = true; setTimeout(() => { fromTouch = false; }, 600);
         const touch = e.changedTouches[0];
-        const bubble = e.target.closest('.msg-bubble');
-        if (bubble) {
-          e.preventDefault();
-          const msgEl = bubble.closest('.msg');
-          if (msgEl) showReactionPicker(msgEl.dataset.id, touch.clientX, touch.clientY);
-          return;
-        }
         const badge = e.target.closest('.reaction-badge');
         if (badge) {
           e.preventDefault();
           const msgEl = badge.closest('.msg');
           if (msgEl) showWhoReacted(msgEl.dataset.id);
+          return;
+        }
+        const msgEl = e.target.closest('.msg');
+        if (msgEl && e.target.closest('.msg-bubble, .msg-bubble-wrap')) {
+          e.preventDefault();
+          showReactionPicker(msgEl.dataset.id, touch.clientX, touch.clientY);
         }
       });
 
-      // Desktop (souris) — évite le double-déclenchement après touch
+      // Desktop (souris)
       messagesDiv.addEventListener('click', (e) => {
         if (fromTouch) return;
-        const bubble = e.target.closest('.msg-bubble');
-        if (bubble) {
-          const msgEl = bubble.closest('.msg');
-          if (msgEl) showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
-          return;
-        }
         const badge = e.target.closest('.reaction-badge');
         if (badge) {
           const msgEl = badge.closest('.msg');
           if (msgEl) showWhoReacted(msgEl.dataset.id);
+          return;
+        }
+        const msgEl = e.target.closest('.msg');
+        if (msgEl && e.target.closest('.msg-bubble, .msg-bubble-wrap')) {
+          showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
         }
       });
     })();
