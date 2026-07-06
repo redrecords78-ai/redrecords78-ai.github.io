@@ -343,7 +343,6 @@
     }
 
     .msg-bubble {
-      cursor: pointer; /* obligatoire pour qu'iOS envoie le clic (délégation) — sinon tap muet sur iPhone */
       padding: 9px 13px;
       font-size: 15px;
       line-height: 1.45;
@@ -372,27 +371,33 @@
       padding: 0 4px;
     }
 
-    /* RÉACTIONS — pastille compacte façon WhatsApp, chevauche le bas de la bulle */
+    /* RÉACTIONS — pastille façon WhatsApp */
+    .msg-bubble-wrap {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .msg-bubble-wrap.has-reactions { margin-bottom: 14px; }
     .msg-reactions {
+      position: absolute;
+      bottom: -13px;
+      display: flex;
+    }
+    .other .msg-reactions { left: 6px; }
+    .mine  .msg-reactions { right: 6px; }
+    .reaction-badge {
       display: inline-flex;
       align-items: center;
-      gap: 1px;
-      margin-top: -9px;
-      margin-left: 8px; margin-right: 8px;
-      position: relative; z-index: 2;
-      font-size: 13px;
-      padding: 2px 7px;
-      border-radius: 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      gap: 3px;
+      font-size: 12px;
+      padding: 2px 7px 2px 5px;
+      border-radius: 10px;
+      background: #2c2c2e;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.45);
       cursor: pointer;
       user-select: none;
-      -webkit-user-select: none;
-      animation: reactPop 0.18s cubic-bezier(.2,.9,.3,1.3);
+      white-space: nowrap;
     }
-    @keyframes reactPop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .msg-reactions .count { font-size: 11px; font-weight: 600; color: var(--text2); margin-left: 4px; }
 
     .reaction-picker {
       position: fixed;
@@ -408,19 +413,14 @@
     }
     @keyframes pickerPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .reaction-choice {
-      font-size: 26px;
+      font-size: 22px;
       background: none;
       border: none;
-      padding: 4px 7px;
+      padding: 4px 6px;
       cursor: pointer;
       line-height: 1;
-      transition: transform 0.12s cubic-bezier(.2,.7,.2,1);
-      animation: choiceIn 0.3s cubic-bezier(.2,.9,.3,1.45) both;
     }
-    .reaction-choice:nth-child(2) { animation-delay: 0.05s; }
-    .reaction-choice:nth-child(3) { animation-delay: 0.10s; }
-    @keyframes choiceIn { from { transform: translateY(10px) scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
-    .reaction-choice:active { transform: scale(1.35) translateY(-3px); }
+    .reaction-choice:active { transform: scale(1.2); }
 
     #reaction-who-overlay {
       display: none;
@@ -456,7 +456,6 @@
       padding: 8px 4px;
       font-size: 14px;
     }
-    .reaction-who-row .who-emoji { margin-left: auto; font-size: 18px; }
     .reaction-who-row .who-avatar {
       width: 28px; height: 28px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -938,16 +937,12 @@
       pwDesc.textContent = isFirstTime
         ? "C'est ta première connexion — choisis ton mot de passe personnel pour remplacer le mot de passe temporaire."
         : "Choisis ton nouveau mot de passe.";
-      document.getElementById("pw-modal-skip").textContent = isFirstTime ? "J'ai déjà mon mot de passe" : "Plus tard";
+      document.getElementById("pw-modal-skip").style.display = isFirstTime ? "none" : "block";
       overlay.classList.add("open");
     }
 
     document.getElementById("change-pw-btn").addEventListener("click", () => openPwModal(false));
-    document.getElementById("pw-modal-skip").addEventListener("click", () => {
-      // "déjà fait sur un autre appareil" : on pose le flag local pour ne plus redemander ici
-      if (currentUser) localStorage.setItem('rr-pw-set-' + currentUser.email, '1');
-      overlay.classList.remove("open");
-    });
+    document.getElementById("pw-modal-skip").addEventListener("click", () => overlay.classList.remove("open"));
 
     document.getElementById("pw-modal-submit").addEventListener("click", async () => {
       const newPw  = document.getElementById("pw-new").value;
@@ -1121,20 +1116,25 @@
 
           const reactionsHtml = buildReactionsHtml(msg.reactions);
 
+          const hasR = reactionsHtml ? ' has-reactions' : '';
           if (!isMine) {
             div.innerHTML = `
               <div class="msg-avatar${sameGroup ? ' ghost' : ''}" style="background:${couleur};color:${textColor(couleur)}">${initial}</div>
               <div class="msg-content">
                 ${!sameGroup ? `<div class="msg-name" style="color:${couleur}">${escapeHtml(msg.name)}</div>` : ''}
-                <div class="msg-bubble">${escapeHtml(msg.text)}</div>
-                ${reactionsHtml}
+                <div class="msg-bubble-wrap${hasR}">
+                  <div class="msg-bubble">${escapeHtml(msg.text)}</div>
+                  ${reactionsHtml}
+                </div>
                 <div class="msg-time">${time}</div>
               </div>`;
           } else {
             div.innerHTML = `
               <div class="msg-content">
-                <div class="msg-bubble" style="background:${couleur};color:${textColor(couleur)}">${escapeHtml(msg.text)}</div>
-                ${reactionsHtml}
+                <div class="msg-bubble-wrap${hasR}">
+                  <div class="msg-bubble" style="background:${couleur};color:${textColor(couleur)}">${escapeHtml(msg.text)}</div>
+                  ${reactionsHtml}
+                </div>
                 <div class="msg-time">${time}</div>
               </div>`;
           }
@@ -1158,17 +1158,17 @@
     }
 
     // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
-    const REACTION_EMOJI = { heart: '❤️', like: '👍', dislike: '👎' };
     function buildReactionsHtml(reactions) {
       if (!reactions) return '';
       const entries = Object.values(reactions);
       if (!entries.length) return '';
-      // Pastille façon WhatsApp : les emojis présents + le total si plusieurs
-      const emojis = Object.keys(REACTION_EMOJI)
-        .filter(t => entries.some(r => r.type === t))
-        .map(t => REACTION_EMOJI[t]).join('');
-      const count = entries.length > 1 ? `<span class="count">${entries.length}</span>` : '';
-      return `<div class="msg-reactions">${emojis}${count}</div>`;
+      const total = entries.length;
+      let emojis = '';
+      if (entries.some(r => r.type === 'heart'))   emojis += '❤️';
+      if (entries.some(r => r.type === 'like'))     emojis += '👍';
+      if (entries.some(r => r.type === 'dislike'))  emojis += '👎';
+      if (!emojis) return '';
+      return `<div class="msg-reactions"><span class="reaction-badge">${emojis} ${total}</span></div>`;
     }
 
     let activePicker = null;
@@ -1176,23 +1176,20 @@
       if (activePicker) { activePicker.remove(); activePicker = null; }
     }
 
-    function showReactionPicker(msgId, msgEl) {
+    function showReactionPicker(msgId, x, y) {
       dbg('showReactionPicker(' + (msgId || '?').slice(0,6) + ')');
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
       picker.innerHTML = `<button class="reaction-choice" data-type="heart">❤️</button><button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
       document.body.appendChild(picker);
-      // Position FIXE : ancré au bord gauche de la bulle, au-dessus — peu importe où le doigt tape
-      const r = msgEl.getBoundingClientRect();
-      const left = Math.min(Math.max(r.left, 8), window.innerWidth - picker.offsetWidth - 8);
-      const top  = Math.max(r.top - picker.offsetHeight - 6, 8);
+      const left = Math.min(Math.max(x - 40, 8), window.innerWidth - 90);
+      const top  = Math.max(y - 56, 8);
       picker.style.left = left + 'px';
       picker.style.top  = top + 'px';
       picker.querySelectorAll('.reaction-choice').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
-          if (navigator.vibrate) navigator.vibrate(10); // petit retour haptique (Android)
           setReaction_(msgId, btn.dataset.type);
         });
       });
@@ -1211,7 +1208,6 @@
       const name      = currentInge ? currentInge.nom : currentUser.email.split("@")[0];
       const field     = `reactions.${uid}`;
       const dejaMemeType = reactions[uid] && reactions[uid].type === type;
-      const premiereReaction = !reactions[uid]; // changer d'emoji ensuite = pas de nouveau push
 
       if (dejaMemeType) {
         await updateDoc(ref, { [field]: deleteField() });
@@ -1219,9 +1215,9 @@
       }
       await updateDoc(ref, { [field]: { type, name } });
 
-      // Notif façon Snap à l'auteur du message (pas à soi-même, et seulement la 1re réaction de cette personne sur ce message)
+      // Notif façon Snap à l'auteur du message (pas à soi-même)
       const authorEmail = (data.email || '').toLowerCase();
-      if (premiereReaction && authorEmail && authorEmail !== (currentUser.email || '').toLowerCase()) {
+      if (authorEmail && authorEmail !== (currentUser.email || '').toLowerCase()) {
         fetch(`${APPS_SCRIPT_URL}?action=notifyReaction&email=${encodeURIComponent(authorEmail)}&reactor=${encodeURIComponent(name)}&type=${type}`)
           .catch(() => {});
       }
@@ -1232,14 +1228,13 @@
       const snap = await getDoc(ref);
       if (!snap.exists()) return;
       const reactions = snap.data().reactions || {};
-      const rows = Object.values(reactions);
-      if (!rows.length) return;
-      document.getElementById('reaction-who-title').textContent =
-        rows.length + (rows.length > 1 ? ' réactions' : ' réaction');
-      document.getElementById('reaction-who-list').innerHTML = rows.map(r => {
-        const n = r.name || '?';
-        const c = MEMBRES_DEFAUT.find(m => m.nom === n)?.couleur || '#888';
-        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml(n[0].toUpperCase())}</div>${escapeHtml(n)}<span class="who-emoji">${REACTION_EMOJI[r.type] || '👍'}</span></div>`;
+      const entries = Object.entries(reactions);
+      if (!entries.length) return;
+      const emojiMap = { heart: '❤️', like: '👍', dislike: '👎' };
+      document.getElementById('reaction-who-title').textContent = 'Réactions';
+      document.getElementById('reaction-who-list').innerHTML = entries.map(([, r]) => {
+        const c = MEMBRES_DEFAUT.find(m => m.nom === r.name)?.couleur || '#888';
+        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml((r.name||'?')[0].toUpperCase())}</div>${escapeHtml(r.name)} <span style="margin-left:auto">${emojiMap[r.type]||''}</span></div>`;
       }).join('');
       document.getElementById('reaction-who-overlay').classList.add('open');
     }
@@ -1265,33 +1260,61 @@
     window.addEventListener('unhandledrejection', (e) => dbg('❌ Promesse: ' + (e.reason && e.reason.message || e.reason)));
     dbg('debug actif — module chargé');
 
-    // Tap sur une bulle -> picker like/dislike (l'appui long était tué par iOS, cf CERVEAU 02-04/07)
-    (function attachTapReactions() {
+    // Appui long (mobile + souris) sur une bulle -> picker like/dislike
+    (function attachLongPress() {
       const messagesDiv = document.getElementById("messages");
-      let pickerMsgId = null;
+      let pressTimer = null;
+      let startX = 0, startY = 0;
+      const TOLERANCE = 12; // px de jitter tolérés pendant l'appui (le doigt bouge toujours un peu)
 
+      const clearPress = (why) => {
+        if (pressTimer) dbg('timer annulé (' + why + ')');
+        clearTimeout(pressTimer); pressTimer = null;
+      };
+
+      const startPress = (clientX, clientY, target) => {
+        const msgEl = target.closest('.msg');
+        if (!msgEl) { dbg('appui hors message'); return; }
+        dbg('appui sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' — timer 420ms lancé');
+        startX = clientX; startY = clientY;
+        pressTimer = setTimeout(() => { dbg('⏱️ 420ms atteint → picker'); showReactionPicker(msgEl.dataset.id, clientX, clientY); }, 420);
+      };
+
+      const moveTolerant = (clientX, clientY) => {
+        if (!pressTimer) return;
+        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress('mouvement > ' + TOLERANCE + 'px');
+      };
+
+      messagesDiv.addEventListener('touchstart', (e) => {
+        dbg('touchstart (cancelable=' + e.cancelable + ')');
+        if (e.target.closest('.msg')) e.preventDefault(); // bloque selection/callout iOS des le depart
+        const t = e.touches[0];
+        startPress(t.clientX, t.clientY, e.target);
+      }, { passive: false });
+      messagesDiv.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        moveTolerant(t.clientX, t.clientY);
+      }, { passive: true });
+      messagesDiv.addEventListener('touchend', () => clearPress('touchend'));
+      messagesDiv.addEventListener('touchcancel', () => clearPress('⚠️ TOUCHCANCEL — iOS a pris la main'));
+      dbg('attachLongPress OK — listeners posés');
+
+      messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
+      messagesDiv.addEventListener('mousemove', (e) => moveTolerant(e.clientX, e.clientY));
+      messagesDiv.addEventListener('mouseup', () => clearPress('mouseup'));
+      messagesDiv.addEventListener('mouseleave', () => clearPress('mouseleave'));
+
+      // Bloque aussi selectstart (Chrome/Firefox/Android) et le menu contextuel natif sur un message
+      messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
+      messagesDiv.addEventListener('contextmenu', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
+
+      // Tap sur la pastille de réaction -> qui a réagi
       messagesDiv.addEventListener('click', (e) => {
-        // Tap sur la pastille de réactions -> qui a réagi (avec quoi)
-        const pill = e.target.closest('.msg-reactions');
-        if (pill) {
-          const msgEl = pill.closest('.msg');
-          showWhoReacted(msgEl.dataset.id);
-          return;
-        }
-        // Tap sur la bulle -> ouvre le picker (re-tap sur le même message -> ferme)
-        const msgEl = e.target.closest('.msg');
-        if (!msgEl) return;
-        e.stopPropagation(); // sinon le listener document (fermeture) tue le picker qu'on ouvre
-        if (pickerMsgId === msgEl.dataset.id && activePicker) {
-          dbg('re-tap même msg → fermeture');
-          closeReactionPicker(); pickerMsgId = null;
-          return;
-        }
-        dbg('tap sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' → picker');
-        pickerMsgId = msgEl.dataset.id;
-        showReactionPicker(msgEl.dataset.id, msgEl.querySelector('.msg-bubble') || msgEl);
+        const badge = e.target.closest('.reaction-badge');
+        if (!badge) return;
+        const msgEl = badge.closest('.msg');
+        showWhoReacted(msgEl.dataset.id);
       });
-      dbg('attachTapReactions OK — tap simple actif');
     })();
 
     // ─── SEND ─────────────────────────────────────────────────────────────────────
@@ -1337,10 +1360,6 @@
       feedback.style.color = "#34c759";
       feedback.textContent = "Session prise ! L'agenda va se mettre à jour.";
     });
-
-    // Purge des caches fossiles : des iPhones restaient bloqués sur une vieille version de la page
-    if ('caches' in window) caches.keys().then(ks => ks.filter(k => k.startsWith('red-records-') && k !== 'red-records-v11').forEach(k => caches.delete(k))).catch(() => {});
-    if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(() => {});
   </script>
 
 </body>
