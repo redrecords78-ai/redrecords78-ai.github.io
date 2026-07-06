@@ -1124,7 +1124,7 @@
               <div class="msg-avatar${sameGroup ? ' ghost' : ''}" style="background:${couleur};color:${textColor(couleur)}">${initial}</div>
               <div class="msg-content">
                 ${!sameGroup ? `<div class="msg-name" style="color:${couleur}">${escapeHtml(msg.name)}</div>` : ''}
-                <div class="msg-bubble-wrap${hasR}">
+                <div class="msg-bubble-wrap${hasR}" onclick="showReactionPicker('${msgId}',event.clientX,event.clientY)">
                   <div class="msg-bubble">${escapeHtml(msg.text)}</div>
                   ${reactionsHtml}
                 </div>
@@ -1133,7 +1133,7 @@
           } else {
             div.innerHTML = `
               <div class="msg-content">
-                <div class="msg-bubble-wrap${hasR}">
+                <div class="msg-bubble-wrap${hasR}" onclick="showReactionPicker('${msgId}',event.clientX,event.clientY)">
                   <div class="msg-bubble" style="background:${couleur};color:${textColor(couleur)}">${escapeHtml(msg.text)}</div>
                   ${reactionsHtml}
                 </div>
@@ -1170,7 +1170,7 @@
       if (entries.some(r => r.type === 'like'))     emojis += '👍';
       if (entries.some(r => r.type === 'dislike'))  emojis += '👎';
       if (!emojis) return '';
-      return `<div class="msg-reactions"><span class="reaction-badge">${emojis} ${total}</span></div>`;
+      return `<div class="msg-reactions"><span class="reaction-badge" onclick="event.stopPropagation();window._showWhoReacted(this)">${emojis} ${total}</span></div>`;
     }
 
     let activePicker = null;
@@ -1225,6 +1225,10 @@
       }
     }
 
+    window._showWhoReacted = function(badgeEl) {
+      const msgEl = badgeEl.closest('.msg');
+      if (msgEl) showWhoReacted(msgEl.dataset.id);
+    };
     async function showWhoReacted(msgId) {
       const ref  = doc(db, "team-chat", msgId);
       const snap = await getDoc(ref);
@@ -1244,50 +1248,11 @@
       if (e.target.id === 'reaction-who-overlay') e.target.classList.remove('open');
     });
 
-    // Tap sur bulle → picker | tap sur pastille → qui a réagi
-    (function attachTapHandlers() {
+    // Bloque sélection texte et menu contextuel sur les messages
+    (function attachMsgGuards() {
       const messagesDiv = document.getElementById("messages");
-      let touchMoved = false;
-      let fromTouch  = false;
-
       messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
       messagesDiv.addEventListener('contextmenu',  (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
-
-      // iOS/Android : touchend = seul event fiable sur un div non-interactif
-      messagesDiv.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-      messagesDiv.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
-      messagesDiv.addEventListener('touchend', (e) => {
-        if (touchMoved) return;
-        fromTouch = true; setTimeout(() => { fromTouch = false; }, 600);
-        const touch = e.changedTouches[0];
-        const badge = e.target.closest('.reaction-badge');
-        if (badge) {
-          e.preventDefault();
-          const msgEl = badge.closest('.msg');
-          if (msgEl) showWhoReacted(msgEl.dataset.id);
-          return;
-        }
-        const msgEl = e.target.closest('.msg');
-        if (msgEl && e.target.closest('.msg-bubble, .msg-bubble-wrap')) {
-          e.preventDefault();
-          showReactionPicker(msgEl.dataset.id, touch.clientX, touch.clientY);
-        }
-      });
-
-      // Desktop (souris)
-      messagesDiv.addEventListener('click', (e) => {
-        if (fromTouch) return;
-        const badge = e.target.closest('.reaction-badge');
-        if (badge) {
-          const msgEl = badge.closest('.msg');
-          if (msgEl) showWhoReacted(msgEl.dataset.id);
-          return;
-        }
-        const msgEl = e.target.closest('.msg');
-        if (msgEl && e.target.closest('.msg-bubble, .msg-bubble-wrap')) {
-          showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
-        }
-      });
     })();
 
     // ─── SEND ─────────────────────────────────────────────────────────────────────
