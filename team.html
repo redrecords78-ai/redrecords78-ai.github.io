@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Red Records — Team</title>
   <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -21,11 +22,11 @@
       --border: rgba(255,255,255,0.08);
       --text: #f2f2f7;
       --text2: #8e8e93;
-      --red: #e63946;
+      --red: #E8192C;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
       height: 100dvh;
@@ -1083,7 +1084,7 @@
           const isMine = msg.uid === currentUser.uid;
           const ts     = msg.timestamp?.toDate();
           const time   = ts ? ts.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
-          const couleur = safeColor(msg.couleur) || (isMine ? "#e63946" : "#555");
+          const couleur = safeColor(msg.couleur) || (isMine ? "#E8192C" : "#555");
 
           // ── Date separator ──
           if (ts) {
@@ -1327,7 +1328,7 @@
       await addDoc(collection(db, "team-chat"), {
         text, uid: currentUser.uid, name,
         email: (currentUser.email || '').toLowerCase(),
-        couleur: currentInge ? currentInge.couleur : "#e63946",
+        couleur: currentInge ? currentInge.couleur : "#E8192C",
         timestamp: serverTimestamp()
       });
       fetch(APPS_SCRIPT_URL, {
@@ -1347,7 +1348,7 @@
       const creneau  = document.getElementById("s-creneau").value;
       const feedback = document.getElementById("session-feedback");
       if (!date) {
-        feedback.style.color = "#e63946";
+        feedback.style.color = "#E8192C";
         feedback.textContent = "Sélectionne une date.";
         return;
       }
