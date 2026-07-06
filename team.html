@@ -349,11 +349,12 @@
       line-height: 1.45;
       word-break: break-word;
       white-space: pre-wrap;
-      display: inline-block; /* clé : la bulle prend la taille de son texte, pas plus */
+      display: inline-block;
       max-width: 100%;
       -webkit-user-select: none;
       user-select: none;
-      -webkit-touch-callout: none; /* iOS : evite le menu Copier/Partager au long-press */
+      -webkit-touch-callout: none;
+      cursor: pointer;
     }
     .other .msg-bubble {
       background: var(--surface2);
@@ -685,7 +686,7 @@
 
     <!-- HEADER -->
     <div id="app-header">
-      <button id="back-btn" onclick="window.location.href='index.html'">&#8592;</button>
+      <button id="back-btn" onclick="window.location.href='index.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="header-center">
         <div class="header-name-row">
           <div id="header-dot"></div>
@@ -1158,7 +1159,7 @@
       });
     }
 
-    // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
+    // ─── RÉACTIONS ──────────────────────────────────────────────────────────────
     function buildReactionsHtml(reactions) {
       if (!reactions) return '';
       const entries = Object.values(reactions);
@@ -1243,78 +1244,23 @@
       if (e.target.id === 'reaction-who-overlay') e.target.classList.remove('open');
     });
 
-    // ─── DEBUG TEMPORAIRE long-press (ouvrir team.html?debug=1) — À RETIRER après diagnostic ───
-    const DEBUG_LP = new URLSearchParams(location.search).has('debug');
-    let dbgEl = null;
-    function dbg(msg) {
-      if (!DEBUG_LP) return;
-      if (!dbgEl) {
-        dbgEl = document.createElement('div');
-        dbgEl.style.cssText = 'position:fixed;left:8px;right:8px;bottom:90px;z-index:99999;background:rgba(0,0,0,0.88);color:#4ade80;font:11px/1.5 Menlo,monospace;padding:8px 10px;border-radius:10px;pointer-events:none;white-space:pre-wrap;max-height:45vh;overflow:hidden;';
-        document.body.appendChild(dbgEl);
-      }
-      const t = new Date();
-      const stamp = t.toTimeString().slice(0,8) + '.' + String(t.getMilliseconds()).padStart(3,'0');
-      dbgEl.textContent = (stamp + '  ' + msg + '\n' + dbgEl.textContent).split('\n').slice(0, 14).join('\n');
-    }
-    window.addEventListener('error', (e) => dbg('❌ JS: ' + e.message + ' (L' + (e.lineno||'?') + ')'));
-    window.addEventListener('unhandledrejection', (e) => dbg('❌ Promesse: ' + (e.reason && e.reason.message || e.reason)));
-    dbg('debug actif — module chargé');
-
-    // Appui long (mobile + souris) sur une bulle -> picker like/dislike
-    (function attachLongPress() {
+    // Tap sur bulle → picker | tap sur pastille → qui a réagi
+    (function attachTapHandlers() {
       const messagesDiv = document.getElementById("messages");
-      let pressTimer = null;
-      let startX = 0, startY = 0;
-      const TOLERANCE = 12; // px de jitter tolérés pendant l'appui (le doigt bouge toujours un peu)
-
-      const clearPress = (why) => {
-        if (pressTimer) dbg('timer annulé (' + why + ')');
-        clearTimeout(pressTimer); pressTimer = null;
-      };
-
-      const startPress = (clientX, clientY, target) => {
-        const msgEl = target.closest('.msg');
-        if (!msgEl) { dbg('appui hors message'); return; }
-        dbg('appui sur msg ' + (msgEl.dataset.id || '?').slice(0,6) + ' — timer 420ms lancé');
-        startX = clientX; startY = clientY;
-        pressTimer = setTimeout(() => { dbg('⏱️ 420ms atteint → picker'); showReactionPicker(msgEl.dataset.id, clientX, clientY); }, 420);
-      };
-
-      const moveTolerant = (clientX, clientY) => {
-        if (!pressTimer) return;
-        if (Math.abs(clientX - startX) > TOLERANCE || Math.abs(clientY - startY) > TOLERANCE) clearPress('mouvement > ' + TOLERANCE + 'px');
-      };
-
-      messagesDiv.addEventListener('touchstart', (e) => {
-        dbg('touchstart (cancelable=' + e.cancelable + ')');
-        if (e.target.closest('.msg')) e.preventDefault(); // bloque selection/callout iOS des le depart
-        const t = e.touches[0];
-        startPress(t.clientX, t.clientY, e.target);
-      }, { passive: false });
-      messagesDiv.addEventListener('touchmove', (e) => {
-        const t = e.touches[0];
-        moveTolerant(t.clientX, t.clientY);
-      }, { passive: true });
-      messagesDiv.addEventListener('touchend', () => clearPress('touchend'));
-      messagesDiv.addEventListener('touchcancel', () => clearPress('⚠️ TOUCHCANCEL — iOS a pris la main'));
-      dbg('attachLongPress OK — listeners posés');
-
-      messagesDiv.addEventListener('mousedown', (e) => startPress(e.clientX, e.clientY, e.target));
-      messagesDiv.addEventListener('mousemove', (e) => moveTolerant(e.clientX, e.clientY));
-      messagesDiv.addEventListener('mouseup', () => clearPress('mouseup'));
-      messagesDiv.addEventListener('mouseleave', () => clearPress('mouseleave'));
-
-      // Bloque aussi selectstart (Chrome/Firefox/Android) et le menu contextuel natif sur un message
       messagesDiv.addEventListener('selectstart', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
-      messagesDiv.addEventListener('contextmenu', (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
-
-      // Tap sur la pastille de réaction -> qui a réagi
+      messagesDiv.addEventListener('contextmenu',  (e) => { if (e.target.closest('.msg')) e.preventDefault(); });
       messagesDiv.addEventListener('click', (e) => {
+        const bubble = e.target.closest('.msg-bubble');
+        if (bubble) {
+          const msgEl = bubble.closest('.msg');
+          if (msgEl) showReactionPicker(msgEl.dataset.id, e.clientX, e.clientY);
+          return;
+        }
         const badge = e.target.closest('.reaction-badge');
-        if (!badge) return;
-        const msgEl = badge.closest('.msg');
-        showWhoReacted(msgEl.dataset.id);
+        if (badge) {
+          const msgEl = badge.closest('.msg');
+          if (msgEl) showWhoReacted(msgEl.dataset.id);
+        }
       });
     })();
 
