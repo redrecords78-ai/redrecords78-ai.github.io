@@ -1035,6 +1035,18 @@ document.getElementById('demandeForm').addEventListener('submit', async function
     return;
   }
 
+  // Rate limiting : max 3 demandes par 10 minutes
+  const _rlNow = Date.now();
+  const _rlData = JSON.parse(localStorage.getItem('rr-rl-reservation') || '[]').filter(t => _rlNow - t < 10 * 60 * 1000);
+  if (_rlData.length >= 3) {
+    msg.style.display = 'block';
+    msg.style.color   = 'var(--red)';
+    msg.textContent   = 'Trop de demandes envoyées. Réessaie dans quelques minutes.';
+    return;
+  }
+  _rlData.push(_rlNow);
+  localStorage.setItem('rr-rl-reservation', JSON.stringify(_rlData));
+
   // Pas de réseau → on prévient au lieu de faire croire que c'est envoyé
   if (!navigator.onLine) {
     msg.style.display = 'block';

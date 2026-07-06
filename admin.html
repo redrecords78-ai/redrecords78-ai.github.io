@@ -6,6 +6,7 @@
 <script>if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }</script>
 <!-- Empeche de divulguer l'adresse du dashboard aux services tiers -->
 <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com wss://*.googleapis.com https://script.google.com https://*.onesignal.com wss://*.onesignal.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src 'none'; base-uri 'self'; form-action 'self' https://script.google.com; object-src 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Dashboard · Red Records</title>
 <meta name="robots" content="noindex, nofollow">
@@ -407,10 +408,31 @@ let currentUser = null;
 // ─── PIN ─────────────────────────────────────────────────────────────────────
 let entered = '';
 
-// Lire PIN depuis localStorage (persiste entre sessions)
+const _PIN_LOCKOUT_KEY = 'rr-pin-lockout';
+const _PIN_EXP_KEY     = 'rr-pin-admin-exp';
+const _PIN_MAX_TRIES   = 5;
+const _PIN_LOCKOUT_MS  = 5 * 60 * 1000; // 5 min
+const _PIN_EXPIRY_MS   = 7 * 24 * 60 * 60 * 1000; // 7 jours
+
+function _getLockout() {
+  try { return JSON.parse(localStorage.getItem(_PIN_LOCKOUT_KEY) || '{"n":0,"until":0}'); }
+  catch(e) { return {n:0, until:0}; }
+}
+
+function _isLocked() {
+  const lk = _getLockout();
+  if (lk.until > Date.now()) {
+    const sec = Math.ceil((lk.until - Date.now()) / 1000);
+    document.getElementById('pin-error').textContent = `Trop de tentatives — réessaie dans ${sec}s`;
+    return true;
+  }
+  return false;
+}
+
+// Lire PIN depuis localStorage avec vérification d'expiry (7 jours)
 const _pinSaved = localStorage.getItem('rr-pin-admin');
-if (_pinSaved) {
-  // Vérifier que le PIN sauvegardé est toujours valide
+const _pinExp   = parseInt(localStorage.getItem(_PIN_EXP_KEY) || '0', 10);
+if (_pinSaved && _pinExp > Date.now()) {
   fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + _pinSaved)
     .then(r => r.json())
     .then(data => {
@@ -420,9 +442,28 @@ if (_pinSaved) {
       }
     })
     .catch(() => {});
+} else if (_pinSaved) {
+  localStorage.removeItem('rr-pin-admin');
+  localStorage.removeItem(_PIN_EXP_KEY);
 }
 
+// Affiche le lockout restant si la page est rouverte pendant un verrouillage actif
+(function() {
+  if (_isLocked()) {
+    const keys = document.querySelectorAll('.pin-key');
+    keys.forEach(k => k.style.pointerEvents = 'none');
+    const interval = setInterval(() => {
+      if (!_isLocked()) {
+        keys.forEach(k => k.style.pointerEvents = '');
+        document.getElementById('pin-error').textContent = '';
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
+})();
+
 function pressPin(d) {
+  if (_isLocked()) return;
   if (d === 'del') { entered = entered.slice(0, -1); }
   else if (entered.length < 6) { entered += d; }
   updateDots();
@@ -438,24 +479,49 @@ function updateDots() {
 function logout() {
   if (!confirm('Se déconnecter du dashboard ?')) return;
   localStorage.removeItem('rr-pin-admin');
+  localStorage.removeItem(_PIN_EXP_KEY);
   location.reload();
 }
 
 async function checkPin() {
+  if (_isLocked()) return;
   try {
     const res  = await fetch(APPS_SCRIPT_URL + '?action=stats&pin=' + entered);
     const data = await res.json();
     if (data.error === 'unauthorized') throw new Error('unauthorized');
     localStorage.setItem('rr-pin-admin', entered);
+    localStorage.setItem(_PIN_EXP_KEY, Date.now() + _PIN_EXPIRY_MS);
+    localStorage.removeItem(_PIN_LOCKOUT_KEY);
     registerAdminDevice(entered);
     unlockWithData(data, entered);
   } catch(err) {
-    document.getElementById('pin-error').textContent = 'Code incorrect';
+    const lk = _getLockout();
+    lk.n++;
+    if (lk.n >= _PIN_MAX_TRIES) {
+      lk.until = Date.now() + _PIN_LOCKOUT_MS;
+      lk.n = 0;
+    }
+    localStorage.setItem(_PIN_LOCKOUT_KEY, JSON.stringify(lk));
+    const remaining = _PIN_MAX_TRIES - lk.n;
+    document.getElementById('pin-error').textContent = lk.until > Date.now()
+      ? 'Trop de tentatives — bloqué 5 min'
+      : `Code incorrect${remaining > 0 ? ` (${remaining} essai${remaining > 1 ? 's' : ''} restant)` : ''}`;
     for (let i = 1; i <= 6; i++) document.getElementById('d' + i).classList.add('error');
+    if (lk.until > Date.now()) {
+      const keys = document.querySelectorAll('.pin-key');
+      keys.forEach(k => k.style.pointerEvents = 'none');
+      const interval = setInterval(() => {
+        if (!_isLocked()) {
+          keys.forEach(k => k.style.pointerEvents = '');
+          document.getElementById('pin-error').textContent = '';
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
     setTimeout(() => {
       entered = '';
       updateDots();
-      document.getElementById('pin-error').textContent = '';
+      if (lk.until <= Date.now()) document.getElementById('pin-error').textContent = '';
       for (let i = 1; i <= 6; i++) document.getElementById('d' + i).classList.remove('error');
     }, 800);
   }
