@@ -286,6 +286,16 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       </div>
     </div>
 
+    <!-- MOIS PASSÉS (historique CA corrigé) -->
+    <div id="ca-history-wrap">
+      <div class="section-label acc-trigger" onclick="toggleAcc('ca-history-body', this)">
+        📆 Mois passés (CA réel) <span class="chev">▼</span>
+      </div>
+      <div id="ca-history-body" class="acc-body">
+        <div id="ca-history-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+
     <!-- PROCHAINES SESSIONS -->
     <div id="next-sessions-wrap">
       <div class="section-label">Prochaines sessions</div>
@@ -393,6 +403,20 @@ const COULEURS_INGE = {
   'Baloo': '#33b679',
   'JUSS':  '#8e24aa',
 };
+
+// Nom de la couleur Google Agenda par ingé (rappel visuel pour ne pas se tromper de couleur)
+const COULEUR_NOM = {
+  'RED':   'Banane',
+  'Remi':  'Tomate',
+  'Baloo': 'Sauge',
+  'JUSS':  'Raisin',
+};
+
+// Historique CA des mois clôturés (rempli en fin de mois via "rectifie le CA").
+// Source : F:\CLAUDE\SUIVI-CA-REMISES\HISTORIQUE-CA.md
+const CA_HISTORY = [
+  { mois: 'Juin 2026', caReel: 2310, netReel: 1345, remisesCA: -70, remisesNet: -67.5 },
+];
 
 // Securite : echappe le HTML des donnees affichees (anti-XSS).
 // artiste/contact/precision viennent du formulaire PUBLIC → toujours echapper.
@@ -780,6 +804,23 @@ function toggleAcc(id, trigger) {
   trigger.classList.toggle('open');
 }
 
+function renderCaHistory() {
+  const el = document.getElementById('ca-history-list');
+  if (!el) return;
+  if (!CA_HISTORY.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--gray);padding:8px">Aucun mois clôturé pour l\'instant</div>';
+    return;
+  }
+  el.innerHTML = CA_HISTORY.map(m => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--black3);border-radius:8px;padding:10px 14px">
+      <div style="font-weight:600;font-size:14px">${m.mois}</div>
+      <div style="text-align:right;font-size:12px;line-height:1.5">
+        <div>CA <strong style="color:var(--white)">${m.caReel}€</strong> · Net <strong style="color:var(--white)">${m.netReel}€</strong></div>
+        <div style="color:var(--gray2)">remises ${m.remisesCA}€ CA · ${m.remisesNet}€ Net</div>
+      </div>
+    </div>`).join('');
+}
+
 function renderStats(data) {
   if (data.locked) {
     document.getElementById('kpi-grid').innerHTML = `
@@ -800,6 +841,8 @@ function renderStats(data) {
     <div class="kpi-card"><div class="kpi-num">${data.caMonth}<span>€</span></div><div class="kpi-label">CA mois estimé</div><div class="kpi-sub" style="color:${couleurNetM}">Net ${netM}€ <span style="color:var(--gray2)">· hors acomptes</span></div></div>
   `;
 
+  renderCaHistory();
+
   const listEl = document.getElementById('next-sessions-list');
   if (!data.prochaines || data.prochaines.length === 0) {
     listEl.innerHTML = '<div class="session-row"><div style="font-size:13px;color:var(--gray)">Aucune session à venir</div></div>';
@@ -809,7 +852,7 @@ function renderStats(data) {
       const couleur = COULEURS_INGE[s.inge] || '#888';
       return `<div class="session-row">
         <div class="session-date">${fmtDate(s.start)}</div>
-        <div class="session-title">${esc(s.title)}</div>
+        <div class="session-title">${esc(s.title)}${COULEUR_NOM[s.inge] ? `<span style="font-size:10px;color:var(--gray2);font-weight:400;margin-left:6px;letter-spacing:0.03em">· ${COULEUR_NOM[s.inge]}</span>` : ''}</div>
         <div class="session-hours">${fmtHeures(s.start, s.end)}</div>
         <div class="session-inge" style="background:${couleur}22;color:${couleur}">${esc(s.inge)}</div>
         <div class="session-ca">${prix}€</div>
