@@ -1461,7 +1461,7 @@ if ('serviceWorker' in navigator) {
     panel.classList.toggle('open');
     if (panel.classList.contains('open')) {
       if (window.markChatRead) window.markChatRead();
-      else localStorage.setItem('rr-last-seen', Date.now());
+      else localStorage.setItem('rr-last-seen', window._lastChatMsgTs || Date.now());
       updateBadge(0);
       // Atterrir sur le dernier message (le panneau vient d'être affiché)
       const m = document.getElementById('tp-messages');
@@ -1623,7 +1623,8 @@ if ('serviceWorker' in navigator) {
         }).catch(() => {});
         // Exposer markChatRead pour toggleTeamPanel
         window.markChatRead = async () => {
-          const now = Date.now();
+          // Toujours en reference SERVEUR (ts du dernier message), pas l'horloge locale.
+          const now = window._lastChatMsgTs || Date.now();
           localStorage.setItem('rr-last-seen', now);
           try {
             await setDoc(doc(db, 'team-presence', user.email),
@@ -1790,9 +1791,19 @@ if ('serviceWorker' in navigator) {
   function watchUnread() {
     const q = query(collection(db, 'team-chat'), orderBy('timestamp', 'asc'));
     onSnapshot(q, (snapshot) => {
+      // Horodatage SERVEUR du dernier message (meme reference que les messages).
+      // On ne compare jamais a Date.now() (horloge locale) : un decalage d'horloge
+      // laissait le dernier message eternellement "non lu" (badge bloque sur 1).
+      let lastMsgTs = 0;
+      snapshot.forEach((d) => {
+        const ts = d.data().timestamp?.toMillis?.() || 0;
+        if (ts > lastMsgTs) lastMsgTs = ts;
+      });
+      window._lastChatMsgTs = lastMsgTs;
+
       const panel = document.getElementById('team-panel');
       if (panel.classList.contains('open')) {
-        localStorage.setItem('rr-last-seen', Date.now());
+        if (lastMsgTs) localStorage.setItem('rr-last-seen', lastMsgTs);
         updateBadge(0);
         return;
       }
