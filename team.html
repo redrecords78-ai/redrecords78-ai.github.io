@@ -1069,6 +1069,7 @@
       const q = query(collection(db, "team-chat"), orderBy("timestamp", "asc"));
       let isFirstLoad  = true;
       let prevCount    = 0;
+      let _lastReadWritten = 0;
 
       onSnapshot(q, (snapshot) => {
         const messagesDiv = document.getElementById("messages");
@@ -1079,6 +1080,23 @@
 
         const newCount = snapshot.size;
         messagesDiv.innerHTML = "";
+
+        // ── Marquer comme lu : on est sur la page chat, donc tout est vu. ──
+        // Ecrit rr-last-seen (meme domaine => partage avec index.html) pour que
+        // le badge non-lus de la bottom nav retombe a 0. + sync cross-device.
+        let lastMsgTs = 0;
+        snapshot.forEach((d) => {
+          const t = d.data().timestamp?.toMillis?.() || 0;
+          if (t > lastMsgTs) lastMsgTs = t;
+        });
+        if (lastMsgTs) {
+          localStorage.setItem('rr-last-seen', lastMsgTs);
+          if (lastMsgTs > _lastReadWritten && currentUser?.email) {
+            _lastReadWritten = lastMsgTs;
+            setDoc(doc(db, 'team-presence', currentUser.email),
+              { lastReadChat: serverTimestamp() }, { merge: true }).catch(() => {});
+          }
+        }
 
         let prevDate = null;
         let prevUid  = null;
