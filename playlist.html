@@ -337,7 +337,7 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
 
 <!-- MINI PLAYER -->
 <div id="mini-player">
-  <div class="mp-cover"><span>R</span></div>
+  <canvas class="mp-cover" id="mp-eq" width="84" height="84"></canvas>
   <div class="mp-info">
     <div class="mp-title" id="mp-title">—</div>
     <div class="mp-sub" id="mp-sub">Red Records</div>
@@ -605,6 +605,43 @@ const CLIPS = [
   document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => show(b.dataset.p)));
   let init = 'son'; try { init = localStorage.getItem(KEY) || 'son'; } catch (e) {}
   show(init);
+
+  // ── Mini-visualizer réactif dans le lecteur (EQ live, vraies fréquences) ──
+  (function () {
+    const cv = document.getElementById('mp-eq');
+    if (!cv || typeof audio === 'undefined') return;
+    const ec = cv.getContext('2d');
+    let aCtx, analyser, freqData, raf;
+    function initGraph() {
+      if (aCtx) return;
+      try {
+        aCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = aCtx.createMediaElementSource(audio);
+        analyser = aCtx.createAnalyser();
+        analyser.fftSize = 64; analyser.smoothingTimeConstant = 0.78;
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+        src.connect(analyser); analyser.connect(aCtx.destination);
+      } catch (e) {}
+    }
+    function rr(x, y, w, h, r) { ec.beginPath(); ec.moveTo(x + r, y); ec.arcTo(x + w, y, x + w, y + h, r); ec.arcTo(x + w, y + h, x, y + h, r); ec.arcTo(x, y + h, x, y, r); ec.arcTo(x, y, x + w, y, r); ec.closePath(); ec.fill(); }
+    function draw() {
+      raf = requestAnimationFrame(draw);
+      if (!analyser) return;
+      analyser.getByteFrequencyData(freqData);
+      const W = cv.width, H = cv.height, N = 5, usable = Math.floor(freqData.length * 0.7);
+      ec.clearRect(0, 0, W, H); ec.fillStyle = '#E8192C';
+      const bw = W / (N * 2 - 1);
+      for (let i = 0; i < N; i++) {
+        const lo = Math.floor(i / N * usable), hi = Math.floor((i + 1) / N * usable);
+        let m = 0; for (let k = lo; k <= hi; k++) m = Math.max(m, freqData[k] || 0);
+        const h = Math.max(H * 0.14, (m / 255) * H * 0.96);
+        rr(i * bw * 2, H - h, bw, h, Math.min(bw / 2, 3));
+      }
+    }
+    audio.addEventListener('play', () => { initGraph(); if (aCtx && aCtx.state === 'suspended') aCtx.resume(); cancelAnimationFrame(raf); draw(); });
+    audio.addEventListener('pause', () => cancelAnimationFrame(raf));
+    audio.addEventListener('ended', () => { cancelAnimationFrame(raf); ec.clearRect(0, 0, cv.width, cv.height); });
+  })();
 })();
 </script>
 
