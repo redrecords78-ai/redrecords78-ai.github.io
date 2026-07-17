@@ -5,7 +5,7 @@
 <!-- Securite : anti-clickjacking (empeche d'integrer la page dans une iframe tierce) -->
 <script>if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Playlist · Red Records 78</title>
+<title>Signature · Red Records 78</title>
 <meta name="description" content="La sélection Red Records : les sons produits et enregistrés au studio de Mantes-la-Jolie (78).">
 <link rel="canonical" href="https://redrecords78-ai.github.io/playlist.html">
 <link rel="icon" href="icons/icon-192.png">
@@ -232,6 +232,37 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
   body { padding-top: calc(80px + var(--safe-top)); padding-bottom: calc(96px + var(--safe-bottom)); }
   .playlist-controls { flex-wrap: wrap; }
 }
+/* ── SIGNATURE (header + switch Son/Clips + grille clips) ── */
+.sig-head { padding: 7rem 2rem 0.4rem; max-width: 1000px; margin: 0 auto; }
+.seg-wrap { max-width: 1000px; margin: 1.2rem auto 0; padding: 0 2rem; }
+.seg-inner { display: inline-flex; background: var(--black3); border: 1px solid rgba(255,255,255,0.07); border-radius: 999px; padding: 5px; gap: 4px; }
+.seg-btn { border: none; background: none; color: var(--gray); font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 24px; border-radius: 999px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+.seg-btn svg { width: 16px; height: 16px; }
+.seg-btn.on { background: var(--red); color: #fff; box-shadow: 0 6px 18px rgba(232,25,44,0.4); }
+.pane { display: none; }
+.pane.on { display: block; }
+.clips-count { max-width: 1000px; margin: 1.4rem auto 1rem; padding: 0 2rem; font-size: 12px; color: var(--gray); }
+.clips-wrap { max-width: 1000px; margin: 0 auto; padding: 0 2rem 4rem; }
+.clips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.clip-card { background: var(--black2); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+.clip-card:hover { transform: translateY(-3px); border-color: rgba(232,25,44,0.6); }
+.clip-thumb { position: relative; aspect-ratio: 16/9; background: #000; }
+.clip-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cplay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.05)); transition: 0.2s; }
+.clip-card:hover .cplay { background: linear-gradient(to top, rgba(0,0,0,0.35), rgba(0,0,0,0)); }
+.cdisc { width: 56px; height: 56px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(232,25,44,0.45); transition: 0.2s; }
+.clip-card:hover .cdisc { transform: scale(1.08); }
+.cnum { position: absolute; top: 10px; right: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 6px; }
+.clip-meta { padding: 14px 16px; }
+.clip-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; line-height: 1.1; }
+.clip-artist { font-size: 12px; color: var(--gray); margin-top: 2px; }
+#lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.94); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
+#lightbox.open { display: flex; }
+#lightbox .lb-in { width: min(94vw, 1100px, calc(86vh * 16 / 9)); aspect-ratio: 16/9; }
+#lightbox iframe { width: 100%; height: 100%; border: 0; border-radius: 12px; }
+.lb-close { position: absolute; top: calc(16px + var(--safe-top)); right: 18px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 22px; cursor: pointer; }
+.lb-close:hover { background: var(--red); }
+@media (max-width: 700px) { .sig-head { padding: 6rem 1.5rem 0.4rem; } .seg-wrap, .clips-wrap, .clips-count { padding-left: 1.5rem; padding-right: 1.5rem; } }
 </style>
 </head>
 <body>
@@ -253,30 +284,51 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
     <li><a href="index.html">Accueil</a></li>
     <li><a href="index.html#tarifs">Tarifs</a></li>
     <li><a href="instrus.html">Instrus</a></li>
-    <li><a href="playlist.html" class="active">Playlist</a></li>
+    <li><a href="playlist.html" class="active">Signature</a></li>
     <li><a href="index.html#reservation">Réserver</a></li>
   </ul>
   <a href="index.html#reservation" class="nav-cta">Prendre RDV</a>
 </nav>
 
-<div class="page-header">
-  <div class="section-tag">Sélection · Red Records</div>
-  <h1 class="section-title">Playlist RED</h1>
-  <div class="section-count" id="pl-count"></div>
-  <div class="playlist-controls">
-    <button class="ctrl-btn primary" onclick="playAll()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-      Tout lire
+<div class="sig-head">
+  <div class="section-tag">Red Records</div>
+  <h1 class="section-title">SIGNATURE</h1>
+  <div class="section-count">Nos sons · nos clips — la patte du studio</div>
+</div>
+
+<div class="seg-wrap">
+  <div class="seg-inner">
+    <button class="seg-btn on" data-p="son">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 12H3M16 6H3M12 18H3"/></svg>
+      Son
     </button>
-    <button class="ctrl-btn secondary" id="shuffle-btn" onclick="toggleShuffle()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
-      Aléatoire
+    <button class="seg-btn" data-p="clips">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+      Clips
     </button>
   </div>
 </div>
 
-<div class="playlist-wrap">
-  <div class="playlist-list" id="playlist-list"></div>
+<div class="pane on" id="pane-son">
+  <div class="clips-count" id="pl-count"></div>
+  <div class="playlist-wrap">
+    <div class="playlist-controls">
+      <button class="ctrl-btn primary" onclick="playAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Tout lire
+      </button>
+      <button class="ctrl-btn secondary" id="shuffle-btn" onclick="toggleShuffle()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        Aléatoire
+      </button>
+    </div>
+    <div class="playlist-list" id="playlist-list"></div>
+  </div>
+</div>
+
+<div class="pane" id="pane-clips">
+  <div class="clips-count" id="clips-count"></div>
+  <div class="clips-wrap"><div class="clips-grid" id="clips-grid"></div></div>
 </div>
 
 <footer>
@@ -310,6 +362,8 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
     </button>
   </div>
 </div>
+
+<div id="lightbox"><button class="lb-close" onclick="closeClip()" aria-label="Fermer">✕</button><div class="lb-in" id="lb-in"></div></div>
 
 <script>
 // ─── PLAYLIST ─────────────────────────────────────────────────────────────────
@@ -512,6 +566,47 @@ if ('serviceWorker' in navigator) {
   });
 })();
 </script>
+<script>
+// ─── SIGNATURE : clips + switch Son/Clips ──────────────────────────────────────
+const CLIPS = [
+  { id: 'NdS96UOys9E', title: 'TIMINIK', artist: 'BOMY feat. THYSMAA' },
+  { id: 'zDB2NeF-H2U', title: 'SZN1 · Épisode 1', artist: 'KRUSTY X HRN' },
+];
+(function () {
+  const grid = document.getElementById('clips-grid');
+  grid.innerHTML = CLIPS.map((c, i) => `
+    <div class="clip-card" data-id="${c.id}">
+      <div class="clip-thumb">
+        <img loading="lazy" src="https://i.ytimg.com/vi/${c.id}/hqdefault.jpg" alt="${c.title}">
+        <div class="cnum">${String(i + 1).padStart(2, '0')}</div>
+        <div class="cplay"><div class="cdisc"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="clip-meta"><div class="clip-title">${c.title}</div><div class="clip-artist">${c.artist}</div></div>
+    </div>`).join('');
+  document.getElementById('clips-count').textContent = CLIPS.length + (CLIPS.length > 1 ? ' clips' : ' clip');
+
+  const lb = document.getElementById('lightbox'), lbin = document.getElementById('lb-in');
+  grid.querySelectorAll('.clip-card').forEach(card => card.addEventListener('click', () => {
+    lbin.innerHTML = `<iframe src="https://www.youtube.com/embed/${card.dataset.id}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    lb.classList.add('open');
+  }));
+  window.closeClip = function () { lb.classList.remove('open'); lbin.innerHTML = ''; };
+  lb.addEventListener('click', e => { if (e.target === lb) window.closeClip(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeClip(); });
+
+  // switch Son / Clips (mémorise le dernier onglet)
+  const KEY = 'sig-tab';
+  function show(p) {
+    document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+    document.getElementById('pane-son').classList.toggle('on', p === 'son');
+    document.getElementById('pane-clips').classList.toggle('on', p === 'clips');
+    try { localStorage.setItem(KEY, p); } catch (e) {}
+  }
+  document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => show(b.dataset.p)));
+  let init = 'son'; try { init = localStorage.getItem(KEY) || 'son'; } catch (e) {}
+  show(init);
+})();
+</script>
 
 <div id="bottom-nav">
   <a href="index.html" class="bn-item">
@@ -539,10 +634,9 @@ if ('serviceWorker' in navigator) {
   </a>
   <a href="playlist.html" class="bn-item active">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
-      <path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/>
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
     </svg>
-    Playlist
+    Signature
   </a>
   <a href="team.html" class="bn-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
