@@ -1,3 +1,6 @@
 # Sauvegardes locales (ne pas publier sur GitHub Pages)
 .backup-*/
 *.bak-*
+
+# Fichiers systeme macOS
+.DS_Store
