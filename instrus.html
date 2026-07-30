@@ -384,7 +384,8 @@ let allInstrus = [];
 let activeFilter = 'Tous';
 
 function loadInstrus() {
-  allInstrus = LOCAL_INSTRUS.map(t => ({ ...t, price: '30', buyLink: wa(t.title) }));
+  allInstrus = LOCAL_INSTRUS.map(t => ({ ...t, price: '30', buyLink: wa(t.title) }))
+    .sort((a, b) => parseInt(b.id.replace(/\D/g, '')) - parseInt(a.id.replace(/\D/g, '')));
   buildFilters();
   renderList();
 }
