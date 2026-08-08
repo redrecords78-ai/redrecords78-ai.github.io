@@ -397,11 +397,12 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuL
 
 // Couleurs des INGÉS (pour colorer les sessions du dashboard).
 // Amoss n'y est PAS : c'est un admin, il ne prend pas de sessions.
-// Remi a quitté l'équipe le 07/08/2026 : gardé ici uniquement pour que
-// les sessions passées en Tomate restent attribuées et chiffrées.
+// 'Ex-ingé' = ancien ingé parti le 07/08/2026, anonymisé. Gardé ici uniquement pour
+// que les sessions passées en Tomate restent attribuées et chiffrées.
+// Ne pas attribuer cette couleur à un nouvel ingé.
 const COULEURS_INGE = {
   'RED':   '#f6bf26',
-  'Remi':  '#d50000',
+  'Ex-inge': '#d50000',
   'Baloo': '#33b679',
   'JUSS':  '#8e24aa',
 };
@@ -409,7 +410,7 @@ const COULEURS_INGE = {
 // Nom de la couleur Google Agenda par ingé (rappel visuel pour ne pas se tromper de couleur)
 const COULEUR_NOM = {
   'RED':   'Banane',
-  'Remi':  'Tomate',
+  'Ex-inge': 'Tomate',
   'Baloo': 'Sauge',
   'JUSS':  'Raisin',
 };
