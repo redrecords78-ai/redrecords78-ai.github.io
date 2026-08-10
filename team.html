@@ -971,9 +971,34 @@
     });
 
     // ─── AUTH ─────────────────────────────────────────────────────────────────────
+    // ─── CONTROLE D'ACCES SERVEUR ────────────────────────────────────────────────
+    // Un compte Firebase valide ne suffit plus : le registre d'equipe (backend) dit
+    // qui a encore le droit d'entrer. Retirer quelqu'un depuis le dashboard le sort
+    // d'ici a sa prochaine connexion, sans toucher a son compte Firebase.
+    // Fail-open volontaire : si le backend ne repond pas, on ne bloque pas l'equipe.
+    async function accesAutorise(email) {
+      try {
+        const r = await fetch(`${APPS_SCRIPT_URL}?action=memberStatus&email=${encodeURIComponent(email)}`);
+        const d = await r.json();
+        if (d && d.connu === true) return d.actif === true;
+        return true;
+      } catch (e) { return true; }
+    }
+
+    async function ejecter(msg) {
+      localStorage.removeItem('rr-team');
+      await signOut(auth);
+      const err = document.getElementById("login-error");
+      if (err) err.textContent = msg;
+    }
+
     chargerMembres().then(() => {
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         if (user) {
+          if (!(await accesAutorise(user.email))) {
+            await ejecter("Cet accès a été retiré. Contacte Ridwane.");
+            return;
+          }
           currentUser = user;
           currentInge = ingeMap[user.email] || { nom: user.email.split("@")[0], couleur: '#aaa' };
           localStorage.setItem('rr-team', '1');
@@ -1015,6 +1040,15 @@
         }
       });
     });
+
+    // Une session deja ouverte doit tomber aussi : on reverifie toutes les 5 minutes.
+    // Sans ca, quelqu'un retire garderait le chat ouvert tant qu'il ne ferme pas l'app.
+    setInterval(async () => {
+      if (!currentUser) return;
+      if (!(await accesAutorise(currentUser.email))) {
+        await ejecter("Cet accès a été retiré. Contacte Ridwane.");
+      }
+    }, 5 * 60 * 1000);
 
     document.getElementById("login-btn").addEventListener("click", async () => {
       const email    = document.getElementById("email-input").value.trim();

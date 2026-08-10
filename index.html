@@ -1605,8 +1605,26 @@ if ('serviceWorker' in navigator) {
   };
 
   chargerMembres().then(() => {
-    onAuthStateChanged(auth, (user) => {
+    // Le registre d'equipe (backend) est la source de verite : un compte Firebase
+    // valide ne suffit pas. Fail-open si le backend ne repond pas.
+    async function accesAutorise(email) {
+      try {
+        const r = await fetch(`${APPS_SCRIPT_URL}?action=memberStatus&email=${encodeURIComponent(email)}`);
+        const d = await r.json();
+        if (d && d.connu === true) return d.actif === true;
+        return true;
+      } catch (e) { return true; }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
+        if (!(await accesAutorise(user.email))) {
+          localStorage.removeItem('rr-team');
+          await signOut(auth);
+          const err = document.getElementById('tp-login-error');
+          if (err) err.textContent = "Cet accès a été retiré.";
+          return;
+        }
         currentUser = user;
         currentInge = ingeMap[user.email] || { nom: user.email.split('@')[0], couleur: '#aaa' };
         localStorage.setItem('rr-team', '1');

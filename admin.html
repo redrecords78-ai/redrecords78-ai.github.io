@@ -344,8 +344,19 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
     <!-- ─── ÉQUIPE — visible OWNER uniquement ─── -->
     <div id="team-section" style="display:none">
-      <div class="section-label">Équipe &amp; accès</div>
+      <div class="section-label">Comptes du dashboard</div>
       <div class="team-list" id="team-list">
+        <div class="demande-vide">Chargement…</div>
+      </div>
+
+      <!-- Membres de l'équipe : chat, notifications, appareils -->
+      <div class="section-label" style="margin-top:1.5rem">Membres de l'équipe</div>
+      <div style="font-size:11px;color:var(--gray2);line-height:1.6;margin-bottom:10px">
+        Retirer quelqu'un ici le coupe partout d'un coup : chat, notifications et appareil enregistré.
+        Ses sessions déjà faites et le chiffre d'affaires passé ne bougent pas.
+        Il reste à lui retirer l'agenda à la main (partage nominatif).
+      </div>
+      <div class="team-list" id="membres-list">
         <div class="demande-vide">Chargement…</div>
       </div>
     </div>
@@ -569,6 +580,7 @@ function unlockWithData(data, pin) {
     if (currentUser.role === 'OWNER') {
       document.getElementById('team-section').style.display = 'block';
       loadTeam();
+      loadMembres();
       document.getElementById('killswitch-section').style.display = 'block';
       refreshLockState();
     }
@@ -800,7 +812,7 @@ async function validerAcompte(id) {
   } catch(e) { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur réseau'); }
 }
 
-function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') loadTeam(); }
+function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') { loadTeam(); loadMembres(); } }
 
 function toggleAcc(id, trigger) {
   document.getElementById(id).classList.toggle('open');
@@ -991,6 +1003,60 @@ async function activerUser(userId) {
     if (data.ok) loadTeam();
     else alert('Erreur : ' + (data.error || 'réessaie'));
   } catch(e) { alert('Erreur réseau'); }
+}
+
+// ─── MEMBRES DE L'ÉQUIPE (chat, notifs, appareils) ───────────────────────────
+// Registre côté serveur : c'est lui qui décide qui peut entrer dans le chat équipe.
+// Retirer quelqu'un ici agit tout de suite, sans changer aucun mot de passe.
+async function loadMembres() {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getTeam&pin=${pin}`);
+    const data = await res.json();
+    if (!data.error) renderMembres(data.team || []);
+  } catch(e) {}
+}
+
+function renderMembres(team) {
+  const el = document.getElementById('membres-list');
+  if (!el) return;
+  if (!team.length) { el.innerHTML = '<div class="demande-vide">Aucun membre</div>'; return; }
+  el.innerHTML = team.map(m => {
+    const pastille = `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${m.couleur || '#888'};margin-right:7px;vertical-align:middle"></span>`;
+    const statut = m.actif
+      ? '<span class="team-status-active">Actif</span>'
+      : `<span class="team-status-revoked">Retiré${m.retireLe ? ' le ' + m.retireLe.split('-').reverse().join('/') : ''}</span>`;
+    const btn = m.actif
+      ? `<button class="btn-revoquer" onclick="retirerMembre('${m.email}','${esc(m.nom)}')">🚫 Retirer</button>`
+      : `<button class="btn-activer"  onclick="reintegrerMembre('${m.email}','${esc(m.nom)}')">✅ Réintégrer</button>`;
+    return `<div class="team-row" id="membre-row-${m.email.replace(/[^a-z0-9]/gi,'')}">
+      <div class="team-info">
+        <div class="team-name">${pastille}${esc(m.nom)}</div>
+        <div class="team-meta">${statut} · ${esc(m.email)}</div>
+      </div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+async function retirerMembre(email, nom) {
+  if (!confirm(`Retirer ${nom} de l'équipe ?\n\nIl perd le chat et les notifications immédiatement.\nSes sessions passées et le CA ne bougent pas.\n\nPense ensuite à lui retirer le partage de l'agenda.`)) return;
+  await majMembre('revokeMember', email);
+}
+async function reintegrerMembre(email, nom) {
+  if (!confirm(`Réintégrer ${nom} dans l'équipe ?`)) return;
+  await majMembre('restoreMember', email);
+}
+async function majMembre(action, email) {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  const row = document.getElementById('membre-row-' + email.replace(/[^a-z0-9]/gi,''));
+  if (row) row.style.opacity = '0.4';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=${action}&email=${encodeURIComponent(email)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) renderMembres(data.team || []);
+    else { if (row) row.style.opacity = '1'; alert('Erreur : ' + (data.error || 'réessaie')); }
+  } catch(e) { if (row) row.style.opacity = '1'; alert('Erreur réseau'); }
 }
 
 // ─── VERROU D'URGENCE (kill switch) ───────────────────────────────────────────
