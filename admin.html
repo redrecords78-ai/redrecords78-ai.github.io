@@ -344,6 +344,21 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 
     <!-- ─── ÉQUIPE — visible OWNER uniquement ─── -->
     <div id="team-section" style="display:none">
+      <!-- Changer son propre PIN -->
+      <div class="section-label">Mon code d'accès</div>
+      <div style="background:var(--black2);border:1px solid var(--gray2);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem">
+        <div style="font-size:11px;color:var(--gray2);line-height:1.6">
+          6 chiffres. Choisis-en un que tu n'utilises nulle part ailleurs. Tu resteras connecté après le changement.
+        </div>
+        <input id="pin-new"  type="password" inputmode="numeric" maxlength="6" placeholder="Nouveau code (6 chiffres)"
+               style="background:var(--black);border:1px solid var(--gray2);border-radius:8px;padding:12px;color:#fff;font-size:14px;letter-spacing:0.2em;font-family:'DM Sans',sans-serif">
+        <input id="pin-new2" type="password" inputmode="numeric" maxlength="6" placeholder="Confirme le nouveau code"
+               style="background:var(--black);border:1px solid var(--gray2);border-radius:8px;padding:12px;color:#fff;font-size:14px;letter-spacing:0.2em;font-family:'DM Sans',sans-serif">
+        <button onclick="changerMonPin()" id="pin-btn"
+                style="background:var(--red);color:#fff;border:none;padding:12px;border-radius:8px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Changer mon code</button>
+        <div id="pin-retour" style="display:none;font-size:12px;text-align:center"></div>
+      </div>
+
       <div class="section-label">Comptes du dashboard</div>
       <div class="team-list" id="team-list">
         <div class="demande-vide">Chargement…</div>
@@ -1003,6 +1018,49 @@ async function activerUser(userId) {
     if (data.ok) loadTeam();
     else alert('Erreur : ' + (data.error || 'réessaie'));
   } catch(e) { alert('Erreur réseau'); }
+}
+
+// ─── CHANGER SON PROPRE PIN ───────────────────────────────────────────────────
+// Le PIN vit côté serveur (Script Properties), jamais dans le code. On le remplace
+// ici plutôt que par une URL : ça éviterait de le laisser dans l'historique du navigateur.
+async function changerMonPin() {
+  const p1 = document.getElementById('pin-new').value.trim();
+  const p2 = document.getElementById('pin-new2').value.trim();
+  const btn = document.getElementById('pin-btn');
+  const retour = document.getElementById('pin-retour');
+  const dire = (msg, ok) => {
+    retour.style.cssText = 'display:block;font-size:12px;text-align:center;color:' + (ok ? '#33b679' : 'var(--red)');
+    retour.textContent = msg;
+  };
+
+  if (!/^\d{6}$/.test(p1)) return dire('⚠️ Le code doit faire exactement 6 chiffres.', false);
+  if (p1 !== p2)           return dire('⚠️ Les deux codes ne sont pas identiques.', false);
+
+  const ancien = localStorage.getItem('rr-pin-admin') || '';
+  if (p1 === ancien)       return dire('⚠️ C\'est déjà ton code actuel.', false);
+
+  btn.disabled = true; btn.textContent = 'Changement…';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=changePin&pin=${ancien}&newPin=${encodeURIComponent(p1)}`);
+    const data = await res.json();
+    if (data.ok) {
+      // Sans ça, la prochaine action utiliserait l'ancien PIN et échouerait.
+      localStorage.setItem('rr-pin-admin', p1);
+      document.getElementById('pin-new').value = '';
+      document.getElementById('pin-new2').value = '';
+      dire('✅ Code changé. Note-le, il n\'est récupérable nulle part.', true);
+    } else if (data.error === 'pin_taken') {
+      dire('⚠️ Ce code est déjà utilisé par un autre compte.', false);
+    } else if (data.error === 'unauthorized') {
+      dire('⚠️ Session expirée — reconnecte-toi et réessaie.', false);
+    } else {
+      dire('⚠️ Erreur : ' + (data.error || 'réessaie'), false);
+    }
+  } catch(e) {
+    dire('⚠️ Erreur réseau — le code n\'a pas été changé.', false);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Changer mon code';
+  }
 }
 
 // ─── MEMBRES DE L'ÉQUIPE (chat, notifs, appareils) ───────────────────────────
