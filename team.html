@@ -285,6 +285,14 @@
       padding: 11px 12px;
       margin-bottom: 8px;
     }
+    /* Demande venue de la PWA : bleu, pour la distinguer d'une session deja a l'agenda */
+    .sess-card.client {
+      background: linear-gradient(180deg, rgba(70,214,219,0.10), rgba(70,214,219,0.03));
+      border-color: rgba(70,214,219,0.35);
+    }
+    .sess-card.client .sess-head { color: #46d6db; }
+    .sess-card.client .sess-pulse { background: #46d6db; }
+
     .sess-head {
       display: flex; align-items: center; gap: 7px;
       font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
@@ -1351,6 +1359,10 @@
               <select id="pick-h-${id}">${optionsHeures(hDef)}</select>
               <button data-sess-envoyer="${id}">Envoyer</button>
             </div>`;
+        } else if (s.prise) {
+          // Demande de l'app déjà prise : elle attend la validation de Ridwane,
+          // c'est lui qui confirme au client (rien ne part automatiquement).
+          bas = `<div class="sess-etat">✅ ${escapeHtml(s.prisParNom)} se positionne — en attente de validation${estOwner ? ' (à valider dans le dashboard)' : ''}</div>`;
         } else if (s.maReponse === 'ok') {
           bas = `<div class="sess-etat">✅ Tu l'as prise — l'agenda est à ta couleur</div>`;
         } else if (s.maReponse === 'indispo') {
@@ -1411,10 +1423,10 @@
           ? `<div class="sess-attente">En attente de : ${escapeHtml(s.attendus.join(', '))}</div>` : '';
 
         return `
-          <div class="sess-card" data-id="${id}">
-            <div class="sess-head"><span class="sess-pulse"></span> Session à prendre</div>
+          <div class="sess-card${s.client ? ' client' : ''}" data-id="${id}">
+            <div class="sess-head"><span class="sess-pulse"></span> ${s.client ? 'Demande depuis l\'app' : 'Session à prendre'}</div>
             <div class="sess-titre">${escapeHtml(s.titre)}</div>
-            <div class="sess-quand"><b>${escapeHtml(s.quand)}</b> · ${s.duree}h</div>
+            <div class="sess-quand"><b>${escapeHtml(s.quand)}</b> · ${s.duree}h${s.sousTitre ? ' · ' + escapeHtml(s.sousTitre) : ''}</div>
             ${bas}${contre}${props}${attente}
           </div>`;
       }).join('');
