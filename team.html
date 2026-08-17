@@ -326,11 +326,12 @@
 
     /* Choix du creneau propose */
     .sess-pick { display: flex; gap: 6px; margin-top: 8px; }
-    .sess-pick input {
+    .sess-pick input, .sess-pick select {
       flex: 1; padding: 8px 9px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.16); background: rgba(0,0,0,0.35);
       color: #fff; font-size: 12.5px; font-family: inherit;
     }
+    .sess-pick select { flex: 0 0 74px; }
     .sess-pick button {
       padding: 8px 12px; border-radius: 8px; border: none;
       background: #e63946; color: #fff; font-size: 12.5px; font-weight: 600;
@@ -1340,9 +1341,17 @@
         // Bloc du bas : soit les 3 boutons, soit l'état de ma réponse
         let bas;
         if (_sessOuverte === s.id) {
+          // Date + heure pleine séparées : les sessions ne commencent jamais à 20h15,
+          // et un sélecteur de minutes sur téléphone est pénible pour rien.
+          const [dDef, hDef] = (s.monCreneau || defautCreneau(s.start)).split('T');
+          const heures = Array.from({ length: 24 }, (_, h) => {
+            const v = String(h).padStart(2, '0');
+            return `<option value="${v}"${v === hDef.slice(0, 2) ? ' selected' : ''}>${v}h</option>`;
+          }).join('');
           bas = `
             <div class="sess-pick">
-              <input type="datetime-local" id="pick-${id}" value="${escapeHtml(s.monCreneau || defautCreneau(s.start))}" />
+              <input type="date" id="pick-d-${id}" value="${escapeHtml(dDef)}" />
+              <select id="pick-h-${id}">${heures}</select>
               <button data-sess-envoyer="${id}">Envoyer</button>
             </div>`;
         } else if (s.maReponse === 'ok') {
@@ -1440,9 +1449,10 @@
         return chargerSessions();
       }
       if (d.sessEnvoyer) {
-        const val = document.getElementById('pick-' + d.sessEnvoyer)?.value;
-        if (!val) return alert('Choisis une date et une heure.');
-        return repondreSession(d.sessEnvoyer, 'horaire', val);
+        const jour  = document.getElementById('pick-d-' + d.sessEnvoyer)?.value;
+        const heure = document.getElementById('pick-h-' + d.sessEnvoyer)?.value;
+        if (!jour) return alert('Choisis une date.');
+        return repondreSession(d.sessEnvoyer, 'horaire', `${jour}T${heure}:00`);
       }
       if (d.sessValider) {
         const [sid, ingeMail] = d.sessValider.split('|');
