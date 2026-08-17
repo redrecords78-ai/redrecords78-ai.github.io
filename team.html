@@ -1307,8 +1307,9 @@
     // une demande ; elle s'affiche ici en carte épinglée avec 3 réponses possibles.
     // Le premier qui répond "Je la prends" se voit attribuer la session immédiatement
     // (l'agenda passe à sa couleur côté serveur) — pas d'attente, pas de doublon.
-    let _sessTimer   = null;
-    let _sessOuverte = '';   // id de la carte dont le sélecteur d'horaire est déplié
+    let _sessTimer     = null;
+    let _sessOuverte   = '';   // id de la carte dont le sélecteur d'horaire est déplié
+    let _contreOuvert  = '';   // "idSession|emailIngé" dont la contre-proposition est dépliée
 
     function demarrerSessions() {
       chargerSessions();
@@ -1344,14 +1345,10 @@
           // Date + heure pleine séparées : les sessions ne commencent jamais à 20h15,
           // et un sélecteur de minutes sur téléphone est pénible pour rien.
           const [dDef, hDef] = (s.monCreneau || defautCreneau(s.start)).split('T');
-          const heures = Array.from({ length: 24 }, (_, h) => {
-            const v = String(h).padStart(2, '0');
-            return `<option value="${v}"${v === hDef.slice(0, 2) ? ' selected' : ''}>${v}h</option>`;
-          }).join('');
           bas = `
             <div class="sess-pick">
               <input type="date" id="pick-d-${id}" value="${escapeHtml(dDef)}" />
-              <select id="pick-h-${id}">${heures}</select>
+              <select id="pick-h-${id}">${optionsHeures(hDef)}</select>
               <button data-sess-envoyer="${id}">Envoyer</button>
             </div>`;
         } else if (s.maReponse === 'ok') {
@@ -1371,16 +1368,43 @@
             </div>`;
         }
 
-        // Propositions d'horaire : visibles par Ridwane, message client prêt à copier
-        let props = '';
-        if (estOwner && s.propositions?.length) {
-          props = s.propositions.map((p, i) => `
+        // ── Contre-proposition du client, renvoyée à l'ingé concerné ──
+        let contre = '';
+        if (s.contre?.pourMoi) {
+          contre = `
             <div class="sess-prop">
-              <div class="sess-prop-qui">${escapeHtml(p.nom)} propose ${escapeHtml(formatCreneau(p.creneau))}</div>
-              <div class="sess-prop-txt">${escapeHtml(p.texte)}</div>
-              <button class="sess-copy" data-sess-copier="${id}|${i}">Copier le message client</button>
-              <button class="sess-copy valider" data-sess-valider="${id}|${escapeHtml(p.email)}">Client OK → caler la session</button>
-            </div>`).join('');
+              <div class="sess-prop-qui">Le client propose ${escapeHtml(formatCreneau(s.contre.creneau))}</div>
+              <div class="sess-actions" style="margin-top:7px">
+                <button class="sess-btn ok"      data-sess-contre-ok="${id}">Ça me va</button>
+                <button class="sess-btn indispo" data-sess-contre-non="${id}">Pas dispo</button>
+              </div>
+            </div>`;
+        } else if (estOwner && s.contre) {
+          contre = `<div class="sess-etat">⏳ ${escapeHtml(s.contre.nom)} doit confirmer
+                      ${escapeHtml(formatCreneau(s.contre.creneau))}</div>`;
+        }
+
+        // ── Créneaux proposés par les ingés : réservé à Ridwane ──
+        let props = '';
+        if (estOwner && s.propositions?.length && !s.contre) {
+          props = s.propositions.map(p => {
+            const cle = `${id}|${escapeHtml(p.email)}`;
+            // Le sélecteur de contre-proposition n'est déplié que sur demande,
+            // sinon chaque carte devient un formulaire.
+            const pick = (_contreOuvert === cle) ? `
+              <div class="sess-pick">
+                <input type="date" id="cp-d-${cle}" value="${escapeHtml(p.creneau.split('T')[0])}" />
+                <select id="cp-h-${cle}">${optionsHeures(p.creneau.split('T')[1])}</select>
+                <button data-sess-contre-envoyer="${cle}">Envoyer</button>
+              </div>` : `
+              <button class="sess-copy" data-sess-contre-ouvrir="${cle}">Le client propose autre chose…</button>`;
+            return `
+              <div class="sess-prop">
+                <div class="sess-prop-qui">${escapeHtml(p.nom)} propose ${escapeHtml(formatCreneau(p.creneau))}</div>
+                <button class="sess-copy valider" data-sess-valider="${cle}">Client OK → caler la session</button>
+                ${pick}
+              </div>`;
+          }).join('');
         }
 
         const attente = (estOwner && s.attendus?.length)
@@ -1391,13 +1415,18 @@
             <div class="sess-head"><span class="sess-pulse"></span> Session à prendre</div>
             <div class="sess-titre">${escapeHtml(s.titre)}</div>
             <div class="sess-quand"><b>${escapeHtml(s.quand)}</b> · ${s.duree}h</div>
-            ${bas}${props}${attente}
+            ${bas}${contre}${props}${attente}
           </div>`;
       }).join('');
+    }
 
-      // Mémorise les textes à copier (hors HTML, pour ne rien ré-échapper à la copie)
-      zone._props = {};
-      sessions.forEach(s => { zone._props[s.id] = (s.propositions || []).map(p => p.texte); });
+    // Liste d'heures pleines 00h → 23h, avec l'heure passée pré-sélectionnée
+    function optionsHeures(hhmm) {
+      const cur = (hhmm || '').slice(0, 2);
+      return Array.from({ length: 24 }, (_, h) => {
+        const v = String(h).padStart(2, '0');
+        return `<option value="${v}"${v === cur ? ' selected' : ''}>${v}h</option>`;
+      }).join('');
     }
 
     // Créneau proposé par défaut : même heure, le lendemain
@@ -1468,14 +1497,29 @@
         } catch (err) { alert('Connexion impossible, réessaie.'); btn.disabled = false; }
         return;
       }
-      if (d.sessCopier) {
-        const [sid, i] = d.sessCopier.split('|');
-        const txt = document.getElementById('sessions-zone')._props?.[sid]?.[i] || '';
-        try { await navigator.clipboard.writeText(txt); }
-        catch (err) { /* clipboard refusé : on laisse le texte sélectionnable à l'écran */ }
-        btn.textContent = 'Copié ✓';
-        btn.classList.add('done');
+      // ── Navette retour : le client a reproposé autre chose ──
+      if (d.sessContreOuvrir) { _contreOuvert = d.sessContreOuvrir; return chargerSessions(); }
+
+      if (d.sessContreEnvoyer) {
+        const [sid, ingeMail] = d.sessContreEnvoyer.split('|');
+        const jour  = document.getElementById('cp-d-' + d.sessContreEnvoyer)?.value;
+        const heure = document.getElementById('cp-h-' + d.sessContreEnvoyer)?.value;
+        if (!jour) return alert('Choisis une date.');
+        btn.disabled = true;
+        try {
+          const r = await (await fetch(`${APPS_SCRIPT_URL}?action=contreProposer`
+            + `&email=${encodeURIComponent(currentUser.email)}`
+            + `&id=${encodeURIComponent(sid)}&inge=${encodeURIComponent(ingeMail)}`
+            + `&creneau=${encodeURIComponent(`${jour}T${heure}:00`)}`)).json();
+          if (r.error) alert('Erreur : ' + r.error);
+          _contreOuvert = '';
+          await chargerSessions();
+        } catch (err) { alert('Connexion impossible, réessaie.'); btn.disabled = false; }
+        return;
       }
+
+      if (d.sessContreOk)  return repondreSession(d.sessContreOk,  'contreOk');
+      if (d.sessContreNon) return repondreSession(d.sessContreNon, 'contreNon');
     });
 
     // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
