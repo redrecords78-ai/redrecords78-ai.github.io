@@ -1236,6 +1236,10 @@ if ('serviceWorker' in navigator) {
 
     <!-- CHAT -->
     <div id="tp-chat-panel">
+      <!-- Rappel des sessions à prendre. Les boutons de réponse vivent dans team.html
+           (une seule implémentation) : ici on signale seulement qu'il y en a, pour que
+           personne ne passe à côté en ouvrant le chat par la PWA plutôt que par la notif. -->
+      <a id="tp-sessions-alerte" href="team.html?chat=1" style="display:none"></a>
       <div id="tp-messages"></div>
       <div id="tp-input-area">
         <input type="text" id="tp-msg-input" placeholder="Écrire un message…" autocomplete="off"/>
@@ -1394,6 +1398,13 @@ if ('serviceWorker' in navigator) {
 
   /* MESSAGES */
   #tp-chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0c0c0c; }
+  #tp-sessions-alerte {
+    flex: 0 0 auto; margin: 12px 16px 0; padding: 11px 14px;
+    border-radius: 10px; text-align: center; text-decoration: none;
+    background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.4);
+    color: #e63946; font-size: 13px; font-weight: 600;
+  }
+
   #tp-messages {
     flex: 1; overflow-y: auto; padding: 20px 16px;
     display: flex; flex-direction: column; gap: 12px;
@@ -1654,6 +1665,8 @@ if ('serviceWorker' in navigator) {
         loadMessages();
         watchUnread();
         nettoyerVieuxMessages(); // purge les messages de +7 jours
+        verifSessionsAPrendre(user.email);
+        setInterval(() => verifSessionsAPrendre(user.email), 60000);
         // Enregistrer le player ID OneSignal pour les notifs équipe
         setTimeout(() => {
           try {
@@ -1746,6 +1759,21 @@ if ('serviceWorker' in navigator) {
       for (const ref of morts) { await deleteDoc(ref).catch(() => {}); }
       // messages de +7 jours purges (silencieux)
     } catch(e) {}
+  }
+
+  // Sessions à prendre : simple rappel cliquable, la réponse se fait dans team.html.
+  async function verifSessionsAPrendre(email) {
+    const el = document.getElementById('tp-sessions-alerte');
+    if (!el || !email) return;
+    try {
+      const d = await (await fetch(`${APPS_SCRIPT_URL}?action=sessionsOuvertes&email=${encodeURIComponent(email)}`)).json();
+      // On ne compte que celles où l'on n'a pas encore répondu : sinon le bandeau
+      // resterait affiché après avoir dit non, et deviendrait du bruit.
+      const n = (d.sessions || []).filter(s => !s.maReponse).length;
+      if (!n) { el.style.display = 'none'; return; }
+      el.textContent = n === 1 ? '1 session à prendre — répondre ↗' : `${n} sessions à prendre — répondre ↗`;
+      el.style.display = 'block';
+    } catch (e) { /* hors ligne : on ne change rien */ }
   }
 
   function loadMessages() {

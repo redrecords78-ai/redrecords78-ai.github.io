@@ -266,7 +266,96 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /* ═══════════════ SESSIONS A PRENDRE (epinglees en haut du chat) ═══════════════
+       Volontairement HORS de #messages : ces cartes viennent du backend Apps Script,
+       pas de Firestore, et ne doivent pas disparaitre avec la purge du lundi 8h. */
+    #sessions-zone {
+      flex: 0 0 auto;
+      max-height: 45%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 0 10px;
+    }
+    #sessions-zone:not(:empty) { padding: 8px 10px 2px; }
+
+    .sess-card {
+      background: linear-gradient(180deg, rgba(230,57,70,0.10), rgba(230,57,70,0.04));
+      border: 1px solid rgba(230,57,70,0.35);
+      border-radius: 12px;
+      padding: 11px 12px;
+      margin-bottom: 8px;
+    }
+    .sess-head {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+      color: #e63946; font-weight: 700; margin-bottom: 6px;
+    }
+    .sess-pulse {
+      width: 6px; height: 6px; border-radius: 50%; background: #e63946;
+      animation: sessPulse 2s ease-in-out infinite; flex: 0 0 auto;
+    }
+    @keyframes sessPulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+    .sess-titre { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .sess-quand { font-size: 12.5px; color: rgba(255,255,255,0.62); margin-bottom: 10px; }
+    .sess-quand b { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    .sess-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sess-btn {
+      flex: 1 1 auto; min-width: 88px;
+      padding: 9px 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05); color: #fff;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: transform .12s, background .15s, border-color .15s;
+    }
+    .sess-btn:active { transform: scale(0.97); }
+    .sess-btn.ok       { background: rgba(51,182,121,0.16); border-color: rgba(51,182,121,0.5); color: #6ee7a8; }
+    .sess-btn.horaire  { background: rgba(246,191,38,0.14); border-color: rgba(246,191,38,0.45); color: #f6d472; }
+    .sess-btn.indispo  { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
+    .sess-btn[disabled] { opacity: .45; cursor: default; }
+
+    .sess-etat {
+      font-size: 12px; padding: 8px 10px; border-radius: 9px;
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.72);
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .sess-etat .chg {
+      margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.45);
+      background: none; border: none; text-decoration: underline; cursor: pointer; font-family: inherit;
+    }
+    .sess-attente { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 7px; }
+
+    /* Choix du creneau propose */
+    .sess-pick { display: flex; gap: 6px; margin-top: 8px; }
+    .sess-pick input {
+      flex: 1; padding: 8px 9px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16); background: rgba(0,0,0,0.35);
+      color: #fff; font-size: 12.5px; font-family: inherit;
+    }
+    .sess-pick button {
+      padding: 8px 12px; border-radius: 8px; border: none;
+      background: #e63946; color: #fff; font-size: 12.5px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+
+    /* Propositions remontees a Ridwane : message client pret a copier */
+    .sess-prop {
+      margin-top: 8px; padding: 9px 10px; border-radius: 9px;
+      background: rgba(246,191,38,0.09); border: 1px solid rgba(246,191,38,0.28);
+    }
+    .sess-prop-qui { font-size: 11px; color: #f6d472; font-weight: 700; margin-bottom: 5px; }
+    .sess-prop-txt { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.45; }
+    .sess-copy {
+      margin-top: 7px; width: 100%; padding: 8px; border-radius: 8px; border: none;
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .sess-copy.done { background: rgba(51,182,121,0.25); color: #6ee7a8; }
+    .sess-copy.valider { margin-top: 5px; background: rgba(51,182,121,0.2); color: #6ee7a8; }
+    .sess-copy.valider[disabled] { opacity: .5; }
+
     #messages::-webkit-scrollbar { width: 3px; }
+    #sessions-zone::-webkit-scrollbar { width: 3px; }
+    #sessions-zone::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
     #messages::-webkit-scrollbar-track { background: transparent; }
     #messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
@@ -715,6 +804,7 @@
 
     <!-- CHAT -->
     <div id="chat-panel">
+      <div id="sessions-zone"></div>
       <div id="messages"></div>
       <div id="chat-input-area">
         <input type="text" id="msg-input" placeholder="Message…" autocomplete="off" />
@@ -1029,6 +1119,7 @@
 
           loadMessages();
           nettoyerVieuxMessages(); // purge les messages de +7 jours
+          demarrerSessions();      // sessions a prendre, epinglees en haut du chat
 
           const pwSet = localStorage.getItem('rr-pw-set-' + user.email);
           if (!pwSet) openPwModal(true);
@@ -1209,6 +1300,173 @@
         prevCount   = newCount;
       });
     }
+
+    // ─── SESSIONS À PRENDRE ───────────────────────────────────────────────────────
+    // Une session posée en couleur standard = personne ne l'a prise. Le backend ouvre
+    // une demande ; elle s'affiche ici en carte épinglée avec 3 réponses possibles.
+    // Le premier qui répond "Je la prends" se voit attribuer la session immédiatement
+    // (l'agenda passe à sa couleur côté serveur) — pas d'attente, pas de doublon.
+    let _sessTimer   = null;
+    let _sessOuverte = '';   // id de la carte dont le sélecteur d'horaire est déplié
+
+    function demarrerSessions() {
+      chargerSessions();
+      clearInterval(_sessTimer);
+      _sessTimer = setInterval(chargerSessions, 45000);
+      // Au retour sur l'app (téléphone rouvert), on rafraîchit tout de suite
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) chargerSessions();
+      });
+    }
+
+    async function chargerSessions() {
+      if (!currentUser?.email) return;
+      try {
+        const r = await fetch(`${APPS_SCRIPT_URL}?action=sessionsOuvertes&email=${encodeURIComponent(currentUser.email)}`);
+        const d = await r.json();
+        if (d.error) return;
+        rendreSessions(d.sessions || [], !!d.estOwner);
+      } catch (e) { /* hors ligne : on garde l'affichage précédent */ }
+    }
+
+    function rendreSessions(sessions, estOwner) {
+      const zone = document.getElementById('sessions-zone');
+      if (!zone) return;
+      if (!sessions.length) { zone.innerHTML = ''; return; }
+
+      zone.innerHTML = sessions.map(s => {
+        const id = escapeHtml(s.id);
+
+        // Bloc du bas : soit les 3 boutons, soit l'état de ma réponse
+        let bas;
+        if (_sessOuverte === s.id) {
+          bas = `
+            <div class="sess-pick">
+              <input type="datetime-local" id="pick-${id}" value="${escapeHtml(s.monCreneau || defautCreneau(s.start))}" />
+              <button data-sess-envoyer="${id}">Envoyer</button>
+            </div>`;
+        } else if (s.maReponse === 'ok') {
+          bas = `<div class="sess-etat">✅ Tu l'as prise — l'agenda est à ta couleur</div>`;
+        } else if (s.maReponse === 'indispo') {
+          bas = `<div class="sess-etat">🚫 Tu as répondu pas dispo
+                   <button class="chg" data-sess-rouvrir="${id}">changer</button></div>`;
+        } else if (s.maReponse === 'horaire') {
+          bas = `<div class="sess-etat">🕒 Tu as proposé ${escapeHtml(formatCreneau(s.monCreneau))}
+                   <button class="chg" data-sess-rouvrir="${id}">changer</button></div>`;
+        } else {
+          bas = `
+            <div class="sess-actions">
+              <button class="sess-btn ok"      data-sess-ok="${id}">Je la prends</button>
+              <button class="sess-btn horaire" data-sess-horaire="${id}">Autre horaire</button>
+              <button class="sess-btn indispo" data-sess-indispo="${id}">Pas dispo</button>
+            </div>`;
+        }
+
+        // Propositions d'horaire : visibles par Ridwane, message client prêt à copier
+        let props = '';
+        if (estOwner && s.propositions?.length) {
+          props = s.propositions.map((p, i) => `
+            <div class="sess-prop">
+              <div class="sess-prop-qui">${escapeHtml(p.nom)} propose ${escapeHtml(formatCreneau(p.creneau))}</div>
+              <div class="sess-prop-txt">${escapeHtml(p.texte)}</div>
+              <button class="sess-copy" data-sess-copier="${id}|${i}">Copier le message client</button>
+              <button class="sess-copy valider" data-sess-valider="${id}|${escapeHtml(p.email)}">Client OK → caler la session</button>
+            </div>`).join('');
+        }
+
+        const attente = (estOwner && s.attendus?.length)
+          ? `<div class="sess-attente">En attente de : ${escapeHtml(s.attendus.join(', '))}</div>` : '';
+
+        return `
+          <div class="sess-card" data-id="${id}">
+            <div class="sess-head"><span class="sess-pulse"></span> Session à prendre</div>
+            <div class="sess-titre">${escapeHtml(s.titre)}</div>
+            <div class="sess-quand"><b>${escapeHtml(s.quand)}</b> · ${s.duree}h</div>
+            ${bas}${props}${attente}
+          </div>`;
+      }).join('');
+
+      // Mémorise les textes à copier (hors HTML, pour ne rien ré-échapper à la copie)
+      zone._props = {};
+      sessions.forEach(s => { zone._props[s.id] = (s.propositions || []).map(p => p.texte); });
+    }
+
+    // Créneau proposé par défaut : même heure, le lendemain
+    function defautCreneau(startIso) {
+      const d = new Date(startIso);
+      d.setDate(d.getDate() + 1);
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function formatCreneau(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return '';
+      return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+           + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function repondreSession(id, reponse, creneau) {
+      const zone = document.getElementById('sessions-zone');
+      zone.querySelectorAll('.sess-btn').forEach(b => b.disabled = true);
+      try {
+        let url = `${APPS_SCRIPT_URL}?action=repondreSession&email=${encodeURIComponent(currentUser.email)}`
+                + `&id=${encodeURIComponent(id)}&reponse=${reponse}`;
+        if (creneau) url += `&creneau=${encodeURIComponent(creneau)}`;
+        const d = await (await fetch(url)).json();
+        if (d.error === 'deja_close') alert('Trop tard, la session vient d\'être prise.');
+        else if (d.error) alert('Erreur : ' + d.error);
+        _sessOuverte = '';
+        await chargerSessions();
+      } catch (e) {
+        alert('Connexion impossible, réessaie.');
+        zone.querySelectorAll('.sess-btn').forEach(b => b.disabled = false);
+      }
+    }
+
+    document.getElementById('sessions-zone').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const d = btn.dataset;
+
+      if (d.sessOk) {
+        if (!confirm('Tu prends cette session ? Elle passe à ta couleur dans l\'agenda tout de suite.')) return;
+        return repondreSession(d.sessOk, 'ok');
+      }
+      if (d.sessIndispo) return repondreSession(d.sessIndispo, 'indispo');
+      if (d.sessHoraire || d.sessRouvrir) {
+        _sessOuverte = d.sessHoraire || d.sessRouvrir;
+        return chargerSessions();
+      }
+      if (d.sessEnvoyer) {
+        const val = document.getElementById('pick-' + d.sessEnvoyer)?.value;
+        if (!val) return alert('Choisis une date et une heure.');
+        return repondreSession(d.sessEnvoyer, 'horaire', val);
+      }
+      if (d.sessValider) {
+        const [sid, ingeMail] = d.sessValider.split('|');
+        if (!confirm('Le client a accepté ce créneau ?\n\nLa session sera déplacée à la nouvelle heure et attribuée à cet ingé.')) return;
+        btn.disabled = true;
+        try {
+          const r = await (await fetch(`${APPS_SCRIPT_URL}?action=validerProposition`
+            + `&email=${encodeURIComponent(currentUser.email)}`
+            + `&id=${encodeURIComponent(sid)}&inge=${encodeURIComponent(ingeMail)}`)).json();
+          if (r.error) alert('Erreur : ' + r.error);
+          else if (r.colore === false) alert('Session calée sur ' + r.quand + ".\nCet ingé n'a pas de couleur agenda : à mettre à la main.");
+          await chargerSessions();
+        } catch (err) { alert('Connexion impossible, réessaie.'); btn.disabled = false; }
+        return;
+      }
+      if (d.sessCopier) {
+        const [sid, i] = d.sessCopier.split('|');
+        const txt = document.getElementById('sessions-zone')._props?.[sid]?.[i] || '';
+        try { await navigator.clipboard.writeText(txt); }
+        catch (err) { /* clipboard refusé : on laisse le texte sélectionnable à l'écran */ }
+        btn.textContent = 'Copié ✓';
+        btn.classList.add('done');
+      }
+    });
 
     // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
     const REACTION_EMOJI = { heart: '❤️', like: '👍', dislike: '👎' };
