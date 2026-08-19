@@ -616,12 +616,21 @@ function unlockWithData(data, pin) {
 }
 
 // ─── DEMANDES EN ATTENTE ──────────────────────────────────────────────────────
+// Une demande jamais traitée (ni acceptée ni refusée) disparaît d'elle-même
+// une fois l'heure du créneau demandé atteinte — inutile de la garder affichée.
+function demandeExpiree(d) {
+  if (!d.date) return false;
+  const limite = d.heure ? new Date(`${d.date}T${d.heure}:00`) : new Date(`${d.date}T23:59:59`);
+  return limite.getTime() < Date.now();
+}
+
 async function fetchDemandes(pin) {
   const p = pin || localStorage.getItem('rr-pin-admin') || '';
   try {
-    const res  = await fetch(APPS_SCRIPT_URL + '?action=getDemandes&pin=' + p);
-    const data = await res.json();
-    renderDemandes(data.demandes || []);
+    const res      = await fetch(APPS_SCRIPT_URL + '?action=getDemandes&pin=' + p);
+    const data     = await res.json();
+    const demandes = (data.demandes || []).filter(d => !demandeExpiree(d));
+    renderDemandes(demandes);
   } catch(e) {
     document.getElementById('demandes-list').innerHTML = '<div class="demande-vide">Impossible de charger les demandes.</div>';
   }
