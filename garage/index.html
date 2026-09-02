@@ -144,6 +144,39 @@
   .grid button .dot{width:5px;height:5px;border-radius:50%;background:var(--blue)}
   .grid button .dot.none{background:transparent}
 
+  /* ---------- vue semaine ---------- */
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+  .modes button{
+    padding:11px 0;border-radius:9px;cursor:pointer;background:var(--surface);
+    border:1px solid var(--line);color:var(--ink-3);font-family:var(--display);
+    font-weight:600;font-size:13px;letter-spacing:1.6px;text-transform:uppercase;
+  }
+  .modes button[aria-pressed="true"]{background:rgba(47,128,255,.16);border-color:var(--blue);color:var(--blue-soft)}
+  .week{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 10px 10px;margin-bottom:18px}
+  .wk-cols{display:grid;grid-template-columns:26px repeat(7,1fr)}
+  .wk-dow{text-align:center;padding-bottom:8px}
+  .wk-dow .d{font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-3)}
+  .wk-dow .n{font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-top:2px}
+  .wk-dow.now .n{
+    color:#fff;background:var(--blue);border-radius:50%;
+    width:21px;height:21px;line-height:21px;margin:2px auto 0;
+  }
+  .wk-body{position:relative}
+  .wk-h{
+    font-family:var(--mono);font-size:9px;color:var(--ink-3);text-align:right;
+    padding-right:4px;transform:translateY(-5px);
+  }
+  .wk-cell{border-top:1px solid var(--line);border-left:1px solid var(--line);cursor:pointer}
+  .wk-cell:hover{background:rgba(47,128,255,.07)}
+  .wk-cell.sun{border-right:1px solid var(--line)}
+  .wk-ev{
+    position:absolute;background:var(--blue);border-radius:4px;color:#fff;
+    font-size:8.5px;line-height:1.15;padding:2px 3px;overflow:hidden;cursor:pointer;
+    box-shadow:0 1px 4px rgba(0,0,0,.35);
+  }
+  .wk-ev b{display:block;font-family:var(--mono);font-weight:600;font-size:8px;opacity:.9}
+  .wk-empty{text-align:center;font-size:12.5px;color:var(--ink-3);padding:10px 0 2px}
+
   /* ---------- boutons ---------- */
   .fab{
     position:fixed;left:50%;transform:translateX(-50%);
@@ -235,6 +268,10 @@
   .pay button{background:none;border:none;color:var(--ink-3);font-size:18px;cursor:pointer;padding:4px}
   .pay button:hover{color:var(--red)}
 
+  .ver{
+    text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-3);
+    letter-spacing:.5px;margin:22px 0 4px;
+  }
   .toast{
     position:fixed;bottom:150px;left:50%;transform:translateX(-50%) translateY(12px);
     background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:12px 20px;
@@ -367,6 +404,7 @@
   var SEED = ["Lustrage","Polissage","Nettoyage complet","Traitement céramique",
               "Covering","Feux additionnels moto","Pare-brise","Protection PPF","Mécanique"];
   var METHODS = ["Espèces","CB","Virement"];
+  var VERSION = "v1.3 — 2 sept. 2026";
   var KEY = "dcl-carnet-v1";
   var state = {prestas:[], rdvs:[]};
   var tab = "jour";
@@ -375,6 +413,9 @@
   var openId = null;
   var calCursor = new Date();
   var calPick = null;
+  var agendaMode = "semaine";
+  var weekCursor = new Date();
+  var HROW = 42;
 
   /* ---------- stockage ---------- */
   function load(){
@@ -558,19 +599,74 @@
       html += '</div>';
     }
     html += '<button class="ghost" id="exportMois">Envoyer le récap du mois</button>' +
-            '<button class="ghost" id="exportTout">Exporter tout le carnet (tableur)</button>';
+            '<button class="ghost" id="exportTout">Exporter tout le carnet (tableur)</button>' +
+            '<div class="ver">Carnet DCL · '+VERSION+'</div>';
     v.innerHTML = html;
     document.getElementById("exportMois").addEventListener("click", exportMois);
     document.getElementById("exportTout").addEventListener("click", exportTout);
   }
 
-  function renderRdv(){
-    var v = document.getElementById("view");
-    var y = calCursor.getFullYear(), mo = calCursor.getMonth();
-    var first = new Date(y, mo, 1);
-    var offset = (first.getDay()+6)%7;
-    var nDays = new Date(y, mo+1, 0).getDate();
+  function mondayOf(d){
+    var x = new Date(d); x.setDate(x.getDate() - ((x.getDay()+6)%7)); x.setHours(0,0,0,0); return x;
+  }
+  function renderSemaine(){
+    var lun = mondayOf(weekCursor);
+    var days = [], i;
+    for(i=0;i<7;i++){ var d = new Date(lun); d.setDate(lun.getDate()+i); days.push(iso(d)); }
 
+    var evs = state.rdvs.filter(function(r){ return days.indexOf(r.date) !== -1; });
+    var hmin = 8, hmax = 19;
+    evs.forEach(function(r){
+      var h = parseInt(r.time.split(":")[0], 10);
+      if(h < hmin) hmin = h;
+      if(h + 1 > hmax) hmax = h + 1;
+    });
+    var nH = hmax - hmin;
+
+    var fin = new Date(lun); fin.setDate(lun.getDate()+6);
+    var titre = lun.getDate()+" "+MOIS_C[lun.getMonth()]+" – "+fin.getDate()+" "+MOIS_C[fin.getMonth()];
+
+    var html = '<div class="cal" style="padding:0;border:none;background:none;margin-bottom:12px">' +
+      '<div class="head" style="margin-bottom:10px">' +
+      '<button id="wkPrev" aria-label="Semaine précédente">‹</button>' +
+      '<span>'+titre+'</span>' +
+      '<button id="wkNext" aria-label="Semaine suivante">›</button></div></div>';
+
+    html += '<div class="week"><div class="wk-cols"><div></div>';
+    ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].forEach(function(n, k){
+      var d = parseISO(days[k]);
+      html += '<div class="wk-dow'+(days[k] === today() ? " now" : "")+'">' +
+        '<div class="d">'+n+'</div><div class="n">'+d.getDate()+'</div></div>';
+    });
+    html += '</div><div class="wk-body"><div class="wk-cols">';
+    for(i=0;i<nH;i++){
+      html += '<div class="wk-h" style="height:'+HROW+'px">'+(hmin+i)+'h</div>';
+      for(var j=0;j<7;j++){
+        html += '<div class="wk-cell'+(j===6?" sun":"")+'" style="height:'+HROW+'px" ' +
+                'data-slot="'+days[j]+'" data-hour="'+(hmin+i)+'"></div>';
+      }
+    }
+    html += '</div>';
+
+    evs.forEach(function(r){
+      var col = days.indexOf(r.date);
+      var hp = r.time.split(":");
+      var top = (parseInt(hp[0],10) - hmin) * HROW + (parseInt(hp[1],10)/60) * HROW;
+      var left = "calc(26px + (100% - 26px) * " + col + " / 7 + 1px)";
+      var w = "calc((100% - 26px) / 7 - 2px)";
+      html += '<div class="wk-ev" data-ev="'+r.id+'" style="top:'+top+'px;left:'+left+';width:'+w+
+              ';height:'+(HROW-3)+'px"><b>'+esc(r.time)+'</b>'+esc(r.who)+'</div>';
+    });
+    html += '</div>';
+    if(!evs.length) html += '<div class="wk-empty">Aucun rendez-vous cette semaine</div>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderMois(){
+    var y = calCursor.getFullYear(), mo = calCursor.getMonth();
+    var offset = (new Date(y, mo, 1).getDay()+6)%7;
+    var nDays = new Date(y, mo+1, 0).getDate();
     var marked = {};
     state.rdvs.forEach(function(r){ marked[r.date] = true; });
 
@@ -582,43 +678,69 @@
     for(var i=0;i<offset;i++) html += '<button class="void" disabled></button>';
     for(var j=1;j<=nDays;j++){
       var ds = iso(new Date(y, mo, j));
-      html += '<button data-day="'+ds+'"'+
-        (ds === today() ? ' class="today"' : '')+
+      html += '<button data-day="'+ds+'"'+(ds === today() ? ' class="today"' : '')+
         ' aria-pressed="'+(calPick === ds ? "true" : "false")+'">'+j+
         '<span class="dot'+(marked[ds] ? "" : " none")+'"></span></button>';
     }
-    html += '</div></div>';
+    return html + '</div></div>';
+  }
+
+  function renderRdv(){
+    var v = document.getElementById("view");
+    var html = '<div class="modes">' +
+      '<button id="modeSem" aria-pressed="'+(agendaMode === "semaine")+'">Semaine</button>' +
+      '<button id="modeMois" aria-pressed="'+(agendaMode === "mois")+'">Mois</button></div>';
+
+    html += (agendaMode === "semaine") ? renderSemaine() : renderMois();
 
     var list = state.rdvs.slice().sort(function(a,b){ return (a.date+a.time) < (b.date+b.time) ? -1 : 1; });
     list = calPick ? list.filter(function(r){ return r.date === calPick; })
                    : list.filter(function(r){ return r.date >= today(); });
 
-    if(!list.length){
-      html += '<div class="empty"><div class="big">' +
-        (calPick ? "Rien ce jour-là" : "Aucun rendez-vous") + '</div>' +
-        '<p>Note ici qui passe et quand, pour ne plus avoir à t\'en souvenir.</p></div>';
-    }else{
-      var last = "";
-      list.forEach(function(r){
-        if(r.date !== last){
-          html += '<div class="day"><span>'+esc(frDate(r.date))+'</span></div>';
-          last = r.date;
-        }
-        html += '<div class="pay"><span class="body"><span class="t" style="font-family:var(--body);font-size:15px">' +
-          esc(r.who)+'</span>' + (r.what ? '<span class="s">'+esc(r.what)+'</span>' : '') +
-          '</span><span class="t">'+esc(r.time)+'</span>' +
-          '<button data-delr="'+r.id+'" aria-label="Supprimer">×</button></div>';
-      });
+    if(agendaMode === "mois" || calPick){
+      if(!list.length){
+        html += '<div class="empty"><div class="big">' +
+          (calPick ? "Rien ce jour-là" : "Aucun rendez-vous") + '</div>' +
+          '<p>Note ici qui passe et quand, pour ne plus avoir à t\'en souvenir.</p></div>';
+      }else{
+        var last = "";
+        list.forEach(function(r){
+          if(r.date !== last){
+            html += '<div class="day"><span>'+esc(frDate(r.date))+'</span></div>';
+            last = r.date;
+          }
+          html += '<div class="pay"><span class="body">' +
+            '<span class="t" style="font-family:var(--body);font-size:15px">'+esc(r.who)+'</span>' +
+            (r.what ? '<span class="s">'+esc(r.what)+'</span>' : '') +
+            '</span><span class="t">'+esc(r.time)+'</span>' +
+            '<button data-delr="'+r.id+'" aria-label="Supprimer">×</button></div>';
+        });
+      }
     }
     html += '<button class="ghost" id="addRdv">+ Ajouter un rendez-vous</button>';
     v.innerHTML = html;
 
-    document.getElementById("calPrev").addEventListener("click", function(){
-      calCursor = new Date(y, mo-1, 1); calPick = null; render();
+    document.getElementById("modeSem").addEventListener("click", function(){
+      agendaMode = "semaine"; calPick = null; render();
     });
-    document.getElementById("calNext").addEventListener("click", function(){
-      calCursor = new Date(y, mo+1, 1); calPick = null; render();
+    document.getElementById("modeMois").addEventListener("click", function(){
+      agendaMode = "mois"; render();
     });
+    if(agendaMode === "semaine"){
+      document.getElementById("wkPrev").addEventListener("click", function(){
+        weekCursor = new Date(weekCursor.getFullYear(), weekCursor.getMonth(), weekCursor.getDate()-7); render();
+      });
+      document.getElementById("wkNext").addEventListener("click", function(){
+        weekCursor = new Date(weekCursor.getFullYear(), weekCursor.getMonth(), weekCursor.getDate()+7); render();
+      });
+    }else{
+      document.getElementById("calPrev").addEventListener("click", function(){
+        calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1); calPick = null; render();
+      });
+      document.getElementById("calNext").addEventListener("click", function(){
+        calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1); calPick = null; render();
+      });
+    }
     document.getElementById("addRdv").addEventListener("click", function(){ openRdv(calPick); });
   }
 
@@ -794,10 +916,11 @@
     document.getElementById("saveRdv").disabled =
       document.getElementById("rWho").value.trim() === "" || document.getElementById("rDate").value === "";
   }
-  function openRdv(day){
+  function openRdv(day, hour){
     ["rWho","rWhat","rPhone"].forEach(function(id){ document.getElementById(id).value = ""; });
     document.getElementById("rDate").value = day || today();
-    document.getElementById("rTime").value = "09:00";
+    document.getElementById("rTime").value = (hour === undefined || hour === null)
+      ? "09:00" : ((hour<10?"0":"")+hour+":00");
     checkRdv();
     document.getElementById("sheetRdv").hidden = false;
   }
@@ -898,6 +1021,17 @@
       var d = day.getAttribute("data-day");
       calPick = (calPick === d) ? null : d;
       render();
+      return;
+    }
+    var slot = e.target.closest("[data-slot]");
+    if(slot){
+      openRdv(slot.getAttribute("data-slot"), parseInt(slot.getAttribute("data-hour"), 10));
+      return;
+    }
+    var ev = e.target.closest("[data-ev]");
+    if(ev){
+      var r0 = state.rdvs.filter(function(x){ return x.id === ev.getAttribute("data-ev"); })[0];
+      if(r0){ calPick = r0.date; render(); }
       return;
     }
     var delr = e.target.closest("button[data-delr]");
