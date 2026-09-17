@@ -422,7 +422,6 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec';
 
 // Couleurs des INGÉS (pour colorer les sessions du dashboard).
-// Amoss n'y est PAS : c'est un admin, il ne prend pas de sessions.
 // 'Ex-ingé' = ancien ingé parti le 07/08/2026, anonymisé. Gardé ici uniquement pour
 // que les sessions passées en Tomate restent attribuées et chiffrées.
 // Ne pas attribuer cette couleur à un nouvel ingé.
@@ -1193,7 +1192,6 @@ const db = getFirestore(fb);
 
 const MEMBRES = [
   { email: 'red@redrecords.fr',   nom: 'RED',   couleur: '#f6bf26' },
-  { email: 'amoss@redrecords.fr', nom: 'Amoss', couleur: '#46d6db' },
   { email: 'baloo@redrecords.fr', nom: 'Baloo', couleur: '#33b679' },
   { email: 'juss@redrecords.fr',  nom: 'JUSS',  couleur: '#8e24aa' },
   { email: 'boubou@redrecords.fr', nom: 'Boubou', couleur: '#039be5' },
