@@ -165,7 +165,7 @@ nav{
   transition:background .14s,border-color .14s;
 }
 .cat-btn:hover{background:var(--black3);border-color:var(--gray)}
-.cat-ico{font-size:26px;margin-bottom:.55rem;display:block}
+.cat-ico{display:flex;justify-content:center;margin-bottom:.65rem;color:var(--gray)}
 .cat-lbl{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px}
 .cat-cnt{font-size:10.5px;color:var(--gray);margin-top:3px}
 
@@ -254,7 +254,7 @@ input[type=date]::-webkit-calendar-picker-indicator{
   font-size:13.5px;color:var(--gray);line-height:1.45;
 }
 .info-r:last-child{border-bottom:none}
-.info-r .ico{font-size:15px;flex:none;margin-top:2px}
+.info-r .ico{flex:none;margin-top:2px;color:var(--gold);display:flex;align-items:center}
 .info-r a{color:var(--gold)}
 .info-r a:active{color:var(--gold2)}
 
@@ -343,7 +343,8 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
     <div class="nav-mark"><b>DCL</b></div>
     <span class="nav-name">DETAILING <i>CENTER</i></span>
   </div>
-  <a class="nav-tel" href="tel:0668163064">06 68 16 30 64</a>
+  <a class="nav-tel" href="tel:0668163064">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81 19.79 19.79 0 01.02 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>06 68 16 30 64</a>
 </nav>
 
 <!-- HERO -->
@@ -363,9 +364,9 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
     <span class="brand-chip">Aston Martin</span>
   </div>
   <div class="hero-stats">
-    <div><div class="stat-n">15<i>+</i></div><div class="stat-l">Prestations</div></div>
-    <div><div class="stat-n"><i>RDV</i></div><div class="stat-l">Sous 7 jours</div></div>
-    <div><div class="stat-n"><i>69</i></div><div class="stat-l">Vénissieux</div></div>
+    <div><div class="stat-n"><i>RDV</i></div><div class="stat-l">En ligne</div></div>
+    <div><div class="stat-n"><i>Lyon</i></div><div class="stat-l">Sud · 69</div></div>
+    <div><div class="stat-n">Pro</div><div class="stat-l">Certifié</div></div>
   </div>
 </div>
 
@@ -377,11 +378,26 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
   <div class="ft-brand">Detailing Center Lyon</div>
   <div class="ft-addr">388 Av. Charles de Gaulle, Bloc 117<br>69200 Vénissieux</div>
   <div class="ft-soc">
-    <a href="tel:0668163064" aria-label="Appeler">📞</a>
-    <a href="https://www.instagram.com/detailing.center.lyon/" target="_blank" rel="noopener" aria-label="Instagram">📸</a>
-    <a href="https://www.tiktok.com/@detailingcenterlyon69" target="_blank" rel="noopener" aria-label="TikTok">🎵</a>
-    <a href="https://www.snapchat.com/@detaillinglyon" target="_blank" rel="noopener" aria-label="Snapchat">👻</a>
-    <a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener" aria-label="Maps">📍</a>
+    <!-- Téléphone -->
+    <a href="tel:0668163064" aria-label="Appeler">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81 19.79 19.79 0 01.02 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    </a>
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/detailing.center.lyon/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <!-- TikTok -->
+    <a href="https://www.tiktok.com/@detailingcenterlyon69" target="_blank" rel="noopener" aria-label="TikTok">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.74a4.85 4.85 0 01-1.01-.05z"/></svg>
+    </a>
+    <!-- Snapchat -->
+    <a href="https://www.snapchat.com/@detaillinglyon" target="_blank" rel="noopener" aria-label="Snapchat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.166 2c1.493 0 4.11.41 5.621 2.916.504.84.467 2.286.436 3.494l-.006.244c.266-.043.51-.107.726-.194.217-.087.437-.13.653-.13.428 0 .853.157 1.166.46.34.328.506.762.47 1.207-.07.88-.968 1.453-2.298 1.856.034.07.07.14.11.21.224.388.57.987.57 1.737 0 .437-.085.793-.256 1.063-.367.585-1.077.87-2.11.849-.32-.007-.638-.037-.944-.084-.56-.083-1.02.01-1.374.27-.576.422-.9 1.215-1.25 2.064-.13.315-.265.643-.43.952-.404.762-1.07 1.136-1.98 1.136-.64 0-1.213-.2-1.666-.381-.43-.172-.793-.284-1.11-.284-.317 0-.68.112-1.11.284-.453.181-1.026.38-1.666.38-.91 0-1.576-.374-1.98-1.135-.165-.31-.3-.637-.43-.952-.35-.849-.674-1.642-1.25-2.064-.354-.26-.814-.353-1.374-.27-.306.047-.625.077-.944.084-1.033.02-1.743-.264-2.11-.849-.17-.27-.256-.626-.256-1.063 0-.75.346-1.349.57-1.737.04-.07.076-.14.11-.21-1.33-.403-2.228-.976-2.298-1.856-.036-.445.13-.879.47-1.207.313-.303.738-.46 1.166-.46.216 0 .436.043.653.13.216.087.46.151.726.194l-.006-.244c-.031-1.208-.068-2.654.436-3.494C7.724 2.41 10.341 2 11.834 2z"/></svg>
+    </a>
+    <!-- Maps -->
+    <a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener" aria-label="Voir sur Maps">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    </a>
   </div>
 </footer>
 
@@ -399,6 +415,14 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 (function(){
 "use strict";
 var WA="33668163064";
+
+var ICONS={
+  moto:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5l4-8h5l3 4.5M8.5 9.5H6L4 13"/><circle cx="14" cy="7" r="1.5"/></svg>',
+  auto:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2V9l3-4h12l3 4v6a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>',
+  pin:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  phone:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9.81 19.79 19.79 0 01.02 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>',
+  mail:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'
+};
 
 var CATS={
   moto:{label:"Moto",emoji:"🏍️",items:[
@@ -445,15 +469,15 @@ function rv(){
 
 /* ── ACCUEIL ── */
 function renderHome(){
-  var h='<div class="cats rv d1"><button class="cat-btn tap-card" id="c-moto"><span class="cat-ico">🏍️</span><span class="cat-lbl">Moto</span><span class="cat-cnt">'+CATS.moto.items.length+' prestations</span></button><button class="cat-btn tap-card" id="c-auto"><span class="cat-ico">🚗</span><span class="cat-lbl">Auto</span><span class="cat-cnt">'+CATS.auto.items.length+' prestations</span></button></div>';
+  var h='<div class="cats rv d1"><button class="cat-btn tap-card" id="c-moto"><span class="cat-ico">'+ICONS.moto+'</span><span class="cat-lbl">Moto</span><span class="cat-cnt">'+CATS.moto.items.length+' prestations</span></button><button class="cat-btn tap-card" id="c-auto"><span class="cat-ico">'+ICONS.auto+'</span><span class="cat-lbl">Auto</span><span class="cat-cnt">'+CATS.auto.items.length+' prestations</span></button></div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Nos clients</div>';
   h+='<div class="prestige rv d3"><div class="prestige-label">Véhicules traités</div><div class="prestige-brands"><span class="pb">Porsche</span><span class="pb">BMW</span><span class="pb">Lamborghini</span><span class="pb">Range Rover</span><span class="pb">Mercedes</span><span class="pb">Aston Martin</span></div></div>';
   h+='<div class="sec-tag rv d2" style="margin-top:1.5rem">Contact</div>';
   h+='<div class="sec-h rv d3">Nous trouver</div>';
-  h+='<div class="info-r rv d3"><span class="ico">📍</span><span><a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener">388 Av. Charles de Gaulle, Bloc 117 · 69200 Vénissieux</a></span></div>';
-  h+='<div class="info-r rv d4"><span class="ico">📞</span><span><a href="tel:0668163064">06 68 16 30 64</a></span></div>';
-  h+='<div class="info-r rv d4"><span class="ico">✉️</span><span><a href="mailto:contact.detailingcenterlyon@gmail.com">contact.detailingcenterlyon@gmail.com</a></span></div>';
+  h+='<div class="info-r rv d3"><span class="ico">'+ICONS.pin+'</span><span><a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener">388 Av. Charles de Gaulle, Bloc 117 · 69200 Vénissieux</a></span></div>';
+  h+='<div class="info-r rv d4"><span class="ico">'+ICONS.phone+'</span><span><a href="tel:0668163064">06 68 16 30 64</a></span></div>';
+  h+='<div class="info-r rv d4"><span class="ico">'+ICONS.mail+'</span><span><a href="mailto:contact.detailingcenterlyon@gmail.com">contact.detailingcenterlyon@gmail.com</a></span></div>';
   h+='</div>';
   document.getElementById("view").innerHTML=h;
   document.getElementById("c-moto").onclick=function(){st.cat="moto";st.svc=null;go(renderSvcs);};
@@ -465,7 +489,7 @@ function renderHome(){
 function renderSvcs(){
   var cat=CATS[st.cat];
   var h='<div class="wrap" style="padding-top:1.5rem">';
-  h+='<div class="sec-tag rv">'+cat.emoji+' '+cat.label+'</div>';
+  h+='<div class="sec-tag rv">'+ICONS[st.cat]+' '+cat.label+'</div>';
   h+='<div class="sec-h rv d1">Choisir une prestation</div>';
   h+='<div class="svc-list rv d2">';
   cat.items.forEach(function(it){
@@ -495,7 +519,7 @@ function renderForm(){
   var h='<div class="wrap" style="padding-top:1.5rem">';
   h+='<div class="sec-tag rv">Votre RDV</div>';
   h+='<div class="sec-h rv d1">Vos informations</div>';
-  h+='<div class="svc-recap rv d1"><span style="font-size:20px;flex:none">'+cat.emoji+'</span>';
+  h+='<div class="svc-recap rv d1"><span style="flex:none;color:var(--gold)">'+ICONS[st.cat]+'</span>';
   h+='<div class="recap-body"><div class="recap-n">'+esc(it.n)+'</div><div class="recap-p">'+esc(it.p)+'</div></div>';
   h+='<button class="chg-btn" id="chg">Changer</button></div>';
   h+='<div class="rv d2">';
