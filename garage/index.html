@@ -279,6 +279,7 @@
     transition:opacity .2s,transform .2s;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5);
   }
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  a.ghost{display:block;text-decoration:none;text-align:center}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <style>
@@ -404,7 +405,7 @@
   var SEED = ["Lustrage","Polissage","Nettoyage complet","Traitement céramique",
               "Covering","Feux additionnels moto","Pare-brise","Protection PPF","Mécanique"];
   var METHODS = ["Espèces","CB","Virement"];
-  var VERSION = "v1.3 — 2 sept. 2026";
+  var VERSION = "v1.4 — 22 sept. 2026";
   var KEY = "dcl-carnet-v1";
   var state = {prestas:[], rdvs:[]};
   var tab = "jour";
@@ -485,6 +486,10 @@
   }
   function subtitle(p){
     return [p.client, p.vehicle, p.plate].filter(Boolean).join(" · ");
+  }
+  function sanitizePhone(s){ return s.replace(/\s+/g,""); }
+  function relanceText(p, due){
+    return "Bonjour, il vous reste "+euro(due)+" à régler pour votre "+p.label+" du "+frDate(p.date)+". Merci de passer au garage. — DCL";
   }
 
   /* ---------- pave numerique ---------- */
@@ -765,7 +770,9 @@
       '<div class="sum"><div class="t">'+esc(p.label)+'</div>' +
       '<div class="meta">'+esc(frDate(p.date))+(subtitle(p) ? ' · '+esc(subtitle(p)) : '')+'</div>' +
       '<div class="split"><div><div class="k">Encaissé</div><div class="v">'+euro(pay)+'</div></div>' +
-      '<div><div class="k">Reste dû</div><div class="v'+(due>0?" due":"")+'">'+euro(due)+'</div></div></div></div>';
+      '<div><div class="k">Reste dû</div><div class="v'+(due>0?" due":"")+'">'+euro(due)+'</div></div></div>' +
+      (p.phone ? '<a href="tel:'+esc(sanitizePhone(p.phone))+'" class="ghost">Appeler · '+esc(p.phone)+'</a>' : '') +
+      '</div>';
 
     html += '<label class="f">Versements</label>';
     if(!(p.payments||[]).length){
@@ -778,6 +785,13 @@
       });
     }
     if(due > 0) html += '<button class="ghost" id="addPay">+ Encaisser un versement</button>';
+    if(due > 0){
+      if(p.phone){
+        html += '<a href="sms:'+esc(sanitizePhone(p.phone))+'?&body='+encodeURIComponent(relanceText(p,due))+'" class="ghost">Relancer par SMS</a>';
+      } else {
+        html += '<button class="ghost" id="copyRelance">Copier le message de relance</button>';
+      }
+    }
 
     html += '<label class="f">Infos client <span class="opt">— utiles pour facturer plus tard</span></label>' +
       '<input type="text" id="fClient" placeholder="Nom du client" value="'+esc(p.client||"")+'">' +
@@ -793,6 +807,13 @@
 
     if(due > 0){
       document.getElementById("addPay").addEventListener("click", function(){ openPay(due); });
+      if(!p.phone){
+        document.getElementById("copyRelance").addEventListener("click", function(){
+          var txt = relanceText(p, due);
+          if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){ toast("Message copié"); }, function(){ toast("Copie impossible"); });
+          else toast("Copie non disponible ici");
+        });
+      }
     }
     document.getElementById("saveInfos").addEventListener("click", function(){
       p.client = document.getElementById("fClient").value.trim();
