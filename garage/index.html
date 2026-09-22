@@ -364,10 +364,10 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">
+  <button class="nav-logo" onclick="goHome()" style="background:none;border:none;padding:0;display:flex;align-items:center;gap:10px">
     <div class="nav-mark"><b>DCL</b></div>
     <span class="nav-name">DETAILING <i>CENTER</i></span>
-  </div>
+  </button>
   <a class="nav-tel" href="tel:0668163064">
     <i class="fa-solid fa-phone" style="font-size:11px;margin-right:6px;vertical-align:middle"></i>06 68 16 30 64</a>
 </nav>
@@ -484,6 +484,8 @@ function rv(){
   var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.08});
   els.forEach(function(el){io.observe(el);});
 }
+
+function goHome(){if(st.cat||st.svc){st.cat=null;st.svc=null;go(renderHome);window.scrollTo({top:0,behavior:"smooth"});}}
 
 /* ── ACCUEIL ── */
 function renderHome(){
