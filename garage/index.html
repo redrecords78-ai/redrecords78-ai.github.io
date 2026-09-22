@@ -145,20 +145,42 @@ nav{
   margin-bottom:1.25rem;
 }
 
-/* ── CAT BUTTONS ── */
-.cats{
-  display:grid;grid-template-columns:1fr 1fr;gap:9px;
-  padding:1.75rem 1.5rem 0;max-width:640px;margin:0 auto;
-}
-.cat-btn{
+/* ── CAT CARDS ── */
+.cats{display:flex;flex-direction:column;gap:10px;padding:1.75rem 1.5rem 0;max-width:640px;margin:0 auto}
+.cat-card{
   background:var(--black2);border:1px solid var(--gray2);
-  border-radius:14px;padding:1.4rem 1rem 1.2rem;text-align:center;
-  transition:background .14s,border-color .14s;
+  border-radius:16px;padding:1.6rem 1.4rem;
+  display:flex;align-items:center;gap:1.1rem;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:border-color .2s;
 }
-.cat-btn:hover{background:var(--black3);border-color:var(--gray)}
-.cat-ico{display:flex;justify-content:center;margin-bottom:.65rem;color:var(--gray)}
-.cat-lbl{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px}
-.cat-cnt{font-size:10.5px;color:var(--gray);margin-top:3px}
+.cat-card:active{transform:scale(.982);transition:transform .09s ease}
+.cat-beam{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 60% at 18% 50%,rgba(201,168,76,.22),transparent 65%);
+  animation:beam 3.5s ease-in-out infinite;
+}
+.cat-card:last-child .cat-beam{animation-delay:1.75s}
+@keyframes beam{0%,100%{opacity:.5}50%{opacity:1}}
+.cat-hex{
+  position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background:
+    repeating-linear-gradient(0deg,transparent 0,transparent 18px,rgba(201,168,76,.04) 18px,rgba(201,168,76,.04) 19px),
+    repeating-linear-gradient(60deg,transparent 0,transparent 18px,rgba(201,168,76,.03) 18px,rgba(201,168,76,.03) 19px),
+    repeating-linear-gradient(120deg,transparent 0,transparent 18px,rgba(201,168,76,.03) 18px,rgba(201,168,76,.03) 19px);
+}
+.cat-ico-lg{font-size:38px;color:var(--gold);position:relative;z-index:1;flex:none;text-shadow:0 0 18px rgba(201,168,76,.5)}
+.cat-info{flex:1;position:relative;z-index:1}
+.cat-name{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2.5px;line-height:1}
+.cat-sub{font-size:11.5px;color:var(--gray);margin-top:3px;letter-spacing:.04em}
+.cat-arrow{
+  position:relative;z-index:1;flex:none;
+  width:34px;height:34px;border-radius:9px;
+  border:1px solid rgba(201,168,76,.3);
+  display:grid;place-items:center;
+  color:var(--gold);font-size:13px;
+  background:rgba(201,168,76,.06);
+}
 
 /* ── SERVICE CARDS ── */
 .svc-list{
@@ -423,7 +445,16 @@ function rv(){
 
 /* ── ACCUEIL ── */
 function renderHome(){
-  var h='<div class="cats rv d1"><button class="cat-btn tap-card" id="c-moto"><span class="cat-ico">'+ICONS.moto+'</span><span class="cat-lbl">Moto</span><span class="cat-cnt">'+CATS.moto.items.length+' prestations</span></button><button class="cat-btn tap-card" id="c-auto"><span class="cat-ico">'+ICONS.auto+'</span><span class="cat-lbl">Auto</span><span class="cat-cnt">'+CATS.auto.items.length+' prestations</span></button></div>';
+  var h='<div class="cats rv d1">';
+  h+='<button class="cat-card" id="c-moto"><div class="cat-beam"></div><div class="cat-hex"></div>';
+  h+='<i class="fa-solid fa-motorcycle cat-ico-lg"></i>';
+  h+='<div class="cat-info"><div class="cat-name">Moto</div><div class="cat-sub">'+CATS.moto.items.length+' prestations</div></div>';
+  h+='<div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='<button class="cat-card" id="c-auto"><div class="cat-beam"></div><div class="cat-hex"></div>';
+  h+='<i class="fa-solid fa-car-side cat-ico-lg"></i>';
+  h+='<div class="cat-info"><div class="cat-name">Auto</div><div class="cat-sub">'+CATS.auto.items.length+' prestations</div></div>';
+  h+='<div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='</div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Contact</div>';
   h+='<div class="sec-h rv d3">Nous trouver</div>';
