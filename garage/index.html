@@ -198,6 +198,8 @@ nav{
   50%{box-shadow:0 0 18px rgba(201,168,76,1),0 0 32px rgba(201,168,76,.55)}
 }
 .hspot.sel .hspot-dot{transform:scale(1.4);background:var(--gold2);animation:none;box-shadow:0 0 22px rgba(201,168,76,1)}
+@keyframes ledCycle{0%{filter:hue-rotate(0deg) brightness(1.15)}100%{filter:hue-rotate(360deg) brightness(1.15)}}
+.hspot-img.led-active{animation:ledCycle 2.5s linear infinite}
 .hspot-tip{
   font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
   background:rgba(8,8,8,.82);color:var(--gold);
@@ -539,6 +541,10 @@ function renderSvcs(){
       var id=btn.dataset.id;
       document.querySelectorAll(".hspot").forEach(function(b){b.classList.remove("sel");});
       btn.classList.add("sel");
+      // Effet LED : change la couleur des phares sur la photo
+      var img=document.querySelector(".hspot-img");
+      if(id==="logo-led"){img.classList.add("led-active");}
+      else{img.classList.remove("led-active");}
       var card=document.querySelector('.svc-card[data-id="'+id+'"]');
       if(card){
         document.querySelectorAll(".svc-card").forEach(function(x){x.setAttribute("aria-pressed","false");});
