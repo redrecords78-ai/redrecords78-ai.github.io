@@ -551,6 +551,14 @@ function tryNotifBanner(){
   requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add("show");});});
 }
 
+/* ── EXTERNAL LINKS (iOS PWA fix) ── */
+document.addEventListener("click",function(e){
+  var a=e.target.closest("a[target='_blank']");
+  if(!a)return;
+  e.preventDefault();
+  window.open(a.href,"_blank","noopener,noreferrer");
+});
+
 /* ── INIT ── */
 renderHome();
 setTimeout(tryNotifBanner,4500);
