@@ -83,16 +83,14 @@ nav{
 }
 .hero-bg{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 50% at 45% 20%,rgba(201,168,76,.09),transparent 65%),
-             linear-gradient(175deg,#0D0A06 0%,#080808 55%,#080808 100%);
+  background-image:url(images/auto.jpg);
+  background-size:cover;background-position:center 35%;
 }
-.hex{
-  position:absolute;inset:0;opacity:.5;
-  background:
-    repeating-linear-gradient(0deg,transparent 0,transparent 31px,rgba(201,168,76,.04) 31px,rgba(201,168,76,.04) 32px),
-    repeating-linear-gradient(60deg,transparent 0,transparent 31px,rgba(201,168,76,.03) 31px,rgba(201,168,76,.03) 32px),
-    repeating-linear-gradient(120deg,transparent 0,transparent 31px,rgba(201,168,76,.03) 31px,rgba(201,168,76,.03) 32px);
+.hero-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(175deg,rgba(8,8,8,.92) 0%,rgba(8,8,8,.78) 45%,rgba(8,8,8,.62) 100%);
 }
+.hex{display:none}
 .hero-vline{position:absolute;top:0;left:1.5rem;width:1px;height:80px;background:linear-gradient(to bottom,transparent,var(--gold));opacity:.7}
 
 .hero-chip{
@@ -148,38 +146,32 @@ nav{
 /* ── CAT CARDS ── */
 .cats{display:flex;flex-direction:column;gap:10px;padding:1.75rem 1.5rem 0;max-width:640px;margin:0 auto}
 .cat-card{
-  background:var(--black2);border:1px solid var(--gray2);
-  border-radius:16px;padding:1.6rem 1.4rem;
-  display:flex;align-items:center;gap:1.1rem;
+  height:190px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background-size:cover;background-position:center;
   position:relative;overflow:hidden;cursor:pointer;
-  transition:border-color .2s;
+  transition:transform .09s ease;
 }
-.cat-card:active{transform:scale(.982);transition:transform .09s ease}
-.cat-beam{
-  position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 60% at 18% 50%,rgba(201,168,76,.22),transparent 65%);
-  animation:beam 3.5s ease-in-out infinite;
+.cat-card:active{transform:scale(.982)}
+.cat-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(8,8,8,.93) 0%,rgba(8,8,8,.6) 52%,rgba(8,8,8,.1) 100%);
 }
-.cat-card:last-child .cat-beam{animation-delay:1.75s}
-@keyframes beam{0%,100%{opacity:.5}50%{opacity:1}}
-.cat-hex{
-  position:absolute;inset:0;pointer-events:none;opacity:.45;
-  background:
-    repeating-linear-gradient(0deg,transparent 0,transparent 18px,rgba(201,168,76,.04) 18px,rgba(201,168,76,.04) 19px),
-    repeating-linear-gradient(60deg,transparent 0,transparent 18px,rgba(201,168,76,.03) 18px,rgba(201,168,76,.03) 19px),
-    repeating-linear-gradient(120deg,transparent 0,transparent 18px,rgba(201,168,76,.03) 18px,rgba(201,168,76,.03) 19px);
+#c-moto{background-image:url(images/moto.jpg);background-position:center 40%}
+#c-auto{background-image:url(images/auto.jpg);background-position:center 45%}
+.cat-content{
+  position:absolute;left:1.3rem;top:50%;transform:translateY(-50%);z-index:1;
 }
-.cat-ico-lg{font-size:38px;color:var(--gold);position:relative;z-index:1;flex:none;text-shadow:0 0 18px rgba(201,168,76,.5)}
-.cat-info{flex:1;position:relative;z-index:1}
-.cat-name{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2.5px;line-height:1}
-.cat-sub{font-size:11.5px;color:var(--gray);margin-top:3px;letter-spacing:.04em}
+.cat-ico-lg{font-size:20px;color:var(--gold);margin-bottom:.4rem;display:block;text-shadow:0 0 12px rgba(201,168,76,.7)}
+.cat-name{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2.5px;line-height:1;color:var(--white)}
+.cat-sub{font-size:11.5px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:.04em}
 .cat-arrow{
-  position:relative;z-index:1;flex:none;
+  position:absolute;right:1.25rem;top:50%;transform:translateY(-50%);z-index:1;
   width:34px;height:34px;border-radius:9px;
-  border:1px solid rgba(201,168,76,.3);
+  border:1px solid rgba(201,168,76,.35);
   display:grid;place-items:center;
   color:var(--gold);font-size:13px;
-  background:rgba(201,168,76,.06);
+  background:rgba(8,8,8,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 
 /* ── SERVICE CARDS ── */
@@ -446,14 +438,8 @@ function rv(){
 /* ── ACCUEIL ── */
 function renderHome(){
   var h='<div class="cats rv d1">';
-  h+='<button class="cat-card" id="c-moto"><div class="cat-beam"></div><div class="cat-hex"></div>';
-  h+='<i class="fa-solid fa-motorcycle cat-ico-lg"></i>';
-  h+='<div class="cat-info"><div class="cat-name">Moto</div><div class="cat-sub">'+CATS.moto.items.length+' prestations</div></div>';
-  h+='<div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
-  h+='<button class="cat-card" id="c-auto"><div class="cat-beam"></div><div class="cat-hex"></div>';
-  h+='<i class="fa-solid fa-car-side cat-ico-lg"></i>';
-  h+='<div class="cat-info"><div class="cat-name">Auto</div><div class="cat-sub">'+CATS.auto.items.length+' prestations</div></div>';
-  h+='<div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='<button class="cat-card" id="c-moto"><div class="cat-content"><i class="fa-solid fa-motorcycle cat-ico-lg"></i><div class="cat-name">Moto</div><div class="cat-sub">'+CATS.moto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='<button class="cat-card" id="c-auto"><div class="cat-content"><i class="fa-solid fa-car-side cat-ico-lg"></i><div class="cat-name">Auto</div><div class="cat-sub">'+CATS.auto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
   h+='</div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Contact</div>';
