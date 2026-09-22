@@ -125,7 +125,7 @@ nav{
 }
 .hero-stats{
   display:flex;gap:2rem;position:relative;z-index:1;
-  animation:fu .75s .27s ease both;
+  animation:fu .75s .2s ease both;
 }
 .stat-n{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--white);line-height:1}
 .stat-n i{color:var(--gold);font-style:normal}
@@ -434,14 +434,14 @@ function renderHome(){
   document.getElementById("view").innerHTML=h;
   document.getElementById("c-moto").onclick=function(){st.cat="moto";st.svc=null;go(renderSvcs);};
   document.getElementById("c-auto").onclick=function(){st.cat="auto";st.svc=null;go(renderSvcs);};
-  cta("Réserver",false);rv();
+  cta("Prendre rendez-vous",true,function(){document.getElementById("view").scrollIntoView({behavior:"smooth"});});rv();
 }
 
 /* ── SERVICES ── */
 function renderSvcs(){
   var cat=CATS[st.cat];
   var h='<div class="wrap" style="padding-top:1.5rem">';
-  h+='<div class="sec-tag rv">'+ICONS[st.cat]+' '+cat.label+'</div>';
+  h+='<div class="sec-tag rv">'+cat.label+'</div>';
   h+='<div class="sec-h rv d1">Choisir une prestation</div>';
   h+='<div class="svc-list rv d2">';
   cat.items.forEach(function(it){
@@ -495,6 +495,23 @@ function renderForm(){
   cta("Envoyer sur WhatsApp",false);rv();
 }
 
+/* ── CONFIRMATION ── */
+function renderConfirm(){
+  var cat=CATS[st.cat];
+  var it=cat.items.filter(function(x){return x.id===st.svc;})[0];
+  var h='<div class="wrap" style="padding-top:3rem;text-align:center">';
+  h+='<div style="width:64px;height:64px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;color:var(--gold)"><i class="fa-solid fa-check" style="font-size:24px"></i></div>';
+  h+='<div class="sec-tag rv" style="justify-content:center;margin-bottom:.6rem">Demande envoyée</div>';
+  h+='<div class="sec-h rv d1" style="margin-bottom:.75rem">WhatsApp ouvert</div>';
+  h+='<p class="rv d2" style="color:var(--gray);font-size:13.5px;line-height:1.65;margin-bottom:2rem">Votre demande a été transmise.<br>Le garage vous répondra dans les plus brefs délais.</p>';
+  h+='<div class="svc-recap rv d3"><span style="flex:none;color:var(--gold)">'+ICONS[st.cat]+'</span>';
+  h+='<div class="recap-body"><div class="recap-n">'+esc(it.n)+'</div><div class="recap-p">'+esc(it.p)+'</div></div></div>';
+  h+='</div>';
+  document.getElementById("view").innerHTML=h;
+  cta("Retour à l\'accueil",true,function(){st.cat=null;st.svc=null;go(renderHome);setTimeout(function(){window.scrollTo({top:0,behavior:"smooth"});},200);});
+  rv();
+}
+
 /* ── WHATSAPP ── */
 function sendWa(){
   var cat=CATS[st.cat];
@@ -512,7 +529,7 @@ function sendWa(){
   if(d){var dd=new Date(d);var js=["dim","lun","mar","mer","jeu","ven","sam"][dd.getDay()];var ms=["jan","fév","mar","avr","mai","juin","juil","aoû","sep","oct","nov","déc"][dd.getMonth()];msg+="📅 "+js+". "+dd.getDate()+" "+ms+"\n";}
   if(n) msg+="📝 "+n+"\n";
   window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg),"_blank");
-  toast("Ouverture de WhatsApp…");
+  setTimeout(function(){go(renderConfirm);},350);
 }
 
 /* ── NOTIFS ── */
