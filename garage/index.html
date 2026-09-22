@@ -146,32 +146,64 @@ nav{
 /* ── CAT CARDS ── */
 .cats{display:flex;flex-direction:column;gap:10px;padding:1.75rem 1.5rem 0;max-width:640px;margin:0 auto}
 .cat-card{
-  height:190px;border-radius:16px;
+  height:200px;border-radius:16px;
   border:1px solid rgba(255,255,255,.08);
-  background-size:cover;background-position:center;
   position:relative;overflow:hidden;cursor:pointer;
   transition:transform .09s ease;
 }
 .cat-card:active{transform:scale(.982)}
 .cat-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(100deg,rgba(8,8,8,.93) 0%,rgba(8,8,8,.6) 52%,rgba(8,8,8,.1) 100%);
+  content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(100deg,rgba(8,8,8,.78) 0%,rgba(8,8,8,.38) 52%,rgba(8,8,8,.04) 100%);
 }
-#c-moto{background-image:url(images/moto.jpg);background-position:center 40%}
-#c-auto{background-image:url(images/auto.jpg);background-position:center 45%}
-.cat-content{
-  position:absolute;left:1.3rem;top:50%;transform:translateY(-50%);z-index:1;
+.cat-bg{
+  position:absolute;inset:-8%;
+  background-size:cover;background-position:center;
+  transition:transform .55s cubic-bezier(.25,.46,.45,.94);
 }
+#c-moto .cat-bg{background-image:url(images/moto.jpg);background-position:center 35%}
+#c-auto .cat-bg{background-image:url(images/auto.jpg);background-position:center 42%}
+.cat-card:hover .cat-bg,.cat-card:focus .cat-bg{transform:scale(1.09)}
+.cat-content{position:absolute;left:1.3rem;top:50%;transform:translateY(-50%);z-index:2}
 .cat-ico-lg{font-size:20px;color:var(--gold);margin-bottom:.4rem;display:block;text-shadow:0 0 12px rgba(201,168,76,.7)}
 .cat-name{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2.5px;line-height:1;color:var(--white)}
-.cat-sub{font-size:11.5px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:.04em}
+.cat-sub{font-size:11.5px;color:rgba(255,255,255,.55);margin-top:4px;letter-spacing:.04em}
 .cat-arrow{
-  position:absolute;right:1.25rem;top:50%;transform:translateY(-50%);z-index:1;
+  position:absolute;right:1.25rem;top:50%;transform:translateY(-50%);z-index:2;
   width:34px;height:34px;border-radius:9px;
   border:1px solid rgba(201,168,76,.35);
   display:grid;place-items:center;
   color:var(--gold);font-size:13px;
   background:rgba(8,8,8,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+
+/* ── HOTSPOTS ── */
+.hspot-wrap{position:relative;border-radius:14px;overflow:hidden;margin-bottom:1.25rem;height:220px}
+.hspot-img{position:absolute;inset:-6%;background-size:cover;background-position:center}
+.hspot-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,.2),rgba(8,8,8,.55))}
+.hspot{
+  position:absolute;transform:translate(-50%,-50%);z-index:3;
+  background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.hspot-dot{
+  width:18px;height:18px;border-radius:50%;display:block;
+  background:rgba(201,168,76,.9);border:2.5px solid rgba(255,255,255,.85);
+  box-shadow:0 0 10px rgba(201,168,76,.8),0 0 20px rgba(201,168,76,.3);
+  transition:transform .18s,box-shadow .18s;
+  animation:pdot 2.5s ease-in-out infinite;
+}
+@keyframes pdot{
+  0%,100%{box-shadow:0 0 8px rgba(201,168,76,.8),0 0 16px rgba(201,168,76,.3)}
+  50%{box-shadow:0 0 18px rgba(201,168,76,1),0 0 32px rgba(201,168,76,.55)}
+}
+.hspot.sel .hspot-dot{transform:scale(1.4);background:var(--gold2);animation:none;box-shadow:0 0 22px rgba(201,168,76,1)}
+.hspot-tip{
+  font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
+  background:rgba(8,8,8,.82);color:var(--gold);
+  padding:2px 7px;border-radius:50px;white-space:nowrap;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1px solid rgba(201,168,76,.25);
 }
 
 /* ── SERVICE CARDS ── */
@@ -393,7 +425,15 @@ var ICONS={
 };
 
 var CATS={
-  moto:{label:"Moto",emoji:"🏍️",items:[
+  moto:{label:"Moto",emoji:"🏍️",
+    spots:[
+      {id:"nett-moto", x:38, y:55, tip:"Nettoyage"},
+      {id:"detail-m",  x:54, y:40, tip:"Detailing"},
+      {id:"logo-led",  x:64, y:52, tip:"Logo LED"},
+      {id:"selle",     x:40, y:30, tip:"Selle"},
+      {id:"sabot",     x:48, y:68, tip:"Sabot"}
+    ],
+    items:[
     {id:"nett-moto", n:"Nettoyage moto",     d:"Forfait express — nettoyage complet",   p:"dès 50 €"},
     {id:"detail-m",  n:"Detailing moto",     d:"Traitement professionnel complet",      p:"dès 80 €"},
     {id:"logo-led",  n:"Logo LED",           d:"Personnalisation lumineuse",            p:"dès 90 €"},
@@ -403,7 +443,15 @@ var CATS={
     {id:"selle",     n:"Housse de selle",    d:"Cuir & tissu sur mesure",               p:"dès 450 €"},
     {id:"crash-bar", n:"Crash bar",          d:"Peinture & finition sur mesure",        p:"dès 350 €"}
   ]},
-  auto:{label:"Auto",emoji:"🚗",items:[
+  auto:{label:"Auto",emoji:"🚗",
+    spots:[
+      {id:"nett-exp",  x:40, y:72, tip:"Nettoyage"},
+      {id:"polissage", x:62, y:47, tip:"Polissage"},
+      {id:"ceramique", x:52, y:38, tip:"Céramique"},
+      {id:"cuir",      x:67, y:30, tip:"Cuir intérieur"},
+      {id:"pluie",     x:68, y:26, tip:"Pare-brise"}
+    ],
+    items:[
     {id:"nett-exp",  n:"Nettoyage Express",  d:"Lavage & aspiration complète",          p:"100 €",    badge:"populaire"},
     {id:"nett-conf", n:"Nettoyage Confort",  d:"Express + traitement plastiques + vitrages", p:"130 €"},
     {id:"nett-prem", n:"Nettoyage Premium",  d:"Confort + désodorisation + cires",      p:"170 €",    badge:"recommandé"},
@@ -438,8 +486,8 @@ function rv(){
 /* ── ACCUEIL ── */
 function renderHome(){
   var h='<div class="cats rv d1">';
-  h+='<button class="cat-card" id="c-moto"><div class="cat-content"><i class="fa-solid fa-motorcycle cat-ico-lg"></i><div class="cat-name">Moto</div><div class="cat-sub">'+CATS.moto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
-  h+='<button class="cat-card" id="c-auto"><div class="cat-content"><i class="fa-solid fa-car-side cat-ico-lg"></i><div class="cat-name">Auto</div><div class="cat-sub">'+CATS.auto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='<button class="cat-card" id="c-moto"><div class="cat-bg"></div><div class="cat-content"><i class="fa-solid fa-motorcycle cat-ico-lg"></i><div class="cat-name">Moto</div><div class="cat-sub">'+CATS.moto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='<button class="cat-card" id="c-auto"><div class="cat-bg"></div><div class="cat-content"><i class="fa-solid fa-car-side cat-ico-lg"></i><div class="cat-name">Auto</div><div class="cat-sub">'+CATS.auto.items.length+' prestations</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
   h+='</div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Contact</div>';
@@ -457,10 +505,23 @@ function renderHome(){
 /* ── SERVICES ── */
 function renderSvcs(){
   var cat=CATS[st.cat];
+  var img=st.cat==="moto"?"moto":"auto";
   var h='<div class="wrap" style="padding-top:1.5rem">';
   h+='<div class="sec-tag rv">'+cat.label+'</div>';
-  h+='<div class="sec-h rv d1">Choisir une prestation</div>';
-  h+='<div class="svc-list rv d2">';
+  h+='<div class="sec-h rv d1" style="margin-bottom:.9rem">Touchez un repère</div>';
+  // Image + hotspots
+  h+='<div class="hspot-wrap rv d2" id="hspotWrap">';
+  h+='<div class="hspot-img" style="background-image:url(images/'+img+'.jpg);background-position:center '+(img==="moto"?"35%":"42%")+'" ></div>';
+  h+='<div class="hspot-overlay"></div>';
+  cat.spots.forEach(function(sp){
+    h+='<button class="hspot" data-id="'+sp.id+'" style="left:'+sp.x+'%;top:'+sp.y+'%">';
+    h+='<span class="hspot-dot"></span><span class="hspot-tip">'+esc(sp.tip)+'</span>';
+    h+='</button>';
+  });
+  h+='</div>';
+  // Liste complète
+  h+='<div class="sec-tag rv d2" style="margin-bottom:.4rem">Toutes les prestations</div>';
+  h+='<div class="svc-list rv d3">';
   cat.items.forEach(function(it){
     h+='<div class="svc-card" role="button" tabindex="0" aria-pressed="false" data-id="'+it.id+'">';
     h+='<div class="svc-body"><div class="svc-n">'+esc(it.n)+(it.badge?'<span class="svc-badge">'+esc(it.badge)+'</span>':'')+'</div>';
@@ -468,17 +529,39 @@ function renderSvcs(){
     h+='<div class="svc-p">'+esc(it.p)+'</div></div>';
   });
   h+='</div>';
-  h+='<button class="back rv d3" id="bkHome">← Retour à l\'accueil</button>';
+  h+='<button class="back rv d4" id="bkHome">← Retour à l\'accueil</button>';
   h+='</div>';
   document.getElementById("view").innerHTML=h;
+  // Hotspot click → sélectionne la carte correspondante
+  document.querySelectorAll(".hspot").forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var id=btn.dataset.id;
+      document.querySelectorAll(".hspot").forEach(function(b){b.classList.remove("sel");});
+      btn.classList.add("sel");
+      var card=document.querySelector('.svc-card[data-id="'+id+'"]');
+      if(card){
+        document.querySelectorAll(".svc-card").forEach(function(x){x.setAttribute("aria-pressed","false");});
+        card.setAttribute("aria-pressed","true");
+        st.svc=id;
+        card.scrollIntoView({behavior:"smooth",block:"center"});
+        cta("Choisir cette prestation",true,function(){go(renderForm);});
+      }
+    };
+  });
+  // Carte click
   document.getElementById("view").addEventListener("click",function(e){
     var c=e.target.closest(".svc-card");if(!c)return;
     document.querySelectorAll(".svc-card").forEach(function(x){x.setAttribute("aria-pressed","false");});
     c.setAttribute("aria-pressed","true");st.svc=c.getAttribute("data-id");
+    // Sync hotspot
+    document.querySelectorAll(".hspot").forEach(function(b){b.classList.remove("sel");});
+    var hs=document.querySelector('.hspot[data-id="'+st.svc+'"]');
+    if(hs)hs.classList.add("sel");
     cta("Choisir cette prestation",true,function(){go(renderForm);});
   });
   document.getElementById("bkHome").onclick=function(){st.cat=null;go(renderHome);};
-  cta("Choisir une prestation",false);rv();
+  cta("Touchez un repère ou choisissez",false);rv();
 }
 
 /* ── FORMULAIRE ── */
