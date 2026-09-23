@@ -1022,15 +1022,25 @@
       const el = document.getElementById("team-strip");
       if (!el) return;
       const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      // Une fiche team-presence est creee a la 1re connexion au chat
-      const connectes = new Set();
-      try { (await getDocs(collection(db, 'team-presence'))).forEach(d => connectes.add(d.id)); } catch (e) {}
-      if (currentUser?.email) connectes.add(currentUser.email);
-      const liste = MEMBRES_DEFAUT.filter(m => connectes.has(m.email));
-      el.innerHTML = '<span class="ts-label">Équipe</span>' + liste.map(m => {
-        const i = ingeMap[m.email] || m;
-        return `<span class="ts-item"><span class="ts-dot" style="background:${esc(i.couleur || m.couleur)}"></span>${esc(i.nom || m.nom)}</span>`;
-      }).join('');
+      const rendre = (connectes) => {
+        if (currentUser?.email) connectes.add(currentUser.email);
+        const liste = MEMBRES_DEFAUT.filter(m => connectes.has(m.email));
+        el.innerHTML = '<span class="ts-label">Équipe</span>' + liste.map(m => {
+          const i = ingeMap[m.email] || m;
+          return `<span class="ts-item"><span class="ts-dot" style="background:${esc(i.couleur || m.couleur)}"></span>${esc(i.nom || m.nom)}</span>`;
+        }).join('');
+      };
+      rendre(new Set());
+      // Une fiche team-presence est creee a chaque connexion au chat : on ecoute en direct,
+      // un ingé qui se connecte apparait sans recharger la page.
+      if (window._presenceUnsub) return;
+      try {
+        window._presenceUnsub = onSnapshot(collection(db, 'team-presence'), snap => {
+          const connectes = new Set();
+          snap.forEach(d => connectes.add(d.id));
+          rendre(connectes);
+        }, () => {});
+      } catch (e) {}
     }
 
     // ─── BOUTON NOTIFICATIONS ─────────────────────────────────────────────────────
