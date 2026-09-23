@@ -269,6 +269,25 @@
     /* ═══════════════ SESSIONS A PRENDRE (epinglees en haut du chat) ═══════════════
        Volontairement HORS de #messages : ces cartes viennent du backend Apps Script,
        pas de Firestore, et ne doivent pas disparaitre avec la purge du lundi 8h. */
+    #team-strip {
+      flex: 0 0 auto;
+      display: flex; gap: 14px; align-items: center;
+      padding: 9px 14px; overflow-x: auto; white-space: nowrap;
+      border-bottom: 1px solid var(--border); background: var(--surface);
+      scrollbar-width: none;
+    }
+    #team-strip::-webkit-scrollbar { display: none; }
+    #team-strip .ts-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2); }
+    #team-strip .ts-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); }
+    #team-strip .ts-dot { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,0.08); }
+    #notif-help { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,0.7);
+      align-items: center; justify-content: center; padding: 16px; }
+    #notif-help.open { display: flex; }
+    #notif-help .nh-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; max-width: 360px; width: 100%; font-size: 14px; line-height: 1.5; color: var(--text); }
+    #notif-help .nh-box b { color: #fff; }
+    #notif-help button { margin-top: 14px; width: 100%; padding: 10px; border: 0; border-radius: 10px;
+      background: var(--red); color: #fff; font-weight: 600; font-family: inherit; font-size: 14px; }
     #sessions-zone {
       flex: 0 0 auto;
       max-height: 45%;
@@ -781,6 +800,7 @@
   </div>
 
   <!-- ════════ APP ════════ -->
+  <div id="notif-help"><div class="nh-box"><div id="notif-help-txt"></div><button onclick="document.getElementById('notif-help').classList.remove('open')">OK</button></div></div>
   <div id="app-screen">
 
     <!-- HEADER -->
@@ -794,6 +814,7 @@
         <div class="header-sub">Red Records</div>
       </div>
       <div class="header-actions">
+        <button id="notif-btn" class="hdr-btn" title="Activer les notifications"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
         <button id="change-pw-btn" class="hdr-btn" title="Changer mon mot de passe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
         <button id="logout-btn"    class="hdr-btn" title="Déconnexion">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -813,6 +834,7 @@
 
     <!-- CHAT -->
     <div id="chat-panel">
+      <div id="team-strip"></div>
       <div id="sessions-zone"></div>
       <div id="messages"></div>
       <div id="chat-input-area">
@@ -995,6 +1017,45 @@
       } catch(e) {}
     }
 
+    // ─── BANDEAU EQUIPE : les inges actuels et leur couleur d'agenda ─────────────
+    function afficherEquipe() {
+      const el = document.getElementById("team-strip");
+      if (!el) return;
+      const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      el.innerHTML = '<span class="ts-label">Équipe</span>' + MEMBRES_DEFAUT.map(m => {
+        const i = ingeMap[m.email] || m;
+        return `<span class="ts-item"><span class="ts-dot" style="background:${esc(i.couleur || m.couleur)}"></span>${esc(i.nom || m.nom)}</span>`;
+      }).join('');
+    }
+
+    // ─── BOUTON NOTIFICATIONS ─────────────────────────────────────────────────────
+    // Les notifs s'activent sur la page d'accueil (OneSignal y est charge) : on y renvoie
+    // avec ?notif=1, qui reaffiche la banniere meme si elle avait ete fermee.
+    function aideNotif(html) {
+      document.getElementById("notif-help-txt").innerHTML = html;
+      document.getElementById("notif-help").classList.add("open");
+    }
+    document.getElementById("notif-btn").addEventListener("click", () => {
+      const ios = /iPhone|iPad/.test(navigator.userAgent);
+      if (!('Notification' in window)) {
+        aideNotif(ios
+          ? "Sur iPhone, les notifications ne marchent que dans l'appli installée.<br><br>Dans Safari : bouton <b>Partager</b> → <b>Sur l'écran d'accueil</b>, puis ouvre RED depuis l'icône et appuie de nouveau sur 🔔."
+          : "Ce navigateur ne gère pas les notifications. Ouvre l'appli dans <b>Chrome</b>.");
+        return;
+      }
+      if (Notification.permission === 'granted') {
+        aideNotif("✅ Les notifications sont déjà activées sur cet appareil.");
+        return;
+      }
+      if (Notification.permission === 'denied') {
+        aideNotif(ios
+          ? "Les notifications ont été refusées.<br><br>Va dans <b>Réglages</b> → <b>Notifications</b> → <b>RED</b> → active <b>Autoriser les notifications</b>, puis rouvre l'appli."
+          : "Les notifications ont été refusées.<br><br>Appuie sur le <b>cadenas</b> à gauche de l'adresse (ou <b>Paramètres</b> → <b>Applis</b> → <b>RED</b>) → <b>Notifications</b> → <b>Autoriser</b>, puis rouvre l'appli.");
+        return;
+      }
+      window.location.href = 'index.html?notif=1';
+    });
+
     // ─── MEMBERS ──────────────────────────────────────────────────────────────────
     // Avant connexion, Firestore refuse la lecture (permission-denied) : on ne bloque
     // plus la page, on retombe sur MEMBRES_DEFAUT et on relit apres la connexion.
@@ -1140,6 +1201,7 @@
           document.getElementById("login-screen").style.display = "none";
           document.getElementById("app-screen").style.display   = "flex";
 
+          afficherEquipe();
           loadMessages();
           nettoyerVieuxMessages(); // purge les messages de +7 jours
           demarrerSessions();      // sessions a prendre, epinglees en haut du chat
