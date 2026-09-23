@@ -14,6 +14,13 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
 <title>Detailing Center Lyon · Réservation</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Detailing Center Lyon">
+<meta property="og:description" content="Detailing moto &amp; auto à Vénissieux · Réservez en ligne.">
+<meta property="og:image" content="https://redrecords78-ai.github.io/garage/images/auto.jpg">
+<meta property="og:url" content="https://redrecords78-ai.github.io/garage/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="image" href="images/auto.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -417,6 +424,7 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 (function(){
 "use strict";
 var WA="33668163064";
+var ONESIGNAL_ID=""; // App ID OneSignal du garage (vide = bandeau notifs masqué)
 
 var ICONS={
   moto:'<i class="fa-solid fa-motorcycle" style="font-size:26px"></i>',
@@ -557,8 +565,8 @@ function renderSvcs(){
       }
     };
   });
-  // Carte click
-  document.getElementById("view").addEventListener("click",function(e){
+  // Carte click (onclick sur la liste : pas de listener qui s'empile à chaque visite)
+  document.querySelector(".svc-list").onclick=function(e){
     var c=e.target.closest(".svc-card");if(!c)return;
     document.querySelectorAll(".svc-card").forEach(function(x){x.setAttribute("aria-pressed","false");});
     c.setAttribute("aria-pressed","true");st.svc=c.getAttribute("data-id");
@@ -567,8 +575,8 @@ function renderSvcs(){
     var hs=document.querySelector('.hspot[data-id="'+st.svc+'"]');
     if(hs)hs.classList.add("sel");
     cta("Choisir cette prestation",true,function(){go(renderForm);});
-  });
-  document.getElementById("bkHome").onclick=function(){st.cat=null;go(renderHome);};
+  };
+  document.getElementById("bkHome").onclick=function(){st.cat=null;st.svc=null;go(renderHome);};
   cta("Touchez un repère ou choisissez",false);rv();
 }
 
@@ -594,7 +602,7 @@ function renderForm(){
   h+='<button class="back rv d3" id="bkSvc">← Changer de prestation</button></div>';
   document.getElementById("view").innerHTML=h;
   function chk(){
-    var ok=document.getElementById("fp").value.trim()!==""&&document.getElementById("ft").value.trim()!=="";
+    var ok=document.getElementById("fp").value.trim()!==""&&document.getElementById("ft").value.replace(/\D/g,"").length>=10;
     cta("Envoyer sur WhatsApp",ok,ok?sendWa:null);
   }
   ["fp","ft","fm","fo","fd"].forEach(function(id){document.getElementById(id).addEventListener("input",chk);});
@@ -651,7 +659,10 @@ window.dismissNotif=function(){
   localStorage.setItem("dcl-nd","1");
 };
 function tryNotifBanner(){
-  if(localStorage.getItem("dcl-nd")==="1") return;
+  // Tant que OneSignal n'est pas branché, pas de bandeau : il affichait
+  // "Notifications activées" sans rien activer.
+  if(!ONESIGNAL_ID) return;
+  try{if(localStorage.getItem("dcl-nd")==="1") return;}catch(e){}
   if(!("Notification" in window)) return;
   if(Notification.permission!=="default") return;
   var b=document.getElementById("nb");
