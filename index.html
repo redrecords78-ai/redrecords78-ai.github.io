@@ -913,16 +913,34 @@ const HEURES_FORMAT = {
   'Format Court 2h apres 20h': [20,21,22,23,0,1,2],
   'Format Court 3h apres 20h': [20,21,22,23,0,1],
 };
+// ─── PROMO « 1 session réservée sur l'appli = 1h offerte » ───────────────────
+// Tant qu'elle est active, l'heure offerte s'ajoute à la fin de la session : on ne
+// propose que les heures de début où la session + 1h reste dans son créneau
+// (fin ≤ 20h en journée, fin ≤ 04h la nuit). Ex. Format Court 2h jour : 17h max.
+// Mettre à false à la fin de la promo : les heures normales reviennent.
+const PROMO_HEURE_OFFERTE = true;
+function dureeFormat(val) { const m = /(\d)h/.exec(val); return m ? +m[1] : 0; }
+function heuresDisponibles(val) {
+  const heures = HEURES_FORMAT[val];
+  if (!heures || !PROMO_HEURE_OFFERTE) return heures;
+  const duree = dureeFormat(val) + 1;
+  const nuit  = /apres 20h/.test(val);
+  return heures.filter(h => nuit ? ((h < 12 ? h + 24 : h) + duree <= 28) : (h + duree <= 20));
+}
+const hh = h => String(h % 24).padStart(2, '0') + 'h00';
+
 function majHeures(val) {
   const hg  = document.getElementById('heure-group');
   const sel = document.getElementById('heure');
   if (!hg || !sel) return;
-  const heures = HEURES_FORMAT[val];
+  const heures = heuresDisponibles(val);
   if (heures) {
+    const duree = dureeFormat(val) + (PROMO_HEURE_OFFERTE ? 1 : 0);
     sel.innerHTML = '<option value="">-- Choisir l\'heure --</option>' +
       heures.map(h => {
         const v = String(h).padStart(2, '0') + ':00';
-        return '<option value="' + v + '">' + String(h).padStart(2, '0') + 'h00</option>';
+        const label = PROMO_HEURE_OFFERTE ? hh(h) + ' → ' + hh(h + duree) + ' (dont 1h offerte)' : hh(h);
+        return '<option value="' + v + '">' + label + '</option>';
       }).join('');
     hg.style.display = 'block';
     sel.required = true;
@@ -1068,7 +1086,8 @@ document.getElementById('demandeForm').addEventListener('submit', async function
     type:      document.getElementById('type').value,
     date:      document.getElementById('date').value,
     heure:     document.getElementById('heure').value || '',
-    precision: document.getElementById('precision').value.trim(),
+    precision: (document.getElementById('precision').value.trim() +
+               (PROMO_HEURE_OFFERTE ? ' [PROMO : +1h offerte]' : '')).trim(),
     playerId:  window._clientPlayerId || ''
   };
 
