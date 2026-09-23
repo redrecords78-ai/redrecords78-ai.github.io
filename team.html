@@ -1006,6 +1006,10 @@
         MEMBRES_DEFAUT.forEach(m => ingeMap[m.email] = m);
       } else {
         snap.forEach(d => { ingeMap[d.id] = d.data(); });
+        // Nouvel inge ajoute dans MEMBRES_DEFAUT : on cree sa fiche s'il n'en a pas encore
+        for (const m of MEMBRES_DEFAUT) {
+          if (!emails.includes(m.email)) { await setDoc(doc(db, "team-members", m.email), m); ingeMap[m.email] = m; }
+        }
       }
     }
 
