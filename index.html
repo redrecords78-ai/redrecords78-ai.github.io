@@ -95,9 +95,34 @@
     }, demande ? 300 : 4000);
   });
 
+  // ?notif=1 (bouton 🔔 de l'espace équipe) : le bandeau s'affiche TOUT DE SUITE, sans
+  // attendre le SDK (qui peut mettre plusieurs secondes -> "le bouton ne fait rien"),
+  // avec un texte équipe ; une fois autorisé, retour automatique dans le chat.
+  const _demandeEquipe = new URLSearchParams(location.search).get('notif') === '1';
+  if (_demandeEquipe) {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!('Notification' in window) || Notification.permission !== 'default') return;
+      const b = document.getElementById('notif-banner');
+      if (!b) return;
+      document.getElementById('notif-banner-titre').textContent = 'Active les notifs de l'équipe';
+      document.getElementById('notif-banner-sous').textContent = 'Messages du chat et sessions à prendre';
+      b.style.display = 'flex';
+      requestAnimationFrame(() => b.classList.add('show'));
+    });
+  }
+
   window.activerNotifs = async function() {
     _dismissBanner();
-    try { if (_OS) await _OS.Notifications.requestPermission(); } catch(e) {}
+    try {
+      // le SDK peut ne pas etre pret si on a clique vite : on l'attend (10 s max)
+      for (let i = 0; i < 40 && !_OS; i++) await new Promise(r => setTimeout(r, 250));
+      if (_OS) await _OS.Notifications.requestPermission();
+      else if ('Notification' in window) await Notification.requestPermission();
+    } catch(e) {}
+    if (_demandeEquipe && 'Notification' in window && Notification.permission === 'granted') {
+      // laisse le temps a OneSignal de creer l'abonnement (le listener 'change' inscrit l'appareil)
+      setTimeout(() => { window._rrEnregistrerEquipe(); location.href = 'team.html?chat=1'; }, 3000);
+    }
   };
 
   window.dismissNotif = function() { _dismissBanner(); };
@@ -1975,8 +2000,8 @@ if ('serviceWorker' in navigator) {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   </div>
   <div style="flex:1;min-width:0">
-    <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Reste dans la boucle</div>
-    <div style="font-size:12px;color:var(--gray);margin-top:2px">Promos et nouveautés <strong style="color:var(--red)">RED</strong></div>
+    <div id="notif-banner-titre" style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Reste dans la boucle</div>
+    <div id="notif-banner-sous" style="font-size:12px;color:var(--gray);margin-top:2px">Promos et nouveautés <strong style="color:var(--red)">RED</strong></div>
   </div>
   <button onclick="activerNotifs()"
     style="background:var(--red);color:white;border:none;padding:9px 16px;border-radius:8px;
