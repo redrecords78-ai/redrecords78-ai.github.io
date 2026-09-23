@@ -1009,9 +1009,18 @@ function majRecap(val) {
   document.querySelectorAll('.tarif-card, .format-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.type === val));
   if (!info) { tag.style.display = 'none'; return; }
-  document.getElementById('pt-name').textContent = info[0];
-  document.getElementById('pt-amount').innerHTML =
-    (info[2] ? '<s class="tarif-old">' + info[2] + '€</s>' : '') + info[1] + '€';
+  // Promo 1h offerte : on barre la VALEUR des heures reellement faites (meme tarif horaire)
+  // -> ex. Format Court 2h jour : 3h de studio, 60€ au lieu de 90€.
+  const d = dureeFormat(val);
+  if (PROMO_HEURE_OFFERTE && HEURES_FORMAT[val] && d) {
+    const valeur = Math.round(info[1] * (d + 1) / d);
+    document.getElementById('pt-name').textContent = info[0] + ' + 1h offerte (' + (d + 1) + 'h de studio)';
+    document.getElementById('pt-amount').innerHTML = '<s class="tarif-old">' + valeur + '€</s>' + info[1] + '€';
+  } else {
+    document.getElementById('pt-name').textContent = info[0];
+    document.getElementById('pt-amount').innerHTML =
+      (info[2] ? '<s class="tarif-old">' + info[2] + '€</s>' : '') + info[1] + '€';
+  }
   tag.style.display = 'block';
 }
 
