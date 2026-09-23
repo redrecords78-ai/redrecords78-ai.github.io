@@ -1165,7 +1165,7 @@
     }
 
     async function ejecter(msg) {
-      localStorage.removeItem('rr-team');
+      localStorage.removeItem('rr-team'); localStorage.removeItem('rr-team-email');
       await signOut(auth);
       const err = document.getElementById("login-error");
       if (err) err.textContent = msg;
@@ -1183,7 +1183,8 @@
           localStorage.setItem('rr-team', '1');
           logActivity('login', user.email, currentInge.nom, currentInge.couleur);
 
-          // Enregistrer player ID OneSignal
+          // Enregistrer player ID OneSignal (index.html réinscrit ensuite dès qu'un ID arrive)
+          try { localStorage.setItem('rr-team-email', user.email); } catch(e) {}
           setTimeout(() => {
             try {
               const pid = (window._OS?.User?.PushSubscription?.id) || localStorage.getItem('rr-player-id') || '';
@@ -1254,7 +1255,7 @@
 
     document.getElementById("logout-btn").addEventListener("click", () => {
       if (currentUser) logActivity('logout', currentUser.email, currentInge?.nom||'', currentInge?.couleur||'');
-      localStorage.removeItem('rr-team');
+      localStorage.removeItem('rr-team'); localStorage.removeItem('rr-team-email');
       signOut(auth);
     });
 

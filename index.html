@@ -36,6 +36,19 @@
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   window._clientPlayerId = '';
+  // Inscrit l'appareil aux notifs du chat pour le membre connecté (rr-team-email),
+  // à chaque fois qu'un ID OneSignal est connu. Le serveur garde plusieurs appareils/membre.
+  window._rrEnregistrerEquipe = function() {
+    try {
+      const email = localStorage.getItem('rr-team-email') || '';
+      const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
+      if (!email || !pid) return;
+      fetch('https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec', {
+        method: 'POST', mode: 'no-cors',
+        body: JSON.stringify({ action: 'registerTeamMember', email: email, playerId: pid })
+      }).catch(() => {});
+    } catch(e) {}
+  };
   let _OS = null;
 
   OneSignalDeferred.push(async function(OneSignal) {
@@ -52,6 +65,18 @@
       window._clientPlayerId = OneSignal.User?.PushSubscription?.id || await OneSignal.getUserId?.() || '';
       // Sauvegarder dans localStorage pour que admin.html puisse l'utiliser
       if (window._clientPlayerId) localStorage.setItem('rr-player-id', window._clientPlayerId);
+      window._rrEnregistrerEquipe();
+    } catch(e) {}
+    // L'ID n'existe souvent qu'APRES l'acceptation des notifs (bannière) ou change au
+    // réabonnement : sans ce listener, le chat gardait un ID vide ou périmé -> pas de push.
+    try {
+      OneSignal.User.PushSubscription.addEventListener('change', (ev) => {
+        const id = ev?.current?.id;
+        if (!id) return;
+        window._clientPlayerId = id;
+        localStorage.setItem('rr-player-id', id);
+        window._rrEnregistrerEquipe();
+      });
     } catch(e) {}
 
     // Déjà accordé ou refusé → rien à faire
@@ -1655,7 +1680,7 @@ if ('serviceWorker' in navigator) {
         // Verif du registre en arriere-plan : on n'attend plus le backend pour ouvrir le chat
         accesAutorise(user.email).then(async ok => {
           if (ok) return;
-          localStorage.removeItem('rr-team');
+          localStorage.removeItem('rr-team'); localStorage.removeItem('rr-team-email');
           await signOut(auth);
           const err = document.getElementById('tp-login-error');
           if (err) err.textContent = "Cet accès a été retiré.";
@@ -1692,17 +1717,9 @@ if ('serviceWorker' in navigator) {
         verifSessionsAPrendre(user.email);
         setInterval(() => verifSessionsAPrendre(user.email), 60000);
         // Enregistrer le player ID OneSignal pour les notifs équipe
-        setTimeout(() => {
-          try {
-            const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
-            if (pid && user.email) {
-              fetch(APPS_SCRIPT_URL, {
-                method: 'POST', mode: 'no-cors',
-                body: JSON.stringify({ action: 'registerTeamMember', email: user.email, playerId: pid })
-              }).catch(() => {});
-            }
-          } catch(e) {}
-        }, 2000);
+        // (l'init OneSignal et le listener 'change' réinscrivent aussi dès que l'ID arrive)
+        try { localStorage.setItem('rr-team-email', user.email); } catch(e) {}
+        window._rrEnregistrerEquipe();
       } else {
         currentUser = null;
         currentInge = null;
@@ -1732,7 +1749,7 @@ if ('serviceWorker' in navigator) {
 
   document.getElementById('tp-logout').addEventListener('click', () => {
     if (currentUser) logActivity('logout', currentUser.email, currentInge?.nom||'', currentInge?.couleur||'');
-    localStorage.removeItem('rr-team');
+    localStorage.removeItem('rr-team'); localStorage.removeItem('rr-team-email');
     document.getElementById('private-bubble').style.display = 'none';
     document.getElementById('team-panel').classList.remove('open');
     signOut(auth);
