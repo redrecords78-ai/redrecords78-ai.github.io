@@ -1604,21 +1604,9 @@ if ('serviceWorker' in navigator) {
   }
   async function lireMembres_() {
     const snap = await getDocs(collection(db, "team-members"));
-    const emails = [];
-    snap.forEach(d => emails.push(d.id));
-    const needsReseed = snap.empty || !emails.includes('red@redrecords.fr');
-    if (needsReseed) {
-      for (const m of MEMBRES_DEFAUT) {
-        await setDoc(doc(db, "team-members", m.email), m);
-      }
-      MEMBRES_DEFAUT.forEach(m => ingeMap[m.email] = m);
-    } else {
-      snap.forEach(d => { ingeMap[d.id] = d.data(); });
-      // Nouvel inge ajoute dans MEMBRES_DEFAUT : on cree sa fiche s'il n'en a pas encore
-      for (const m of MEMBRES_DEFAUT) {
-        if (!emails.includes(m.email)) { await setDoc(doc(db, "team-members", m.email), m); ingeMap[m.email] = m; }
-      }
-    }
+    snap.forEach(d => { ingeMap[d.id] = d.data(); });
+    // team-members est en lecture seule (regles Firestore) : repli sur MEMBRES_DEFAUT
+    MEMBRES_DEFAUT.forEach(m => { if (!ingeMap[m.email]) ingeMap[m.email] = m; });
   }
 
   window.tpSwitchTab = function(tab) {
@@ -1645,13 +1633,14 @@ if ('serviceWorker' in navigator) {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         await chargerMembres();
-        if (!(await accesAutorise(user.email))) {
+        // Verif du registre en arriere-plan : on n'attend plus le backend pour ouvrir le chat
+        accesAutorise(user.email).then(async ok => {
+          if (ok) return;
           localStorage.removeItem('rr-team');
           await signOut(auth);
           const err = document.getElementById('tp-login-error');
           if (err) err.textContent = "Cet accès a été retiré.";
-          return;
-        }
+        });
         currentUser = user;
         currentInge = ingeMap[user.email] || { nom: user.email.split('@')[0], couleur: '#aaa' };
         localStorage.setItem('rr-team', '1');
