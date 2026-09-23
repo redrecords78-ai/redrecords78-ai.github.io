@@ -1013,8 +1013,10 @@ function majRecap(val) {
   // -> ex. Format Court 2h jour : 3h de studio, 60€ au lieu de 90€.
   const d = dureeFormat(val);
   if (PROMO_HEURE_OFFERTE && HEURES_FORMAT[val] && d) {
-    const valeur = Math.round(info[1] * (d + 1) / d);
-    document.getElementById('pt-name').textContent = info[0] + ' + 1h offerte (' + (d + 1) + 'h de studio)';
+    // on part de l'ancien prix barre s'il existe (Session Jour 4h : 120€) -> la remise d'origine est gardee
+    const valeur = Math.round((info[2] || info[1]) * (d + 1) / d);
+    document.getElementById('pt-name').innerHTML = info[0] + ' + 1h offerte (' + (d + 1) + 'h de studio)' +
+      '<div style="color:var(--red);font-weight:700;margin-top:4px;white-space:nowrap">Tu économises ' + (valeur - info[1]) + '€</div>';
     document.getElementById('pt-amount').innerHTML = '<s class="tarif-old">' + valeur + '€</s>' + info[1] + '€';
   } else {
     document.getElementById('pt-name').textContent = info[0];
