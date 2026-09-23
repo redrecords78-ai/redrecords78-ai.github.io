@@ -996,7 +996,13 @@
     }
 
     // ─── MEMBERS ──────────────────────────────────────────────────────────────────
+    // Avant connexion, Firestore refuse la lecture (permission-denied) : on ne bloque
+    // plus la page, on retombe sur MEMBRES_DEFAUT et on relit apres la connexion.
     async function chargerMembres() {
+      try { await lireMembres_(); }
+      catch (e) { MEMBRES_DEFAUT.forEach(m => { if (!ingeMap[m.email]) ingeMap[m.email] = m; }); }
+    }
+    async function lireMembres_() {
       const snap   = await getDocs(collection(db, "team-members"));
       const emails = [];
       snap.forEach(d => emails.push(d.id));
@@ -1101,6 +1107,7 @@
     chargerMembres().then(() => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
+          await chargerMembres();
           if (!(await accesAutorise(user.email))) {
             await ejecter("Cet accès a été retiré. Contacte Ridwane.");
             return;
