@@ -120,7 +120,7 @@
         raison = 'Notifs déjà autorisées ✅ — reconnecte-toi au chat pour inscrire ce téléphone.';
       }
       if (raison) {
-        document.getElementById('notif-banner-titre').textContent = 'Notifs de l'équipe';
+        document.getElementById('notif-banner-titre').textContent = 'Notifs de l’équipe';
         document.getElementById('notif-banner-sous').textContent = raison;
         const btn = b.querySelector('button');
         if (btn) btn.style.display = 'none';
@@ -128,7 +128,7 @@
         requestAnimationFrame(() => b.classList.add('show'));
         return;
       }
-      document.getElementById('notif-banner-titre').textContent = 'Active les notifs de l'équipe';
+      document.getElementById('notif-banner-titre').textContent = 'Active les notifs de l’équipe';
       document.getElementById('notif-banner-sous').textContent = 'Messages du chat et sessions à prendre';
       b.style.display = 'flex';
       requestAnimationFrame(() => b.classList.add('show'));
@@ -809,6 +809,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       <div class="form-group">
         <label class="form-label">Date souhaitee</label>
         <input class="form-input" type="date" id="date" required>
+        <div id="dispo-info" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;background:rgba(232,25,44,0.08);border:1px solid rgba(232,25,44,0.25);font-size:13px;color:var(--white);line-height:1.5"></div>
       </div>
 
       <div class="form-group">
@@ -1030,6 +1031,7 @@ function majRecap(val) {
   const info = TARIF_INFOS[val];
   // Champ heure (heures pleines) visible uniquement pour les Formats Courts
   majHeures(val);
+  if (typeof majDispo === 'function') majDispo();
   document.querySelectorAll('.tarif-card, .format-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.type === val));
   if (!info) { tag.style.display = 'none'; return; }
@@ -1084,6 +1086,118 @@ let _appEstBloquee = false;
 document.getElementById('type').addEventListener('change', e => majRecap(e.target.value));
 // On ne peut pas réserver une date passée
 document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+// ─── DISPONIBILITÉS (25/09/2026) ─────────────────────────────────────────────
+// A : les créneaux déjà occupés dans l'agenda sont grisés « Complet ».
+// B : si le choix du client tombe sur un créneau pris, on lui propose le plus proche,
+//     avant ou après. Le backend ne renvoie que des plages horaires, aucun nom.
+// Fail-open : si la vérif échoue, le formulaire marche comme avant.
+const _dispoCache = {};
+let _dispoSeq = 0, _choixPris = false;
+const _isoJour = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function _jourPlus(iso, n) { const [y, m, d] = iso.split('-').map(Number); return _isoJour(new Date(y, m - 1, d + n)); }
+function _chargerPris(dateIso) {
+  const base = _jourPlus(dateIso, -3);               // fenêtre : 3 jours avant → 7 jours après
+  if (!_dispoCache[base]) {
+    _dispoCache[base] = fetch(`${APPS_SCRIPT_URL}?action=creneauxPris&date=${base}&jours=11`)
+      .then(r => r.json())
+      .then(d => (d.pris || []).map(x => [new Date(x.debut).getTime(), new Date(x.fin).getTime()]))
+      .catch(() => { delete _dispoCache[base]; return null; });
+  }
+  return _dispoCache[base];
+}
+// Plages possibles d'un type de session un jour donné (heure offerte comprise).
+function _plages(type, dateIso) {
+  const [y, m, d] = dateIso.split('-').map(Number);
+  const plage = (h, duree) => {
+    const hReelle = h < 6 ? h + 24 : h;               // après minuit = nuit du jour réservé
+    return { h, debut: new Date(y, m - 1, d, hReelle).getTime(), fin: new Date(y, m - 1, d, hReelle + duree).getTime() };
+  };
+  if (HEURES_FORMAT[type]) {
+    const duree = dureeFormat(type) + (PROMO_HEURE_OFFERTE ? 1 : 0);
+    return (heuresDisponibles(type) || []).map(h => plage(h, duree));
+  }
+  if (type === 'Session Soir 20h-00h') return [plage(20, 4)];
+  if (type === 'Session Nuit 00h-04h') return [plage(0, 4)];
+  return [];
+}
+const _libre = (p, pris) => !pris.some(([a, b]) => a < p.fin && b > p.debut);
+const _jourCourt = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'numeric' }); };
+
+async function majDispo() {
+  const seq  = ++_dispoSeq;
+  const type = document.getElementById('type').value;
+  const date = document.getElementById('date').value;
+  const info = document.getElementById('dispo-info');
+  const selT = document.getElementById('type'), selH = document.getElementById('heure');
+  const reset = sel => [...sel.options].forEach(o => { if (o.dataset.lbl) { o.textContent = o.dataset.lbl; delete o.dataset.lbl; } o.disabled = false; });
+  const griser = o => { o.dataset.lbl = o.textContent; o.textContent += ' — Complet'; o.disabled = true; };
+  _choixPris = false;
+  if (!date) { reset(selT); reset(selH); info.style.display = 'none'; return; }
+  const pris = await _chargerPris(date);
+  if (seq !== _dispoSeq) return;                      // une saisie plus récente a pris le relais
+  reset(selT); reset(selH);
+  if (!pris) { info.style.display = 'none'; return; }
+
+  // A — types complets ce jour-là (le type déjà choisi reste sélectionné pour afficher B)
+  [...selT.options].forEach(o => {
+    const pl = o.value ? _plages(o.value, date) : [];
+    if (pl.length && !pl.some(p => _libre(p, pris)) && o.value !== type) griser(o);
+  });
+  // A — heures déjà prises
+  const plT = type ? _plages(type, date) : [];
+  [...selH.options].forEach(o => {
+    if (!o.value) return;
+    const p = plT.find(x => x.h === parseInt(o.value, 10));
+    if (p && !_libre(p, pris)) griser(o);
+  });
+
+  // B — le choix actuel est-il pris ?
+  if (!type || !plT.length) { info.style.display = 'none'; return; }
+  const hChoisie = selH.value ? parseInt(selH.value, 10) : null;
+  const choix = HEURES_FORMAT[type] ? (hChoisie === null ? null : plT.find(p => p.h === hChoisie)) : plT[0];
+  const typeComplet = !plT.some(p => _libre(p, pris));
+  const choixPris = !!(choix && !_libre(choix, pris));
+  if (!choixPris && !typeComplet) { info.style.display = 'none'; return; }
+  _choixPris = choixPris || typeComplet;
+
+  const props = [];
+  if (HEURES_FORMAT[type]) {
+    const libres = plT.filter(p => _libre(p, pris));
+    const ref = choix ? choix.debut : plT[0].debut;
+    const avant = libres.filter(p => p.debut < ref).pop();
+    const apres = libres.find(p => p.debut > ref);
+    if (avant) props.push({ date, h: avant.h, txt: 'Plutôt ' + hh(avant.h) });
+    if (apres) props.push({ date, h: apres.h, txt: 'Plutôt ' + hh(apres.h) });
+  }
+  if (!props.length) {                                // rien ce jour-là → jour libre le plus proche
+    const auj = _isoJour(new Date());
+    for (const sens of [-1, 1]) {
+      for (let n = 1; n <= (sens < 0 ? 3 : 7); n++) {
+        const j = _jourPlus(date, sens * n);
+        if (j < auj) break;
+        const p = _plages(type, j).find(x => _libre(x, pris));
+        if (p) {
+          props.push({ date: j, h: HEURES_FORMAT[type] ? p.h : null,
+            txt: (sens < 0 ? '← ' : '') + _jourCourt(j) + (HEURES_FORMAT[type] ? ' ' + hh(p.h) : '') + (sens > 0 ? ' →' : '') });
+          break;
+        }
+      }
+    }
+  }
+  info.innerHTML = '<div style="margin-bottom:8px">⚠️ Ce créneau est déjà pris.' +
+    (props.length ? ' Le plus proche :' : ' Écris-nous sur WhatsApp pour trouver un créneau.') + '</div>' +
+    props.map((p, i) => `<button type="button" class="dispo-prop" data-i="${i}">${p.txt}</button>`).join(' ');
+  info.style.display = 'block';
+  info.querySelectorAll('.dispo-prop').forEach(b => b.onclick = () => {
+    const p = props[+b.dataset.i];
+    document.getElementById('date').value = p.date;
+    if (p.h !== null) selH.value = String(p.h).padStart(2, '0') + ':00';
+    majDispo();
+  });
+}
+document.getElementById('date').addEventListener('change', majDispo);
+document.getElementById('heure').addEventListener('change', majDispo);
 
 // Gérer ?reset=1 (push "refusé"), ?confirmed=1 (push "accepté" → acompte) + états persistants
 (function() {
@@ -1151,6 +1265,14 @@ document.getElementById('demandeForm').addEventListener('submit', async function
   }
   _rlData.push(_rlNow);
   localStorage.setItem('rr-rl-reservation', JSON.stringify(_rlData));
+
+  // Créneau déjà pris dans l'agenda → on n'envoie pas (les propositions sont sous la date)
+  if (_choixPris) {
+    msg.style.display = 'block';
+    msg.style.color   = 'var(--red)';
+    msg.textContent   = 'Ce créneau est déjà pris — choisis une des propositions sous la date.';
+    return;
+  }
 
   // Pas de réseau → on prévient au lieu de faire croire que c'est envoyé
   if (!navigator.onLine) {
@@ -2050,6 +2172,7 @@ if ('serviceWorker' in navigator) {
 </div>
 
 <style>
+#dispo-info .dispo-prop { background:var(--red); color:#fff; border:0; border-radius:8px; padding:7px 12px; font-size:13px; margin:2px 4px 2px 0; cursor:pointer; }
 #notif-banner.show { transform: translateY(0) !important; opacity: 1 !important; }
 </style>
 
