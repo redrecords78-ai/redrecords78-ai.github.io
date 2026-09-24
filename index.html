@@ -101,9 +101,33 @@
   const _demandeEquipe = new URLSearchParams(location.search).get('notif') === '1';
   if (_demandeEquipe) {
     document.addEventListener('DOMContentLoaded', () => {
-      if (!('Notification' in window) || Notification.permission !== 'default') return;
       const b = document.getElementById('notif-banner');
       if (!b) return;
+      // Avant, le bandeau restait muet dans ces cas-là -> "la bannière ne s'affiche pas".
+      // On affiche maintenant POURQUOI (25/09/2026).
+      let raison = '';
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const pwa = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      if (!('Notification' in window)) {
+        raison = ios && !pwa
+          ? "Ouvre l'app depuis l'icône RED de l'écran d'accueil (pas depuis Safari ni Instagram)."
+          : "Ce navigateur ne gère pas les notifs. Sur iPhone : Safari → Partager → Sur l'écran d'accueil, iOS 16.4 minimum.";
+      } else if (Notification.permission === 'denied') {
+        raison = ios
+          ? "Notifs refusées : Réglages → Notifications → RED → Autoriser. Sinon supprime l'app de l'écran d'accueil et réinstalle-la depuis Safari."
+          : "Notifs refusées : appuie longuement sur l'icône RED → Infos sur l'appli → Notifications → Autoriser.";
+      } else if (Notification.permission === 'granted') {
+        raison = 'Notifs déjà autorisées ✅ — reconnecte-toi au chat pour inscrire ce téléphone.';
+      }
+      if (raison) {
+        document.getElementById('notif-banner-titre').textContent = 'Notifs de l'équipe';
+        document.getElementById('notif-banner-sous').textContent = raison;
+        const btn = b.querySelector('button');
+        if (btn) btn.style.display = 'none';
+        b.style.display = 'flex';
+        requestAnimationFrame(() => b.classList.add('show'));
+        return;
+      }
       document.getElementById('notif-banner-titre').textContent = 'Active les notifs de l'équipe';
       document.getElementById('notif-banner-sous').textContent = 'Messages du chat et sessions à prendre';
       b.style.display = 'flex';
