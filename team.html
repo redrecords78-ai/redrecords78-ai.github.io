@@ -1408,7 +1408,7 @@
     function demarrerSessions() {
       chargerSessions();
       clearInterval(_sessTimer);
-      _sessTimer = setInterval(chargerSessions, 45000);
+      _sessTimer = setInterval(chargerSessions, 20000);
       // Au retour sur l'app (téléphone rouvert), on rafraîchit tout de suite
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) chargerSessions();
