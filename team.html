@@ -297,6 +297,7 @@
     }
     #sessions-zone:not(:empty) { padding: 8px 10px 2px; }
 
+    .sess-compteur { font-size: 12px; font-weight: 600; color: #e63946; padding: 6px 2px 4px; letter-spacing: .02em; }
     .sess-card {
       background: linear-gradient(180deg, rgba(230,57,70,0.10), rgba(230,57,70,0.04));
       border: 1px solid rgba(230,57,70,0.35);
@@ -1435,8 +1436,12 @@
       const zone = document.getElementById('sessions-zone');
       if (!zone) return;
       if (!sessions.length) { zone.innerHTML = ''; return; }
+      // 25/09/2026 : la zone défile -> la 5e carte (Warhan) passait inaperçue.
+      // Tri par date + compteur visible en tête.
+      sessions = [...sessions].sort((a, b) => new Date(a.start) - new Date(b.start));
+      const compteur = `<div class="sess-compteur">${sessions.length} session${sessions.length > 1 ? 's' : ''} en attente${sessions.length > 2 ? ' — fais défiler ↓' : ''}</div>`;
 
-      zone.innerHTML = sessions.map(s => {
+      zone.innerHTML = compteur + sessions.map(s => {
         const id = escapeHtml(s.id);
 
         // Bloc du bas : soit les 3 boutons, soit l'état de ma réponse

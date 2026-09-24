@@ -1038,7 +1038,15 @@ function majRecap(val) {
   // Promo 1h offerte : on barre la VALEUR des heures reellement faites (meme tarif horaire)
   // -> ex. Format Court 2h jour : 3h de studio, 60€ au lieu de 90€.
   const d = dureeFormat(val);
-  if (PROMO_HEURE_OFFERTE && HEURES_FORMAT[val] && d) {
+  const FIXES = { 'Session Soir 20h-00h': [20, 4], 'Session Nuit 00h-04h': [0, 4] };
+  if (PROMO_HEURE_OFFERTE && FIXES[val]) {
+    // Sessions à heure fixe : l'heure offerte s'ajoute à la fin (Soir 20h→01h, Nuit 00h→05h)
+    const [h0, dd] = FIXES[val];
+    const valeur = Math.round((info[2] || info[1]) * (dd + 1) / dd);
+    document.getElementById('pt-name').innerHTML = info[0] + ' + 1h offerte (' + hh(h0) + ' → ' + hh(h0 + dd + 1) + ', ' + (dd + 1) + 'h de studio)' +
+      '<div style="color:var(--red);font-weight:700;margin-top:4px;white-space:nowrap">Tu économises ' + (valeur - info[1]) + '€</div>';
+    document.getElementById('pt-amount').innerHTML = '<s class="tarif-old">' + valeur + '€</s>' + info[1] + '€';
+  } else if (PROMO_HEURE_OFFERTE && HEURES_FORMAT[val] && d) {
     // on part de l'ancien prix barre s'il existe (Session Jour 4h : 120€) -> la remise d'origine est gardee
     const valeur = Math.round((info[2] || info[1]) * (d + 1) / d);
     document.getElementById('pt-name').innerHTML = info[0] + ' + 1h offerte (' + (d + 1) + 'h de studio)' +
@@ -1117,8 +1125,9 @@ function _plages(type, dateIso) {
     const duree = dureeFormat(type) + (PROMO_HEURE_OFFERTE ? 1 : 0);
     return (heuresDisponibles(type) || []).map(h => plage(h, duree));
   }
-  if (type === 'Session Soir 20h-00h') return [plage(20, 4)];
-  if (type === 'Session Nuit 00h-04h') return [plage(0, 4)];
+  const bonus = PROMO_HEURE_OFFERTE ? 1 : 0;            // Soir 20h→01h, Nuit 00h→05h
+  if (type === 'Session Soir 20h-00h') return [plage(20, 4 + bonus)];
+  if (type === 'Session Nuit 00h-04h') return [plage(0, 4 + bonus)];
   return [];
 }
 const _libre = (p, pris) => !pris.some(([a, b]) => a < p.fin && b > p.debut);
