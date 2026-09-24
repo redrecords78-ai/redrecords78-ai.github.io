@@ -1185,17 +1185,23 @@
 
           // Enregistrer player ID OneSignal (index.html réinscrit ensuite dès qu'un ID arrive)
           try { localStorage.setItem('rr-team-email', user.email); } catch(e) {}
-          setTimeout(() => {
-            try {
-              const pid = (window._OS?.User?.PushSubscription?.id) || localStorage.getItem('rr-player-id') || '';
-              if (pid && user.email) {
-                fetch(APPS_SCRIPT_URL, {
-                  method: 'POST', mode: 'no-cors',
-                  body: JSON.stringify({ action: 'registerTeamMember', email: user.email, playerId: pid })
-                }).catch(() => {});
-              }
-            } catch(e) {}
-          }, 2000);
+          // Après réinstall localStorage est vide : on retente toutes les 3s pendant 30s
+          // pour laisser le temps à index.html de capturer le nouvel ID OneSignal.
+          (function tentreRegister(tentatives) {
+            setTimeout(() => {
+              try {
+                const pid = localStorage.getItem('rr-player-id') || '';
+                if (pid) {
+                  fetch(APPS_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    body: JSON.stringify({ action: 'registerTeamMember', email: user.email, playerId: pid })
+                  }).catch(() => {});
+                  return;
+                }
+              } catch(e) {}
+              if (tentatives > 1) tentreRegister(tentatives - 1);
+            }, 3000);
+          })(10);
 
           // Update UI
           document.getElementById("header-dot").style.background = currentInge.couleur;
