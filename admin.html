@@ -676,6 +676,7 @@ function renderDemandes(demandes) {
       <div class="demande-actions">
         <button class="btn-accepter" onclick="traiterDemande('${esc(d.id)}','accepter')">✅ Accepter</button>
         <button class="btn-refuser"  onclick="traiterDemande('${esc(d.id)}','refuser')">❌ Refuser</button>
+        <button class="btn-refuser"  onclick="traiterDemande('${esc(d.id)}','classer')" title="Session déjà posée à la main dans l'agenda : retire la demande sans rien envoyer au client">📅 Déjà calée</button>
       </div>
     </div>`;
   }).join('');
@@ -683,7 +684,7 @@ function renderDemandes(demandes) {
 
 async function traiterDemande(id, action) {
   const pin      = localStorage.getItem('rr-pin-admin') || '';
-  const endpoint = action === 'accepter' ? 'accepterDemande' : 'refuserDemande';
+  const endpoint = action === 'accepter' ? 'accepterDemande' : action === 'classer' ? 'classerDemande' : 'refuserDemande';
   const card     = document.getElementById('demande-' + id);
   if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
 
