@@ -827,7 +827,7 @@ function renderAcomptes(list) {
         <div class="demande-artiste">${esc(a.artiste)}</div>
         <div class="demande-session" style="color:#33b679">${dateFmt}${a.heure ? ' · ' + esc(a.heure) : ''} · ${esc(a.type)}</div>
         <div class="demande-contact">En attente de l'acompte 30€</div>
-        <div class="demande-contact" style="color:var(--gray)">SumUp : cherche <strong style="color:var(--white)">« ${esc(a.artiste)} »</strong> dans le nom du payeur</div>
+        <div class="demande-contact" style="color:var(--gray)">SumUp : cherche <strong style="color:var(--white)">« ${esc(a.artiste)} »</strong> dans la note du paiement</div>
       </div>
       <div class="demande-actions">
         <button class="btn-accepter" onclick="validerAcompte('${esc(a.id)}')">✓ Acompte réglé</button>
