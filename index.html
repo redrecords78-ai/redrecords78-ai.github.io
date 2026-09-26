@@ -2196,7 +2196,7 @@ if ('serviceWorker' in navigator) {
     #private-bubble { left: auto; right: 24px; }
     #rr-chat-pop {
       position: fixed; right: 24px; bottom: 24px; z-index: 9001;
-      width: 380px; height: min(640px, calc(100vh - 48px));
+      width: 340px; height: min(500px, calc(100vh - 110px));
       border-radius: 16px; overflow: hidden; background: #0a0a0a;
       border: 1px solid rgba(255,255,255,0.1);
       box-shadow: 0 18px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,57,70,0.15);
@@ -2214,7 +2214,7 @@ if ('serviceWorker' in navigator) {
     if (!window.matchMedia('(min-width: 761px)').matches) { location.href = 'team.html'; return; }
     if (e) e.preventDefault();
     var pop = document.getElementById('rr-chat-pop');
-    if (!pop.firstChild) { var f = document.createElement('iframe'); f.src = 'team.html?popup=1'; f.title = 'Chat équipe'; pop.appendChild(f); }
+    if (!pop.firstChild) { var f = document.createElement('iframe'); f.src = 'team.html?popup=1&v=' + Date.now(); f.title = 'Chat équipe'; pop.appendChild(f); }
     pop.classList.add('open'); document.body.classList.add('rr-chat-ouvert');
     requestAnimationFrame(function() { pop.classList.add('visible'); });
   }
