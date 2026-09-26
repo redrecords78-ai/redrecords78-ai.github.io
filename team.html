@@ -1806,6 +1806,11 @@
 <script>
   // Ouvert dans la fenetre flottante du site (PC) : la fleche retour ferme la fenetre au lieu de naviguer.
   if (window.self !== window.top) {
+    // Tout grossit en proportion de la fenetre (textes, bulles, boutons) : zoom global, hauteur recalee.
+    var ZOOM_POPUP = 1.25;
+    document.documentElement.style.zoom = ZOOM_POPUP;
+    var recaler = function() { document.body.style.height = (window.innerHeight / ZOOM_POPUP) + 'px'; };
+    recaler(); window.addEventListener('resize', recaler);
     var fermer = function(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); window.parent.postMessage('rr-fermer-chat', location.origin); };
     ['back-btn'].forEach(function(id) { var el = document.getElementById(id); if (el) { el.onclick = null; el.addEventListener('click', fermer, true); } });
     document.querySelectorAll('.login-back').forEach(function(el) { el.addEventListener('click', fermer, true); });
