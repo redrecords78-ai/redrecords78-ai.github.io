@@ -630,7 +630,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
     <li><a href="instrus.html">Instrus</a></li>
     <li><a href="playlist.html">Signature</a></li>
     <li><a href="#reservation">Réserver</a></li>
-    <li><a href="team.html">Équipe</a></li>
+    <li><a href="team.html" onclick="rrOuvrirEquipe(event)">Équipe</a></li>
   </ul>
   <a href="#reservation" class="nav-cta">Prendre RDV</a>
 </nav>
@@ -1415,7 +1415,7 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <!-- BULLE TEAM -->
-<button id="private-bubble" title="Espace équipe" onclick="window.location.href='team.html'">
+<button id="private-bubble" title="Espace équipe" onclick="rrOuvrirEquipe(event)">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   <span id="tp-badge"></span>
 </button>
@@ -2187,5 +2187,45 @@ if ('serviceWorker' in navigator) {
   <div style="font-size:15px;color:#888;max-width:340px;line-height:1.6;">L'application est momentanément indisponible. On revient très vite — réessaie dans quelques minutes.</div>
   <a href="https://wa.me/33759476247" target="_blank" rel="noopener" style="margin-top:0.5rem;color:#E8192C;text-decoration:none;font-size:13px;">Nous contacter sur WhatsApp →</a>
 </div>
+<!-- CHAT EQUIPE FACON FACEBOOK (PC) : fenetre flottante en bas a droite (26/09/2026).
+     Sur telephone rien ne change : la bulle / le menu ouvrent team.html en plein ecran. -->
+<div id="rr-chat-pop"></div>
+<style>
+  #rr-chat-pop { display: none; }
+  @media (min-width: 761px) {
+    #private-bubble { left: auto; right: 24px; }
+    #rr-chat-pop {
+      position: fixed; right: 24px; bottom: 24px; z-index: 9001;
+      width: 380px; height: min(640px, calc(100vh - 48px));
+      border-radius: 16px; overflow: hidden; background: #0a0a0a;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,57,70,0.15);
+      transform: translateY(16px) scale(0.98); opacity: 0;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+    #rr-chat-pop.open { display: block; }
+    #rr-chat-pop.visible { transform: none; opacity: 1; }
+    #rr-chat-pop iframe { width: 100%; height: 100%; border: 0; display: block; }
+    body.rr-chat-ouvert #private-bubble { display: none !important; }
+  }
+</style>
+<script>
+  function rrOuvrirEquipe(e) {
+    if (!window.matchMedia('(min-width: 761px)').matches) { location.href = 'team.html'; return; }
+    if (e) e.preventDefault();
+    var pop = document.getElementById('rr-chat-pop');
+    if (!pop.firstChild) { var f = document.createElement('iframe'); f.src = 'team.html?popup=1'; f.title = 'Chat équipe'; pop.appendChild(f); }
+    pop.classList.add('open'); document.body.classList.add('rr-chat-ouvert');
+    requestAnimationFrame(function() { pop.classList.add('visible'); });
+  }
+  function rrFermerEquipe() {
+    var pop = document.getElementById('rr-chat-pop');
+    pop.classList.remove('visible'); document.body.classList.remove('rr-chat-ouvert');
+    setTimeout(function() { pop.classList.remove('open'); }, 220);
+  }
+  window.addEventListener('message', function(m) {
+    if (m.origin === location.origin && m.data === 'rr-fermer-chat') rrFermerEquipe();
+  });
+</script>
 </body>
 </html>

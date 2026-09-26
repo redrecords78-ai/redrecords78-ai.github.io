@@ -1801,5 +1801,13 @@
     if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(() => {});
   </script>
 
+<script>
+  // Ouvert dans la fenetre flottante du site (PC) : la fleche retour ferme la fenetre au lieu de naviguer.
+  if (window.self !== window.top) {
+    var fermer = function(ev) { ev.preventDefault(); ev.stopImmediatePropagation(); window.parent.postMessage('rr-fermer-chat', location.origin); };
+    ['back-btn'].forEach(function(id) { var el = document.getElementById(id); if (el) { el.onclick = null; el.addEventListener('click', fermer, true); } });
+    document.querySelectorAll('.login-back').forEach(function(el) { el.addEventListener('click', fermer, true); });
+  }
+</script>
 </body>
 </html>
