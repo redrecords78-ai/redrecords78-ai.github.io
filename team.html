@@ -1632,7 +1632,7 @@
     });
 
     // ─── RÉACTIONS ────────────────────────────────────────────────────────────────
-    const REACTION_EMOJI = { heart: '❤️', like: '👍', dislike: '👎' };
+    const REACTION_EMOJI = { heart: '❤️', like: '✅', dislike: '❌' };
     function buildReactionsHtml(reactions) {
       if (!reactions) return '';
       const entries = Object.values(reactions);
@@ -1654,7 +1654,7 @@
       closeReactionPicker();
       const picker = document.createElement('div');
       picker.className = 'reaction-picker';
-      picker.innerHTML = `<button class="reaction-choice" data-type="heart">❤️</button><button class="reaction-choice" data-type="like">👍</button><button class="reaction-choice" data-type="dislike">👎</button>`;
+      picker.innerHTML = `<button class="reaction-choice" data-type="heart">❤️</button><button class="reaction-choice" data-type="like">✅</button><button class="reaction-choice" data-type="dislike">❌</button>`;
       document.body.appendChild(picker);
       // Position FIXE : ancré au bord gauche de la bulle, au-dessus — peu importe où le doigt tape
       const r = msgEl.getBoundingClientRect();
@@ -1712,7 +1712,7 @@
       document.getElementById('reaction-who-list').innerHTML = rows.map(r => {
         const n = r.name || '?';
         const c = MEMBRES_DEFAUT.find(m => m.nom === n)?.couleur || '#888';
-        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml(n[0].toUpperCase())}</div>${escapeHtml(n)}<span class="who-emoji">${REACTION_EMOJI[r.type] || '👍'}</span></div>`;
+        return `<div class="reaction-who-row"><div class="who-avatar" style="background:${c}">${escapeHtml(n[0].toUpperCase())}</div>${escapeHtml(n)}<span class="who-emoji">${REACTION_EMOJI[r.type] || '✅'}</span></div>`;
       }).join('');
       document.getElementById('reaction-who-overlay').classList.add('open');
     }
