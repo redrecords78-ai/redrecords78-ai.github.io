@@ -1201,6 +1201,7 @@ document.getElementById('heure').addEventListener('change', majDispo);
   const params = new URLSearchParams(window.location.search);
   if (params.get('reset') === '1') {
     localStorage.removeItem('rr-demande-pending');
+    localStorage.removeItem('rr-demande-cle');
     localStorage.removeItem('rr-acompte-pending');
     history.replaceState({}, '', window.location.pathname);
   }
@@ -1234,6 +1235,14 @@ document.getElementById('heure').addEventListener('change', majDispo);
     document.addEventListener('visibilitychange', function() { if (!document.hidden) verifierAcompte(); });
   } else if (localStorage.getItem('rr-demande-pending') === '1') {
     afficherEtatEnCours();
+    // Demande acceptée côté studio sans que le client ait ouvert la notif (ou sans notifs) :
+    // on bascule sur l'écran acompte → le bouton « Payer » remplace le formulaire.
+    setTimeout(verifierAcceptation, 1500);
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) return;
+      verifierAcceptation();
+      verifierAcompte();
+    });
   }
 })();
 
@@ -1292,7 +1301,8 @@ document.getElementById('demandeForm').addEventListener('submit', async function
     heure:     document.getElementById('heure').value || '',
     precision: (document.getElementById('precision').value.trim() +
                (PROMO_HEURE_OFFERTE ? ' [PROMO : +1h offerte]' : '')).trim(),
-    playerId:  window._clientPlayerId || ''
+    playerId:  window._clientPlayerId || '',
+    cle:       nouvelleCleDemande()
   };
 
   // mode: 'no-cors' evite l'erreur CORS — la reponse est opaque mais le serveur recoit bien
@@ -1357,6 +1367,7 @@ function afficherFinale() {
 // Ferme l'écran final et remet le formulaire normal — efface aussi la mémo de la dernière demande
 function fermerFinale() {
   localStorage.removeItem('rr-derniere-demande');
+  localStorage.removeItem('rr-demande-cle');
   const form = document.getElementById('demandeForm');
   const fin  = document.getElementById('demande-finale');
   if (fin)  fin.style.display  = 'none';
@@ -1368,9 +1379,9 @@ function fermerFinale() {
 // Demande au serveur si l'acompte est encore en attente pour ce client ; sinon on bascule sur l'écran final.
 function verifierAcompte() {
   if (localStorage.getItem('rr-acompte-pending') !== '1') return;
-  const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
-  if (!pid) return; // pas d'ID → on garde l'écran (le clic sur la notif le fermera)
-  fetch(APPS_SCRIPT_URL + '?action=acompteStatus&playerId=' + encodeURIComponent(pid))
+  const q = paramsStatut();
+  if (!q) return; // pas d'ID → on garde l'écran (le clic sur la notif le fermera)
+  fetch(APPS_SCRIPT_URL + '?action=acompteStatus' + q)
     .then(r => r.json())
     .then(data => {
       if (data && data.pending === false) {
@@ -1379,6 +1390,39 @@ function verifierAcompte() {
       }
     })
     .catch(() => {});
+}
+
+// Demande encore « en cours » : si le studio l'a acceptée (= acompte en attente), on affiche l'acompte.
+function verifierAcceptation() {
+  if (localStorage.getItem('rr-demande-pending') !== '1') return;
+  const q = paramsStatut();
+  if (!q) return;
+  fetch(APPS_SCRIPT_URL + '?action=acompteStatus' + q)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.pending === true) {
+        localStorage.removeItem('rr-demande-pending');
+        localStorage.setItem('rr-acompte-pending', '1');
+        afficherAcompte();
+      }
+    })
+    .catch(() => {});
+}
+
+// Identifie le client auprès du serveur : appareil (notifs) et/ou clé de sa demande.
+function paramsStatut() {
+  const pid = window._clientPlayerId || localStorage.getItem('rr-player-id') || '';
+  const cle = localStorage.getItem('rr-demande-cle') || '';
+  if (!pid && !cle) return '';
+  return (pid ? '&playerId=' + encodeURIComponent(pid) : '') + (cle ? '&cle=' + encodeURIComponent(cle) : '');
+}
+
+// Clé aléatoire propre à la demande, gardée sur le téléphone (client sans notifs = pas de playerId).
+function nouvelleCleDemande() {
+  let cle = '';
+  try { cle = crypto.randomUUID(); } catch(e) { cle = Date.now().toString(36) + Math.random().toString(36).slice(2); }
+  localStorage.setItem('rr-demande-cle', cle);
+  return cle;
 }
 
 // ─── SECRET ADMIN ACCESS (triple-clic sur le logo R) ─────────────────────────
