@@ -66,7 +66,7 @@ nav{
   border-bottom:1px solid rgba(255,255,255,.05);
   background:rgba(8,8,8,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
-.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo{display:flex;align-items:center;gap:10px;color:var(--white)}
 .nav-mark{
   width:34px;height:34px;border-radius:8px;flex:none;
   background:linear-gradient(145deg,var(--gold3),var(--gold),var(--gold2));
@@ -407,6 +407,7 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
     <a href="https://www.tiktok.com/@detailingcenterlyon69" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
     <a href="https://www.snapchat.com/@detaillinglyon" target="_blank" rel="noopener" aria-label="Snapchat"><i class="fa-brands fa-snapchat"></i></a>
     <a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener" aria-label="Voir sur Maps"><i class="fa-solid fa-location-dot"></i></a>
+    <a href="#" onclick="partagerDCL();return false" aria-label="Partager"><i class="fa-solid fa-share-nodes"></i></a>
   </div>
 </footer>
 
@@ -416,6 +417,12 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
   <p><strong>Activez les notifications</strong>Soyez alerté de nos disponibilités et offres.</p>
   <button class="nb-ok" onclick="activerNotifs()">Activer</button>
   <button class="nb-no" onclick="dismissNotif()">×</button>
+</div>
+
+<div class="nb" id="ib">
+  <p id="ib-txt"></p>
+  <button class="nb-ok" id="ib-ok" onclick="installerDCL()" hidden>Installer</button>
+  <button class="nb-no" onclick="fermerInstallDCL()" aria-label="Fermer">×</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -605,10 +612,14 @@ function renderForm(){
     var ok=document.getElementById("fp").value.trim()!==""&&document.getElementById("ft").value.replace(/\D/g,"").length>=10;
     cta("Envoyer sur WhatsApp",ok,ok?sendWa:null);
   }
+  // Client qui revient : prénom + téléphone préremplis (gardés sur SON téléphone)
+  try{var cl=JSON.parse(localStorage.getItem("dcl-client")||"{}");
+    if(cl.p)document.getElementById("fp").value=cl.p;
+    if(cl.t)document.getElementById("ft").value=cl.t;}catch(e){}
   ["fp","ft","fm","fo","fd"].forEach(function(id){document.getElementById(id).addEventListener("input",chk);});
   document.getElementById("chg").onclick=function(){go(renderSvcs);};
   document.getElementById("bkSvc").onclick=function(){go(renderSvcs);};
-  cta("Envoyer sur WhatsApp",false);rv();
+  chk();rv();
 }
 
 /* ── CONFIRMATION ── */
@@ -618,12 +629,14 @@ function renderConfirm(){
   var h='<div class="wrap" style="padding-top:3rem;text-align:center">';
   h+='<div style="width:64px;height:64px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;color:var(--gold)"><i class="fa-solid fa-check" style="font-size:24px"></i></div>';
   h+='<div class="sec-tag rv" style="justify-content:center;margin-bottom:.6rem">Demande envoyée</div>';
-  h+='<div class="sec-h rv d1" style="margin-bottom:.75rem">WhatsApp ouvert</div>';
-  h+='<p class="rv d2" style="color:var(--gray);font-size:13.5px;line-height:1.65;margin-bottom:2rem">Votre demande a été transmise.<br>Le garage vous répondra dans les plus brefs délais.</p>';
+  h+='<div class="sec-h rv d1" style="margin-bottom:.75rem">Plus qu\'une étape</div>';
+  h+='<p class="rv d2" style="color:var(--gray);font-size:13.5px;line-height:1.65;margin-bottom:2rem">Votre message est prêt dans WhatsApp :<br><strong style="color:var(--white)">appuyez sur Envoyer</strong> pour transmettre la demande.<br>Le garage vous répond au plus vite.</p>';
+  h+='<button class="back rv d3" id="reWa" style="color:var(--gold)"><i class="fa-brands fa-whatsapp"></i> WhatsApp ne s\'est pas ouvert ? Réessayer</button>';
   h+='<div class="svc-recap rv d3"><span style="flex:none;color:var(--gold)">'+ICONS[st.cat]+'</span>';
   h+='<div class="recap-body"><div class="recap-n">'+esc(it.n)+'</div><div class="recap-p">'+esc(it.p)+'</div></div></div>';
   h+='</div>';
   document.getElementById("view").innerHTML=h;
+  document.getElementById("reWa").onclick=function(){window.open(st.waUrl,"_blank");};
   cta("Retour à l\'accueil",true,function(){st.cat=null;st.svc=null;go(renderHome);setTimeout(function(){window.scrollTo({top:0,behavior:"smooth"});},200);});
   rv();
 }
@@ -638,13 +651,15 @@ function sendWa(){
   var o=document.getElementById("fo").value.trim();
   var d=document.getElementById("fd").value;
   var n=document.getElementById("fn").value.trim();
+  try{localStorage.setItem("dcl-client",JSON.stringify({p:p,t:t}));}catch(e){}
   var msg="🔧 Nouvelle demande de RDV — DCL\n\n";
   msg+="👤 "+p+" · "+t+"\n";
   msg+=cat.emoji+" "+cat.label+" · "+it.n+" ("+it.p+")\n";
   if(m||o) msg+="🚘 "+(m+" "+o).trim()+"\n";
   if(d){var dd=new Date(d);var js=["dim","lun","mar","mer","jeu","ven","sam"][dd.getDay()];var ms=["jan","fév","mar","avr","mai","juin","juil","aoû","sep","oct","nov","déc"][dd.getMonth()];msg+="📅 "+js+". "+dd.getDate()+" "+ms+"\n";}
   if(n) msg+="📝 "+n+"\n";
-  window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg),"_blank");
+  st.waUrl="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
+  window.open(st.waUrl,"_blank");
   setTimeout(function(){go(renderConfirm);},350);
 }
 
@@ -670,6 +685,40 @@ function tryNotifBanner(){
   requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add("show");});});
 }
 
+/* ── PARTAGE (menu natif du téléphone, sinon copie du lien) ── */
+window.partagerDCL=function(){
+  var url="https://redrecords78-ai.github.io/garage/",txt="Detailing Center Lyon : detailing moto & auto à Vénissieux, réservation en ligne";
+  if(navigator.share){navigator.share({title:"Detailing Center Lyon",text:txt,url:url}).catch(function(){});return;}
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){toast("Lien copié ✓");});}
+};
+
+/* ── INSTALLER L'APP (visiteurs mobiles hors app) ── */
+var promptAndroid=null;
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();promptAndroid=e;});
+function tryInstallBanner(){
+  var ua=navigator.userAgent;
+  var installee=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+  if(installee||!/iPhone|iPad|iPod|Android/i.test(ua)) return;
+  try{if(+localStorage.getItem("dcl-install-snooze")>Date.now()) return;}catch(e){}
+  if(document.getElementById("nb").classList.contains("show")) return;
+  var ios=/iPhone|iPad|iPod/.test(ua), inApp=/Instagram|FBAN|FBAV|Snapchat|TikTok|musical_ly/i.test(ua);
+  var txt, bouton=false;
+  if(inApp) txt=ios?"Touchez <strong>•••</strong> puis <strong>Ouvrir dans Safari</strong>, et ajoutez-la depuis là.":"Touchez <strong>⋮</strong> puis <strong>Ouvrir dans Chrome</strong>, et installez-la depuis là.";
+  else if(ios) txt="Touchez <strong>Partager</strong> puis <strong>Sur l'écran d'accueil</strong>.";
+  else if(promptAndroid){txt="Réservez en 2 clics depuis votre écran d'accueil.";bouton=true;}
+  else txt="Menu <strong>⋮</strong> puis <strong>Installer l'application</strong>.";
+  var b=document.getElementById("ib");
+  document.getElementById("ib-txt").innerHTML="<strong>Ajoutez l'app DCL</strong>"+txt;
+  document.getElementById("ib-ok").hidden=!bouton;
+  b.style.display="flex";
+  requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add("show");});});
+}
+window.installerDCL=function(){if(!promptAndroid)return;promptAndroid.prompt();promptAndroid.userChoice.then(function(){promptAndroid=null;fermerInstallDCL();});};
+window.fermerInstallDCL=function(){
+  try{localStorage.setItem("dcl-install-snooze",String(Date.now()+3*86400000));}catch(e){}   // revient dans 3 jours
+  document.getElementById("ib").classList.remove("show");
+};
+
 /* ── EXTERNAL LINKS (iOS PWA fix) ── */
 document.addEventListener("click",function(e){
   var a=e.target.closest("a[target='_blank']");
@@ -681,6 +730,7 @@ document.addEventListener("click",function(e){
 /* ── INIT ── */
 renderHome();
 setTimeout(tryNotifBanner,4500);
+setTimeout(tryInstallBanner,6500);
 
 })();
 </script>
