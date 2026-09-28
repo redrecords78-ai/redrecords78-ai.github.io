@@ -77,8 +77,10 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .demande-vide { padding: 1.5rem; text-align: center; font-size: 13px; color: var(--gray); background: var(--black2); border: 1px solid var(--gray2); border-radius: 12px; }
 @media (max-width: 600px) {
   .demande-card { flex-direction: column; }
-  .demande-actions { flex-direction: row; width: 100%; }
-  .btn-accepter, .btn-refuser { flex: 1; text-align: center; }
+  .demande-actions { flex-direction: row; flex-wrap: wrap; width: 100%; }
+  .btn-accepter, .btn-refuser { flex: 1 1 0; min-width: 0; text-align: center; }
+  /* 3e bouton (« Déjà calée ») : sur sa propre ligne, pleine largeur, au lieu de sortir de l'écran */
+  .demande-actions > button:nth-child(3) { flex-basis: 100%; }
 }
 
 /* ─── KPI CARDS ─── */
