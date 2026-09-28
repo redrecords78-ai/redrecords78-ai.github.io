@@ -1300,6 +1300,22 @@ document.getElementById('demandeForm').addEventListener('submit', async function
   const btn = document.getElementById('btnEnvoyer');
   const msg = document.getElementById('msgRetour');
 
+  // Vérif explicite (28/09/2026) : sur iPhone, l'app installée laissait passer les champs
+  // « required » et la case des conditions non cochée.
+  const manque = (id, texte) => {
+    const el = document.getElementById(id);
+    msg.style.display = 'block'; msg.style.color = 'var(--red)'; msg.textContent = texte;
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.type !== 'checkbox') el.focus(); }
+    return true;
+  };
+  const heureVisible = document.getElementById('heure-group').style.display !== 'none';
+  if (!document.getElementById('artiste').value.trim() && manque('artiste', 'Indique ton nom d\'artiste.')) return;
+  if (!document.getElementById('contact').value.trim() && manque('contact', 'Laisse ton numéro, Snap ou Insta pour qu\'on puisse te contacter.')) return;
+  if (!document.getElementById('type').value && manque('type', 'Choisis ton type de session.')) return;
+  if (heureVisible && !document.getElementById('heure').value && manque('heure', 'Choisis ton heure de début.')) return;
+  if (!document.getElementById('date').value && manque('date', 'Choisis la date de ta session.')) return;
+  if (!document.getElementById('rgpd-consent').checked && manque('rgpd-consent', 'Coche la case pour accepter les conditions avant d\'envoyer ta demande.')) return;
+
   // App verrouillée (verrou d'urgence) → on n'envoie rien
   if (_appEstBloquee) {
     msg.style.display = 'block';
