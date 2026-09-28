@@ -249,7 +249,7 @@ nav{
 }
 .f-lbl:first-child{margin-top:0}
 .f-opt{font-size:10px;color:var(--gray2);letter-spacing:0;text-transform:none}
-input[type=text],input[type=tel],input[type=date],textarea{
+input[type=text],input[type=tel],input[type=date],select,textarea{
   width:100%;background:var(--black3);border:1px solid var(--gray2);
   color:var(--white);padding:12px 15px;font-size:16px;
   border-radius:8px;appearance:none;-webkit-appearance:none;
@@ -259,6 +259,12 @@ input:focus,textarea:focus{
   outline:2px solid var(--gold);outline-offset:2px;border-color:transparent;
 }
 textarea{resize:none;height:82px;line-height:1.5}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+.f-err{font-size:12px;color:#e0625a;margin-top:6px}
+.open-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--gray);margin:-1.2rem 0 1.6rem;position:relative;z-index:1;animation:fu .75s .18s ease both}
+.open-badge b{width:7px;height:7px;border-radius:50%;background:#4caf50;box-shadow:0 0 8px rgba(76,175,80,.8)}
+.open-badge.ferme b{background:#e0625a;box-shadow:0 0 8px rgba(224,98,90,.6)}
+.open-badge strong{color:var(--white);font-weight:500}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 input[type=date]::-webkit-calendar-picker-indicator{
   filter:invert(.45) sepia(1) hue-rotate(5deg) saturate(1.8);
@@ -387,6 +393,7 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
   <div class="hero-chip"><span></span>Vénissieux · Lyon</div>
   <h1 class="hero-h">L'ART DU<br><i>DÉTAIL</i><br>PARFAIT.</h1>
   <p class="hero-sub">Detailing moto &amp; automobile · Sur rendez-vous</p>
+  <div class="open-badge" id="openBadge" hidden></div>
   <div class="hero-stats">
     <div><div class="stat-n"><i>RDV</i></div><div class="stat-l">En ligne</div></div>
     <div><div class="stat-n"><i>Lyon</i></div><div class="stat-l">Sud · 69</div></div>
@@ -400,7 +407,7 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 <!-- FOOTER -->
 <footer>
   <div class="ft-brand">Detailing Center Lyon</div>
-  <div class="ft-addr">388 Av. Charles de Gaulle, Bloc 117<br>69200 Vénissieux</div>
+  <div class="ft-addr">388 Av. Charles de Gaulle, Bloc 117<br>69200 Vénissieux<br>Lun – Sam · 10h – 20h</div>
   <div class="ft-soc">
     <a href="tel:0668163064" aria-label="Appeler"><i class="fa-solid fa-phone"></i></a>
     <a href="https://www.instagram.com/detailing.center.lyon/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
@@ -431,6 +438,10 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 (function(){
 "use strict";
 var WA="33668163064";
+// Horaires d'ouverture (donnés par Ridwane le 28/09/2026, À CONFIRMER avec le garage)
+// jours : 0 = dimanche … 6 = samedi
+var HORAIRES={jours:[1,2,3,4,5,6],ouvre:10,ferme:20};
+var CRENEAUX_H=[10,11,12,13,14,15,16,17,18,19];
 var ONESIGNAL_ID=""; // App ID OneSignal du garage (vide = bandeau notifs masqué)
 
 var ICONS={
@@ -438,7 +449,8 @@ var ICONS={
   auto:'<i class="fa-solid fa-car-side" style="font-size:26px"></i>',
   pin:'<i class="fa-solid fa-location-dot" style="font-size:14px"></i>',
   phone:'<i class="fa-solid fa-phone" style="font-size:14px"></i>',
-  mail:'<i class="fa-solid fa-envelope" style="font-size:14px"></i>'
+  mail:'<i class="fa-solid fa-envelope" style="font-size:14px"></i>',
+  clock:'<i class="fa-regular fa-clock" style="font-size:14px"></i>'
 };
 
 var CATS={
@@ -513,6 +525,7 @@ function renderHome(){
   h+='<div class="sec-h rv d3">Nous trouver</div>';
   h+='<div class="info-r rv d3"><span class="ico">'+ICONS.pin+'</span><span><a href="https://share.google/URnAZ3CJ5ApWVKRD6" target="_blank" rel="noopener">388 Av. Charles de Gaulle, Bloc 117 · 69200 Vénissieux</a></span></div>';
   h+='<div class="info-r rv d4"><span class="ico">'+ICONS.phone+'</span><span><a href="tel:0668163064">06 68 16 30 64</a></span></div>';
+  h+='<div class="info-r rv d4"><span class="ico">'+ICONS.clock+'</span><span>Lundi au samedi · 10h – 20h<br><span style="font-size:12px">Fermé le dimanche · sur rendez-vous</span></span></div>';
   h+='<div class="info-r rv d4"><span class="ico">'+ICONS.mail+'</span><span><a href="mailto:contact.detailingcenterlyon@gmail.com">contact.detailingcenterlyon@gmail.com</a></span></div>';
   h+='</div>';
   document.getElementById("view").innerHTML=h;
@@ -602,21 +615,25 @@ function renderForm(){
   h+='<label class="f-lbl" for="ft">Téléphone</label><input type="tel" id="ft" placeholder="06 XX XX XX XX" autocomplete="tel">';
   h+='<label class="f-lbl">Véhicule</label>';
   h+='<div class="two"><input type="text" id="fm" placeholder="Marque" autocomplete="off"><input type="text" id="fo" placeholder="Modèle" autocomplete="off"></div>';
-  h+='<label class="f-lbl" for="fd">Date souhaitée</label><input type="date" id="fd" min="'+today()+'">';
+  h+='<div class="two"><div><label class="f-lbl" for="fd">Date souhaitée</label><input type="date" id="fd" min="'+today()+'"></div>';
+  h+='<div><label class="f-lbl" for="fh">Heure <span class="f-opt">— optionnel</span></label><select id="fh"><option value="">Indifférent</option>'+CRENEAUX_H.map(function(x){return '<option value="'+x+'">'+x+'h</option>';}).join("")+'</select></div></div>';
+  h+='<div class="f-err" id="fdErr" hidden>Le garage est fermé le dimanche : choisissez un autre jour.</div>';
   h+='<label class="f-lbl" for="fn">Précisions <span class="f-opt">— optionnel</span></label>';
   h+='<textarea id="fn" placeholder="Couleur, état de la peinture, demande particulière..."></textarea>';
   h+='</div>';
   h+='<button class="back rv d3" id="bkSvc">← Changer de prestation</button></div>';
   document.getElementById("view").innerHTML=h;
   function chk(){
-    var ok=document.getElementById("fp").value.trim()!==""&&document.getElementById("ft").value.replace(/\D/g,"").length>=10;
+    var dv=document.getElementById("fd").value, ferme=!!dv&&HORAIRES.jours.indexOf(new Date(dv+"T12:00:00").getDay())<0;
+    document.getElementById("fdErr").hidden=!ferme;
+    var ok=!ferme&&document.getElementById("fp").value.trim()!==""&&document.getElementById("ft").value.replace(/\D/g,"").length>=10;
     cta("Envoyer sur WhatsApp",ok,ok?sendWa:null);
   }
   // Client qui revient : prénom + téléphone préremplis (gardés sur SON téléphone)
   try{var cl=JSON.parse(localStorage.getItem("dcl-client")||"{}");
     if(cl.p)document.getElementById("fp").value=cl.p;
     if(cl.t)document.getElementById("ft").value=cl.t;}catch(e){}
-  ["fp","ft","fm","fo","fd"].forEach(function(id){document.getElementById(id).addEventListener("input",chk);});
+  ["fp","ft","fm","fo","fd","fh"].forEach(function(id){document.getElementById(id).addEventListener("input",chk);document.getElementById(id).addEventListener("change",chk);});
   document.getElementById("chg").onclick=function(){go(renderSvcs);};
   document.getElementById("bkSvc").onclick=function(){go(renderSvcs);};
   chk();rv();
@@ -650,13 +667,15 @@ function sendWa(){
   var m=document.getElementById("fm").value.trim();
   var o=document.getElementById("fo").value.trim();
   var d=document.getElementById("fd").value;
+  var hh=document.getElementById("fh").value;
   var n=document.getElementById("fn").value.trim();
   try{localStorage.setItem("dcl-client",JSON.stringify({p:p,t:t}));}catch(e){}
   var msg="🔧 Nouvelle demande de RDV — DCL\n\n";
   msg+="👤 "+p+" · "+t+"\n";
   msg+=cat.emoji+" "+cat.label+" · "+it.n+" ("+it.p+")\n";
   if(m||o) msg+="🚘 "+(m+" "+o).trim()+"\n";
-  if(d){var dd=new Date(d);var js=["dim","lun","mar","mer","jeu","ven","sam"][dd.getDay()];var ms=["jan","fév","mar","avr","mai","juin","juil","aoû","sep","oct","nov","déc"][dd.getMonth()];msg+="📅 "+js+". "+dd.getDate()+" "+ms+"\n";}
+  if(d){var dd=new Date(d+"T12:00:00");var js=["dim","lun","mar","mer","jeu","ven","sam"][dd.getDay()];var ms=["jan","fév","mar","avr","mai","juin","juil","aoû","sep","oct","nov","déc"][dd.getMonth()];msg+="📅 "+js+". "+dd.getDate()+" "+ms+"\n";}
+  if(hh) msg+="🕒 Vers "+hh+"h\n";
   if(n) msg+="📝 "+n+"\n";
   st.waUrl="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
   window.open(st.waUrl,"_blank");
@@ -726,6 +745,24 @@ document.addEventListener("click",function(e){
   e.preventDefault();
   window.open(a.href,"_blank","noopener,noreferrer");
 });
+
+/* ── OUVERT / FERMÉ (heure de Lyon) ── */
+function majOuvert(){
+  var b=document.getElementById("openBadge");if(!b)return;
+  var p={};
+  try{new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",weekday:"short",hour:"numeric",hour12:false}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});}catch(e){return;}
+  var jours=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."], j=jours.indexOf(p.weekday), h=parseInt(p.hour,10);
+  if(j<0||isNaN(h))return;
+  var ouvertAuj=HORAIRES.jours.indexOf(j)>=0;
+  if(ouvertAuj&&h>=HORAIRES.ouvre&&h<HORAIRES.ferme){b.className="open-badge";b.innerHTML="<b></b><strong>Ouvert</strong> · jusqu'à "+HORAIRES.ferme+"h";}
+  else{
+    var k=1;while(k<7&&HORAIRES.jours.indexOf((j+k)%7)<0)k++;
+    var quand=(ouvertAuj&&h<HORAIRES.ouvre)?"aujourd'hui":(k===1?"demain":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"][(j+k)%7]);
+    b.className="open-badge ferme";b.innerHTML="<b></b><strong>Fermé</strong> · ouvre "+quand+" à "+HORAIRES.ouvre+"h";
+  }
+  b.hidden=false;
+}
+majOuvert();setInterval(majOuvert,60000);
 
 /* ── INIT ── */
 renderHome();
