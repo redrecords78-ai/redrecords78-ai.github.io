@@ -99,5 +99,23 @@
 
   <p class="foot">Dernière mise à jour : 19 juin 2026.</p>
 </div>
+<script>
+// Compteur de visites (backend Apps Script, sans cookie ni identifiant).
+// Ouvrir une page avec ?moi=1 exclut cet appareil du comptage (studio, equipe).
+(function () {
+  try {
+    if (window.top !== window) return;
+    var s = localStorage, jour = new Date().toISOString().slice(0, 10);
+    if (/[?&]moi=1/.test(location.search)) s.setItem('rr-stat-off', '1');
+    if (s.getItem('rr-stat-off')) return;
+    var page = location.pathname.replace(/^.*\//, '').replace(/\.html$/, '') || 'index';
+    var q = '?action=hit&p=' + encodeURIComponent(page);
+    if (!s.getItem('rr-vu')) { q += '&nv=1'; s.setItem('rr-vu', jour); }
+    if (s.getItem('rr-vu-jour') !== jour) { q += '&u=1'; s.setItem('rr-vu-jour', jour); }
+    if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) q += '&app=1';
+    fetch('https://script.google.com/macros/s/AKfycbzqNa3f12PbEPuLjNQ8b9VgkA8xRt-HrwR8FsHMSvFbpsI2_drTgeeTnjCFBwKiKm132A/exec' + q, { mode: 'no-cors', keepalive: true }).catch(function () {});
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
