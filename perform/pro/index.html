@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>PCR Pro · Gestion de location</title>
+<meta name="theme-color" content="#050505">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PCR Pro">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
+<style>
+/* PCR Pro : l'outil du loueur (contrats, état des lieux, registre, amendes). Même DA que la vitrine Perform. */
+:root{--rouge:#ff1f1f;--rouge2:#d10a0a;--noir:#050505;--noir2:#0d0d0d;--noir3:#161616;--trait:rgba(255,255,255,.09);--gris:#9a9a9a;--gris2:#5a5a5a;--vert:#25d366;--orange:#ffb020;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--noir);color:#fff;font-family:'Kanit',sans-serif;font-weight:300;-webkit-text-size-adjust:100%}
+body{padding:calc(70px + var(--safe-t)) 0 calc(96px + var(--safe-b));min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tech{font-family:'Michroma',sans-serif;letter-spacing:.13em;text-transform:uppercase}
+.titre{font-weight:900;font-style:italic;text-transform:uppercase;line-height:.92}
+.r{color:var(--rouge)}
+.hidden{display:none!important}
+
+/* Barre du haut */
+.haut{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + var(--safe-t)) 16px 10px;background:rgba(5,5,5,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--trait)}
+.haut .g{display:flex;align-items:center;gap:10px}
+.haut img{height:38px}
+.pro{font-size:8.5px;padding:4px 8px;border:1px solid var(--rouge);border-radius:6px;color:var(--rouge)}
+.retour{width:38px;height:38px;border-radius:12px;border:1px solid var(--trait);display:grid;place-items:center}
+.retour svg{width:18px;height:18px}
+.demo{font-size:8px;color:var(--orange);border:1px solid rgba(255,176,32,.4);padding:4px 7px;border-radius:6px}
+
+main{padding:0 16px;max-width:620px;margin:0 auto}
+.ecran{animation:entre .25s ease}
+@keyframes entre{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1.titre{font-size:40px;margin:16px 0 4px}
+.sous{font-size:13px;color:var(--gris)}
+.bloc-t{display:flex;align-items:center;gap:10px;font-size:9.5px;color:var(--rouge);margin:26px 0 10px}
+.bloc-t::before{content:'';width:22px;height:3px;background:var(--rouge);transform:skewX(-35deg)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.kpi{border:1.5px solid rgba(255,31,31,.5);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,rgba(255,31,31,.07),rgba(5,5,5,.9));box-shadow:0 0 16px rgba(255,31,31,.1)}
+.kpi .v{font-weight:900;font-style:italic;font-size:30px;line-height:1}
+.kpi .v small{font-size:15px;color:var(--gris);font-weight:700}
+.kpi .k{font-size:11px;color:var(--gris);margin-top:4px}
+
+/* Carte « Flashé ? » */
+.flash{margin-top:14px;display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;background:linear-gradient(120deg,#2a0505,#0d0d0d 70%);border:1.5px solid var(--rouge);box-shadow:0 0 26px rgba(255,31,31,.2);width:100%;text-align:left}
+.flash .ic{flex:none;width:50px;height:50px;border-radius:50%;background:var(--rouge2);display:grid;place-items:center;box-shadow:0 0 20px rgba(255,31,31,.5)}
+.flash .ic svg{width:24px;height:24px}
+.flash b{display:block;font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;line-height:1.05}
+.flash span{font-size:12.5px;color:#cfcfcf}
+
+/* Listes */
+.liste{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.ligne{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:var(--noir2);border:1px solid var(--trait);width:100%;min-width:0;overflow:hidden;text-align:left}
+.ligne img{flex:none;width:58px;height:58px;border-radius:10px;object-fit:cover}
+.ligne{align-items:flex-start}
+.ligne .c{padding-top:2px}
+.ligne .c{flex:1;min-width:0}
+.ligne .n{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ligne .d{font-size:12px;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ligne .num{font-size:8px;color:var(--gris2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pastille{flex:none;font-size:7px;letter-spacing:.08em;padding:5px 7px;border-radius:20px;border:1px solid;white-space:nowrap}
+.p-cours{color:var(--vert);border-color:rgba(37,211,102,.4)}
+.p-fini{color:var(--gris);border-color:var(--trait)}
+.p-retard{color:var(--rouge);border-color:rgba(255,31,31,.5)}
+.p-auj{color:var(--orange);border-color:rgba(255,176,32,.45)}
+.p-entretien{color:var(--orange);border-color:rgba(255,176,32,.45)}
+.vide{padding:20px;text-align:center;color:var(--gris);font-size:13px;border:1px dashed var(--trait);border-radius:14px}
+
+/* Champs */
+.champ{margin-top:12px}
+.champ label{display:block;font-size:9px;color:var(--gris);margin-bottom:6px}
+.champ input,.champ select,.champ textarea{width:100%;height:50px;padding:0 14px;border-radius:12px;background:var(--noir3);border:1px solid var(--trait);font-size:16px;appearance:none;-webkit-appearance:none}
+.champ textarea{height:84px;padding:12px 14px;resize:none}
+.champ input:focus,.champ select:focus,.champ textarea:focus{outline:none;border-color:var(--rouge);box-shadow:0 0 0 3px rgba(255,31,31,.15)}
+.deux{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.recherche{position:relative;margin-top:14px}
+.recherche svg{position:absolute;left:14px;top:15px;width:19px;height:19px;color:var(--gris)}
+.recherche input{padding-left:44px}
+.puces{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 12px;padding:0 16px}
+.puces::-webkit-scrollbar{display:none}
+.puce{flex:none;height:34px;padding:0 14px;border-radius:30px;border:1px solid var(--trait);font-size:12.5px;color:#ccc;background:var(--noir2)}
+.puce.on{border-color:var(--rouge);color:#fff;background:rgba(255,31,31,.12)}
+
+/* Choix véhicule */
+.vehs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.veh{position:relative;border-radius:14px;overflow:hidden;border:2px solid transparent;aspect-ratio:1/1;background:#111;text-align:left}
+.veh img{width:100%;height:100%;object-fit:cover}
+.veh::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,5,.95) 10%,transparent 60%)}
+.veh .t{position:absolute;left:10px;right:10px;bottom:9px;z-index:1}
+.veh .t b{display:block;font-weight:800;font-style:italic;font-size:15px;text-transform:uppercase;line-height:1}
+.veh .t span{font-size:8px;color:#ccc}
+.veh.on{border-color:var(--rouge);box-shadow:0 0 20px rgba(255,31,31,.35)}
+.veh.pris{opacity:.4}
+.veh.pris::before{content:'LOUÉE';position:absolute;top:8px;right:8px;z-index:2;font-family:Michroma;font-size:7.5px;letter-spacing:.12em;padding:4px 7px;border-radius:10px;background:var(--rouge2)}
+
+/* Étapes du contrat */
+.pas{display:flex;gap:5px;margin:16px 0 4px}
+.pas i{flex:1;height:4px;background:rgba(255,255,255,.15);transform:skewX(-35deg)}
+.pas i.on{background:var(--rouge)}
+.pas-t{font-size:9px;color:var(--gris)}
+
+/* Photos état des lieux */
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.ph{position:relative;aspect-ratio:1/1;border-radius:12px;border:1.5px dashed rgba(255,255,255,.2);background:var(--noir2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;font-size:10.5px;color:var(--gris);text-align:center}
+.ph svg{width:22px;height:22px;color:var(--rouge)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph.ok{border-style:solid;border-color:var(--vert)}
+.ph input{position:absolute;inset:0;opacity:0}
+.docs2{grid-template-columns:1fr 1fr}
+
+/* Carburant */
+.carbu{display:flex;gap:4px;margin-top:4px}
+.carbu button{flex:1;height:40px;border-radius:9px;background:var(--noir3);border:1px solid var(--trait);font-size:12px}
+.carbu button.on{background:var(--rouge2);border-color:var(--rouge)}
+
+/* Formules */
+.formules{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid rgba(255,31,31,.6);border-radius:14px;overflow:hidden;margin-top:12px}
+.formule{padding:12px 4px;text-align:center;position:relative}
+.formule+.formule::before{content:'';position:absolute;left:0;top:15%;bottom:15%;width:1px;background:rgba(255,31,31,.35)}
+.formule .f{font-size:11px;font-weight:600;text-transform:uppercase}
+.formule .p{font-weight:900;font-style:italic;font-size:21px;margin-top:3px}
+.formule .k{font-size:10px;color:var(--gris)}
+.formule.on{background:rgba(255,31,31,.16)}
+.recap{margin-top:12px;padding:14px;border-radius:14px;background:var(--noir2);border:1px solid var(--trait);font-size:13.5px}
+.recap div{display:flex;justify-content:space-between;padding:4px 0}
+.recap div+div{border-top:1px solid var(--trait)}
+.recap b{font-weight:600}
+.recap .tot b{font-weight:900;font-style:italic;font-size:20px;color:var(--rouge)}
+
+/* Signature */
+.sign{margin-top:12px;position:relative;height:180px;border-radius:14px;background:#f4f4f4;overflow:hidden}
+.sign canvas{width:100%;height:100%;touch-action:none;display:block}
+.sign .l{position:absolute;left:18px;right:18px;bottom:36px;border-bottom:1.5px dashed #bbb;pointer-events:none}
+.sign .x{position:absolute;left:14px;bottom:40px;color:#999;font-size:20px;pointer-events:none}
+.sign .eff{position:absolute;top:8px;right:8px;font-size:11px;color:#555;background:#e3e3e3;padding:6px 10px;border-radius:8px}
+.case{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:12.5px;color:#ccc}
+.case input{flex:none;width:20px;height:20px;accent-color:var(--rouge);margin-top:2px}
+
+/* Boutons */
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:54px;border-radius:14px;font-weight:600;font-size:15px}
+.btn svg{width:19px;height:19px}
+.btn-rouge{background:var(--rouge2);box-shadow:0 8px 26px rgba(209,10,10,.35)}
+.btn-cadre{border:1.5px solid var(--rouge);box-shadow:inset 0 0 18px rgba(255,31,31,.12)}
+.btn-gris{background:var(--noir3);border:1px solid var(--trait)}
+.btn:disabled{opacity:.35;box-shadow:none}
+.actions{display:grid;gap:8px;margin-top:20px}
+.actions.deuxb{grid-template-columns:1fr 1.6fr}
+
+/* Résultat « qui conduisait ? » */
+.res{margin-top:16px;border-radius:18px;overflow:hidden;border:1.5px solid var(--rouge);box-shadow:0 0 30px rgba(255,31,31,.2)}
+.res-h{padding:14px 16px;background:linear-gradient(120deg,#2a0505,#0d0d0d);display:flex;align-items:center;gap:10px}
+.res-h svg{width:22px;height:22px;color:var(--vert)}
+.res-h b{font-weight:800;font-style:italic;text-transform:uppercase;font-size:17px}
+.res-b{padding:6px 16px 16px;background:var(--noir2)}
+.info{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--trait);font-size:13.5px}
+.info span:first-child{color:var(--gris)}
+.info span:last-child{text-align:right;font-weight:500}
+.delai{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.35);font-size:12.5px;color:#ffd58a;line-height:1.45}
+.introuvable{margin-top:16px;padding:16px;border-radius:14px;border:1px solid var(--trait);background:var(--noir2);font-size:13.5px;color:#ccc}
+
+/* Fiche contrat */
+.fiche-img{margin:14px -16px 0;height:220px;position:relative}
+.fiche-img img{width:100%;height:100%;object-fit:cover}
+.fiche-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--noir) 5%,transparent 60%)}
+.fiche-img .t{position:absolute;left:16px;bottom:12px;z-index:1}
+.fiche-img .t b{font-weight:900;font-style:italic;font-size:30px;text-transform:uppercase;line-height:1}
+.sig-img{margin-top:10px;background:#f4f4f4;border-radius:12px;height:110px;display:grid;place-items:center;overflow:hidden}
+.sig-img img{max-height:100%}
+.edl{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.edl div{aspect-ratio:1/1;border-radius:9px;background:var(--noir3);border:1px solid var(--trait);display:grid;place-items:center;font-size:8px;color:var(--gris);text-align:center;overflow:hidden}
+.edl img{width:100%;height:100%;object-fit:cover}
+
+/* Flotte */
+.fl{display:flex;gap:12px;align-items:center;padding:10px;border-radius:14px;background:var(--noir2);border:1px solid var(--trait)}
+.fl img{flex:none;width:76px;height:76px;border-radius:10px;object-fit:cover}
+.fl .c{flex:1;min-width:0}
+.fl b{display:block;font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase;line-height:1.05}
+.fl .pl{display:inline-block;margin-top:5px;font-family:Michroma;font-size:9px;letter-spacing:.08em;padding:3px 7px;border-radius:5px;background:#fff;color:#111;border-left:6px solid #1747b3}
+.fl .d{font-size:11.5px;color:var(--gris);margin-top:4px}
+.etat-sel{display:flex;gap:4px;margin-top:8px}
+.etat-sel button{flex:1;height:30px;border-radius:8px;font-size:10.5px;background:var(--noir3);border:1px solid var(--trait)}
+.etat-sel button.on.d{background:rgba(37,211,102,.18);border-color:var(--vert)}
+.etat-sel button.on.l{background:rgba(255,31,31,.2);border-color:var(--rouge)}
+.etat-sel button.on.e{background:rgba(255,176,32,.18);border-color:var(--orange)}
+
+/* Barre du bas */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 8px calc(10px + var(--safe-b));background:rgba(5,5,5,.96);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--trait)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--gris);padding:4px 0}
+.nav button svg{width:22px;height:22px}
+.nav button.on{color:#fff}
+.nav button.on svg{color:var(--rouge)}
+.nav .plus{margin-top:-24px}
+.nav .plus span{width:58px;height:58px;border-radius:18px;background:var(--rouge2);display:grid;place-items:center;box-shadow:0 8px 24px rgba(209,10,10,.5);transform:rotate(-8deg)}
+.nav .plus span svg{width:28px;height:28px;color:#fff!important;transform:rotate(8deg)}
+.nav .plus{color:#fff}
+
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translateX(-50%) translateY(20px);opacity:0;z-index:60;background:#1c1c1c;border:1px solid var(--trait);padding:12px 18px;border-radius:30px;font-size:13px;transition:all .25s;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Document imprimable (PDF) */
+#doc{display:none}
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  .haut,.nav,main,.toast{display:none!important}
+  #doc{display:block;font-family:Arial,sans-serif;color:#000;padding:10mm;font-size:11pt}
+  #doc h2{font-size:18pt;margin-bottom:4pt}
+  #doc table{width:100%;border-collapse:collapse;margin:8pt 0}
+  #doc td{border:1px solid #999;padding:5pt;vertical-align:top}
+  #doc .sig{height:30mm}
+}
+</style>
+</head>
+<body>
+
+<header class="haut">
+  <div class="g" id="haut-g"><img src="../icons/logo-pcr.png" alt="PCR"><span class="pro tech">Pro</span></div>
+  <span class="demo tech">Démo</span>
+</header>
+
+<main id="app"></main>
+
+<nav class="nav" id="nav">
+  <button data-go="accueil" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Accueil</button>
+  <button data-go="contrats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Contrats</button>
+  <button data-go="nouveau" class="plus"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span>Contrat</button>
+  <button data-go="flash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Amendes</button>
+  <button data-go="flotte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16"/><rect x="3" y="15" width="18" height="5" rx="2"/><circle cx="7.5" cy="17.5" r="1"/><circle cx="16.5" cy="17.5" r="1"/></svg>Flotte</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div id="doc"></div>
+
+<script>
+// ───────────────────────── Données de démonstration ─────────────────────────
+// Tout reste sur le téléphone (localStorage). Aucune donnée n'est envoyée : c'est une maquette.
+const CLE = 'pcrpro-v1';
+const JOUR = 86400000;
+const VEHICULES = [
+  { id: 'rs6', nom: 'Audi RS6 Performance', court: 'RS6', plaque: 'GR-630-PC', img: '../web/rs6-performance/1-avant-couverture.jpg', t: { j: 400, we: 1500, se: 2500 }, km: 4.5, caution: 8000 },
+  { id: 'golfn', nom: 'Golf 8 GTD noire', court: 'Golf GTD N', plaque: 'GN-200-PC', img: '../web/golf-8-gtd-noir/1-avant-feux-couverture.jpg', t: { j: 120, we: 450, se: 600 }, km: .5, caution: 2000 },
+  { id: 'golfg', nom: 'Golf 8 GTD grise', court: 'Golf GTD G', plaque: 'GG-200-PC', img: '../web/golf-8-gtd-grise/1-3-4-avant-couverture.jpg', t: { j: 120, we: 450, se: 600 }, km: .5, caution: 2000 },
+  { id: 'polo', nom: 'Polo GTI', court: 'Polo GTI', plaque: 'PG-207-PC', img: '../web/polo-gti/1-avant-couverture.jpg', t: { j: 120, we: 450, se: 600 }, km: .5, caution: 2000 },
+  { id: 'clio', nom: 'Clio E-Tech Alpine', court: 'Clio', plaque: 'CA-145-PC', img: '../web/clio-v-alpine/1-avant-couverture.jpg', t: { j: 70, we: 250, se: 450 }, km: .5, caution: 1500 }
+];
+const V = id => VEHICULES.find(v => v.id === id);
+
+function demo() {
+  const n = new Date(); n.setMinutes(0, 0, 0);
+  const at = (j, h) => { const d = new Date(n); d.setDate(d.getDate() + j); d.setHours(h); return d.getTime(); };
+  const c = (num, veh, prenom, nom, dj, dh, fj, fh, formule, kd, kr, prix, statut) => ({
+    num, veh, client: { prenom, nom, naissance: '1994-03-12', tel: '06 00 00 00 00', adresse: '12 rue de la Démo, 78200 Mantes-la-Jolie', permis: 'DEMO' + num.slice(-4), permisDate: '2014-06-01' },
+    debut: at(dj, dh), fin: at(fj, fh), formule, kmDepart: kd, kmRetour: kr, carbuDepart: 4, prix, caution: V(veh).caution, statut, signature: '', photos: []
+  });
+  return {
+    etat: { rs6: 'loue', golfn: 'dispo', golfg: 'loue', polo: 'loue', clio: 'dispo' },
+    contrats: [
+      c('PCR-2026-0142', 'rs6', 'Yanis', 'Démo', -1, 10, 2, 10, 'we', 21450, null, 1500, 'cours'),
+      c('PCR-2026-0141', 'golfg', 'Sarah', 'Démo', -3, 9, 4, 9, 'se', 33120, null, 600, 'cours'),
+      c('PCR-2026-0140', 'polo', 'Mehdi', 'Démo', -1, 18, 0, 18, 'j', 18760, null, 120, 'cours'),
+      c('PCR-2026-0139', 'golfn', 'Kevin', 'Démo', -6, 14, -5, 14, 'j', 41005, 41212, 124, 'fini'),
+      c('PCR-2026-0138', 'rs6', 'Adam', 'Démo', -9, 18, -6, 10, 'we', 20980, 21450, 1500, 'fini'),
+      c('PCR-2026-0137', 'clio', 'Inès', 'Démo', -12, 11, -5, 11, 'se', 9840, 11120, 450, 'fini'),
+      c('PCR-2026-0136', 'polo', 'Lucas', 'Démo', -15, 9, -14, 9, 'j', 18410, 18590, 120, 'fini'),
+      c('PCR-2026-0135', 'golfg', 'Nora', 'Démo', -20, 17, -17, 10, 'we', 32420, 33120, 450, 'fini')
+    ]
+  };
+}
+let D;
+try { D = JSON.parse(localStorage.getItem(CLE)) || demo(); } catch (e) { D = demo(); }
+const sauver = () => { try { localStorage.setItem(CLE, JSON.stringify(D)); } catch (e) {} };
+
+// ───────────────────────── Outils ─────────────────────────
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const eur = x => Number(x).toLocaleString('fr-FR') + '€';
+const fDate = t => new Date(t).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+const fHeure = t => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+const fDH = t => fDate(t) + ' · ' + fHeure(t);
+const NOM_F = { j: '24 h', we: 'Week-end', se: 'Semaine' };
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2400); }
+function statutContrat(c) {
+  if (c.statut === 'fini') return ['Fini', 'p-fini'];
+  const n = Date.now();
+  if (n > c.fin) return ['Retard', 'p-retard'];
+  if (new Date(c.fin).toDateString() === new Date().toDateString()) return ['Retour', 'p-auj'];
+  return ['En cours', 'p-cours'];
+
+}
+const ICON = {
+  retour: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  loupe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  flash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+  photo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
+  copie: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15l3 3 3-3"/></svg>',
+  cle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/></svg>'
+};
+
+// ───────────────────────── Navigation ─────────────────────────
+let pile = [];
+function aller(ecran, arg, sansPile) {
+  if (!sansPile && app.dataset.ecran) pile.push([app.dataset.ecran, app._arg]);
+  app.dataset.ecran = ecran; app._arg = arg;
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.go === ecran));
+  const racine = ['accueil', 'contrats', 'nouveau', 'flash', 'flotte'].includes(ecran);
+  $('#haut-g').innerHTML = racine ? '<img src="../icons/logo-pcr.png" alt="PCR"><span class="pro tech">Pro</span>'
+    : `<button class="retour" onclick="retour()" aria-label="Retour">${ICON.retour}</button><img src="../icons/logo-pcr.png" alt="PCR">`;
+  if (racine) pile = [];
+  ECRANS[ecran](arg);
+  window.scrollTo(0, 0);
+}
+function retour() { const p = pile.pop(); if (p) aller(p[0], p[1], true); else aller('accueil', null, true); }
+document.querySelectorAll('#nav button').forEach(b => b.onclick = () => aller(b.dataset.go));
+
+function ligneContrat(c) {
+  const v = V(c.veh), s = statutContrat(c);
+  return `<button class="ligne" onclick="aller('fiche','${c.num}')"><img src="${v.img}" alt="">
+    <div class="c"><div class="num tech">${c.num} · ${v.plaque}</div><div class="n">${esc(c.client.prenom)} ${esc(c.client.nom)} · ${v.court}</div>
+    <div class="d">${fDH(c.debut)} → ${fDH(c.fin)}</div></div><span class="pastille tech ${s[1]}">${s[0]}</span></button>`;
+}
+
+// ───────────────────────── Écrans ─────────────────────────
+const ECRANS = {};
+
+ECRANS.accueil = () => {
+  const cours = D.contrats.filter(c => c.statut === 'cours');
+  const loues = VEHICULES.filter(v => D.etat[v.id] === 'loue').length;
+  const mois = new Date().getMonth();
+  const duMois = D.contrats.filter(c => new Date(c.debut).getMonth() === mois);
+  const ca = duMois.reduce((t, c) => t + c.prix, 0);
+  const retours = cours.filter(c => new Date(c.fin).toDateString() === new Date().toDateString() || Date.now() > c.fin);
+  const h = new Date().getHours();
+  app.innerHTML = `<div class="ecran">
+    <h1 class="titre">${h < 18 ? 'Bonjour' : 'Bonsoir'},<br><span class="r">patron</span></h1>
+    <div class="sous">${fDate(Date.now())} · ${cours.length} location${cours.length > 1 ? 's' : ''} en cours</div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">${loues}<small> / ${VEHICULES.length}</small></div><div class="k">Voitures louées</div></div>
+      <div class="kpi"><div class="v">${retours.length}</div><div class="k">Retours à gérer</div></div>
+      <div class="kpi"><div class="v">${eur(ca)}</div><div class="k">CA du mois</div></div>
+      <div class="kpi"><div class="v">${duMois.length}</div><div class="k">Contrats du mois</div></div>
+    </div>
+    <button class="flash" onclick="aller('flash')"><div class="ic">${ICON.flash}</div><div><b>Flashé ?</b><span>Retrouve le conducteur en 5 secondes avec la plaque, la date et l'heure.</span></div></button>
+    <div class="bloc-t tech">Retours à gérer</div>
+    <div class="liste">${retours.length ? retours.map(ligneContrat).join('') : '<div class="vide">Aucun retour prévu aujourd\'hui.</div>'}</div>
+    <div class="bloc-t tech">Locations en cours</div>
+    <div class="liste">${cours.length ? cours.map(ligneContrat).join('') : '<div class="vide">Aucune location en cours.</div>'}</div>
+    <div class="actions"><button class="btn btn-rouge" onclick="aller('nouveau')">${ICON.cle} Nouveau contrat</button></div>
+  </div>`;
+};
+
+ECRANS.contrats = (filtre) => {
+  filtre = filtre || 'tous';
+  app.innerHTML = `<div class="ecran">
+    <h1 class="titre">Registre des<br><span class="r">contrats</span></h1>
+    <div class="sous">${D.contrats.length} contrats archivés · recherche par nom, plaque ou n°</div>
+    <div class="champ recherche">${ICON.loupe}<input id="q" type="search" placeholder="Nom, plaque, n° de contrat…"></div>
+    <div class="puces">${[['tous', 'Tous'], ['cours', 'En cours'], ['fini', 'Terminés']].concat(VEHICULES.map(v => [v.id, v.court])).map(p => `<button class="puce${p[0] === filtre ? ' on' : ''}" data-f="${p[0]}">${p[1]}</button>`).join('')}</div>
+    <div class="liste" id="liste"></div></div>`;
+  const rendre = () => {
+    const q = $('#q').value.trim().toLowerCase();
+    const l = D.contrats.slice().sort((a, b) => b.debut - a.debut).filter(c => {
+      if (filtre === 'cours' && c.statut !== 'cours') return false;
+      if (filtre === 'fini' && c.statut !== 'fini') return false;
+      if (V(filtre) && c.veh !== filtre) return false;
+      if (!q) return true;
+      const v = V(c.veh);
+      return [c.num, v.plaque, v.nom, c.client.prenom, c.client.nom].join(' ').toLowerCase().includes(q);
+    });
+    $('#liste').innerHTML = l.length ? l.map(ligneContrat).join('') : '<div class="vide">Aucun contrat trouvé.</div>';
+  };
+  $('#q').oninput = rendre;
+  document.querySelectorAll('.puce').forEach(b => b.onclick = () => { filtre = b.dataset.f; app._arg = filtre; document.querySelectorAll('.puce').forEach(x => x.classList.toggle('on', x === b)); rendre(); });
+  rendre();
+};
+
+ECRANS.flash = () => {
+  const n = new Date(Date.now() - 3 * JOUR);
+  const d = n.toISOString().slice(0, 10);
+  app.innerHTML = `<div class="ecran">
+    <h1 class="titre">Qui<br><span class="r">conduisait ?</span></h1>
+    <div class="sous">Tu reçois un avis de contravention : entre la voiture, la date et l'heure du flash.</div>
+    <div class="champ"><label class="tech">Véhicule</label><select id="fv">${VEHICULES.map(v => `<option value="${v.id}">${v.nom} · ${v.plaque}</option>`).join('')}</select></div>
+    <div class="deux"><div class="champ"><label class="tech">Date du flash</label><input id="fd" type="date" value="${d}"></div>
+    <div class="champ"><label class="tech">Heure</label><input id="fh" type="time" value="14:30"></div></div>
+    <div class="actions"><button class="btn btn-rouge" id="go">${ICON.loupe} Trouver le conducteur</button></div>
+    <div id="res"></div></div>`;
+  $('#fv').value = 'golfg';
+  $('#go').onclick = () => {
+    const v = $('#fv').value, t = new Date($('#fd').value + 'T' + ($('#fh').value || '12:00')).getTime();
+    const c = D.contrats.find(x => x.veh === v && t >= x.debut && t <= x.fin);
+    const veh = V(v);
+    if (!c) { $('#res').innerHTML = `<div class="introuvable">Aucun contrat pour la <b>${veh.nom}</b> le ${fDH(t)}.<br>La voiture était à l'agence à ce moment-là.</div>`; return; }
+    const lim = new Date(t + 45 * JOUR);
+    $('#res').innerHTML = `<div class="res"><div class="res-h">${ICON.ok}<b>Conducteur trouvé</b></div><div class="res-b">
+      <div class="info"><span>Contrat</span><span>${c.num}</span></div>
+      <div class="info"><span>Conducteur</span><span>${esc(c.client.prenom)} ${esc(c.client.nom)}</span></div>
+      <div class="info"><span>Né(e) le</span><span>${new Date(c.client.naissance).toLocaleDateString('fr-FR')}</span></div>
+      <div class="info"><span>Adresse</span><span>${esc(c.client.adresse)}</span></div>
+      <div class="info"><span>N° de permis</span><span>${esc(c.client.permis)}</span></div>
+      <div class="info"><span>Location</span><span>${fDH(c.debut)}<br>→ ${fDH(c.fin)}</span></div>
+      <div class="delai">⏱ Désigne le conducteur sur <b>antai.gouv.fr</b> avant le <b>${lim.toLocaleDateString('fr-FR')}</b> (45 jours). Sinon, c'est à toi de payer, plus une amende pour non-désignation.</div>
+      <div class="actions deuxb"><button class="btn btn-gris" onclick="aller('fiche','${c.num}')">Contrat</button><button class="btn btn-rouge" onclick="copierANTAI('${c.num}')">${ICON.copie} Copier pour l'ANTAI</button></div>
+    </div></div>`;
+  };
+};
+
+function copierANTAI(num) {
+  const c = D.contrats.find(x => x.num === num), v = V(c.veh);
+  const txt = `Désignation du conducteur\nVéhicule : ${v.nom} (${v.plaque})\nContrat : ${c.num}\nConducteur : ${c.client.prenom} ${c.client.nom}\nDate de naissance : ${new Date(c.client.naissance).toLocaleDateString('fr-FR')}\nAdresse : ${c.client.adresse}\nPermis n° : ${c.client.permis} (délivré le ${new Date(c.client.permisDate).toLocaleDateString('fr-FR')})\nLocation : du ${fDH(c.debut)} au ${fDH(c.fin)}`;
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copié ✓ colle-le sur antai.gouv.fr'), () => toast('Copie impossible sur cet appareil'));
+}
+
+ECRANS.fiche = (num) => {
+  const c = D.contrats.find(x => x.num === num), v = V(c.veh), s = statutContrat(c);
+  const kmFaits = c.kmRetour ? c.kmRetour - c.kmDepart : null;
+  app.innerHTML = `<div class="ecran">
+    <div class="fiche-img"><img src="${v.img}" alt=""><div class="t"><div class="tech" style="font-size:9px;color:#ddd">${c.num} · ${v.plaque}</div><b>${v.nom}</b></div></div>
+    <div style="margin-top:10px"><span class="pastille tech ${s[1]}">${s[0]}</span></div>
+    <div class="bloc-t tech">Conducteur</div>
+    <div class="info"><span>Nom</span><span>${esc(c.client.prenom)} ${esc(c.client.nom)}</span></div>
+    <div class="info"><span>Téléphone</span><span>${esc(c.client.tel)}</span></div>
+    <div class="info"><span>Adresse</span><span>${esc(c.client.adresse)}</span></div>
+    <div class="info"><span>Permis</span><span>${esc(c.client.permis)}</span></div>
+    <div class="bloc-t tech">Location</div>
+    <div class="info"><span>Départ</span><span>${fDH(c.debut)}</span></div>
+    <div class="info"><span>Retour prévu</span><span>${fDH(c.fin)}</span></div>
+    <div class="info"><span>Formule</span><span>${NOM_F[c.formule]} · ${eur(c.prix)}</span></div>
+    <div class="info"><span>Caution</span><span>${eur(c.caution)}</span></div>
+    <div class="info"><span>Km départ</span><span>${c.kmDepart.toLocaleString('fr-FR')} km</span></div>
+    ${kmFaits != null ? `<div class="info"><span>Km retour</span><span>${c.kmRetour.toLocaleString('fr-FR')} km (${kmFaits} km)</span></div>` : ''}
+    <div class="bloc-t tech">État des lieux · départ</div>
+    <div class="edl">${['Avant', 'Arrière', 'Gauche', 'Droite'].map((a, i) => `<div>${c.photos[i] ? `<img src="${c.photos[i]}">` : a}</div>`).join('')}</div>
+    <div class="bloc-t tech">Signature du client</div>
+    <div class="sig-img">${c.signature ? `<img src="${c.signature}" alt="Signature">` : '<span class="tech" style="font-size:9px;color:#888">Signé sur papier (contrat de démo)</span>'}</div>
+    <div class="actions">
+      ${c.statut === 'cours' ? `<button class="btn btn-rouge" onclick="aller('retourVeh','${c.num}')">${ICON.cle} Faire le retour du véhicule</button>` : ''}
+      <button class="btn btn-cadre" onclick="imprimer('${c.num}')">${ICON.pdf} Contrat en PDF</button>
+    </div></div>`;
+};
+
+ECRANS.retourVeh = (num) => {
+  const c = D.contrats.find(x => x.num === num), v = V(c.veh);
+  app.innerHTML = `<div class="ecran"><h1 class="titre">Retour du<br><span class="r">véhicule</span></h1>
+    <div class="sous">${v.nom} · ${esc(c.client.prenom)} ${esc(c.client.nom)}</div>
+    <div class="champ"><label class="tech">Kilométrage au retour</label><input id="kr" type="number" inputmode="numeric" value="${c.kmDepart + 180}"></div>
+    <div class="recap" id="rk"></div>
+    <div class="champ"><label class="tech">Remarques (rayures, propreté…)</label><textarea id="rm" placeholder="RAS"></textarea></div>
+    <div class="actions"><button class="btn btn-rouge" id="ok">${ICON.ok} Clôturer le contrat</button></div></div>`;
+  const inclus = { j: 200, we: 600, se: 1400 }[c.formule];
+  const maj = () => {
+    const kr = +$('#kr').value || c.kmDepart, fait = Math.max(0, kr - c.kmDepart), sup = Math.max(0, fait - inclus);
+    $('#rk').innerHTML = `<div><span>Km parcourus</span><b>${fait} km</b></div><div><span>Inclus (${NOM_F[c.formule]})</span><b>${inclus} km</b></div><div><span>Km en plus</span><b>${sup} km × ${String(v.km).replace('.', ',')}€</b></div><div class="tot"><span>À facturer en plus</span><b>${eur(Math.round(sup * v.km))}</b></div>`;
+  };
+  $('#kr').oninput = maj; maj();
+  $('#ok').onclick = () => { c.kmRetour = +$('#kr').value; c.statut = 'fini'; c.fin = Math.min(c.fin, Date.now()); D.etat[c.veh] = 'dispo'; sauver(); toast('Contrat clôturé ✓ voiture de nouveau dispo'); aller('fiche', c.num, true); };
+};
+
+ECRANS.flotte = () => {
+  app.innerHTML = `<div class="ecran"><h1 class="titre">Ma<br><span class="r">flotte</span></h1>
+    <div class="sous">L'état change aussi sur la vitrine client (dispo / pas dispo).</div>
+    <div class="liste" style="margin-top:16px">${VEHICULES.map(v => {
+      const e = D.etat[v.id], c = D.contrats.find(x => x.veh === v.id && x.statut === 'cours');
+      return `<div class="fl"><img src="${v.img}" alt=""><div class="c"><b>${v.nom}</b><span class="pl">${v.plaque}</span>
+        <div class="d">${c ? `Louée à ${esc(c.client.prenom)} · retour ${fDH(c.fin)}` : e === 'entretien' ? 'À l\'entretien' : 'Disponible à l\'agence'}</div>
+        <div class="etat-sel" data-v="${v.id}"><button class="d${e === 'dispo' ? ' on' : ''}" data-e="dispo">Dispo</button><button class="l${e === 'loue' ? ' on' : ''}" data-e="loue">Louée</button><button class="e${e === 'entretien' ? ' on' : ''}" data-e="entretien">Entretien</button></div></div></div>`;
+    }).join('')}</div>
+    <div class="actions"><button class="btn btn-gris" onclick="if(confirm('Remettre les données de démo ?')){localStorage.removeItem(CLE);location.reload()}">Remettre la démo à zéro</button></div></div>`;
+  document.querySelectorAll('.etat-sel button').forEach(b => b.onclick = () => { D.etat[b.parentNode.dataset.v] = b.dataset.e; sauver(); ECRANS.flotte(); toast('État mis à jour'); });
+};
+
+// ── Nouveau contrat : 4 étapes ──
+let N;
+ECRANS.nouveau = () => { N = { etape: 1, veh: null, client: {}, photos: [], docs: [], carbu: 4, formule: 'j', debut: null, signature: '' }; etape(); };
+function etape() {
+  const t = ['Véhicule', 'Client', 'État des lieux', 'Tarif & signature'];
+  const tete = `<h1 class="titre">Nouveau<br><span class="r">contrat</span></h1>
+    <div class="pas">${t.map((_, i) => `<i class="${i < N.etape ? 'on' : ''}"></i>`).join('')}</div><div class="pas-t tech">Étape ${N.etape} / 4 · ${t[N.etape - 1]}</div>`;
+  if (N.etape === 1) {
+    app.innerHTML = `<div class="ecran">${tete}<div class="vehs">${VEHICULES.map(v => `<button class="veh${N.veh === v.id ? ' on' : ''}${D.etat[v.id] !== 'dispo' ? ' pris' : ''}" data-v="${v.id}"><img src="${v.img}" alt=""><div class="t"><b>${v.court}</b><span class="tech">${v.plaque}</span></div></button>`).join('')}</div>
+      <div class="actions"><button class="btn btn-rouge" id="suiv" ${N.veh ? '' : 'disabled'}>Continuer</button></div></div>`;
+    document.querySelectorAll('.veh').forEach(b => b.onclick = () => { if (b.classList.contains('pris')) return toast('Cette voiture est déjà louée'); N.veh = b.dataset.v; etape(); });
+  }
+  if (N.etape === 2) {
+    const k = N.client;
+    app.innerHTML = `<div class="ecran">${tete}
+      <div class="deux"><div class="champ"><label class="tech">Prénom</label><input id="c-prenom" value="${esc(k.prenom)}" autocomplete="off"></div><div class="champ"><label class="tech">Nom</label><input id="c-nom" value="${esc(k.nom)}" autocomplete="off"></div></div>
+      <div class="deux"><div class="champ"><label class="tech">Né(e) le</label><input id="c-naissance" type="date" value="${esc(k.naissance)}"></div><div class="champ"><label class="tech">Téléphone</label><input id="c-tel" type="tel" value="${esc(k.tel)}"></div></div>
+      <div class="champ"><label class="tech">Adresse</label><input id="c-adresse" value="${esc(k.adresse)}"></div>
+      <div class="deux"><div class="champ"><label class="tech">N° de permis</label><input id="c-permis" value="${esc(k.permis)}"></div><div class="champ"><label class="tech">Permis délivré le</label><input id="c-permisDate" type="date" value="${esc(k.permisDate)}"></div></div>
+      <div class="bloc-t tech">Documents</div>
+      <div class="photos docs2">${['Permis (recto)', 'Pièce d\'identité', 'Justificatif domicile', 'Permis (verso)'].map((a, i) => photoCase('d' + i, a, N.docs[i])).join('')}</div>
+      <div class="actions deuxb"><button class="btn btn-gris" id="prec">Retour</button><button class="btn btn-rouge" id="suiv">Continuer</button></div></div>`;
+    brancherPhotos(N.docs, 'd');
+  }
+  if (N.etape === 3) {
+    app.innerHTML = `<div class="ecran">${tete}
+      <div class="champ"><label class="tech">Kilométrage au départ</label><input id="km" type="number" inputmode="numeric" value="${N.km || ''}" placeholder="Ex. 21450"></div>
+      <div class="champ"><label class="tech">Carburant</label><div class="carbu">${['¼', '½', '¾', 'Plein'].map((a, i) => `<button class="${N.carbu === i + 1 ? 'on' : ''}" data-c="${i + 1}">${a}</button>`).join('')}</div></div>
+      <div class="bloc-t tech">Photos de la voiture</div>
+      <div class="photos">${['Avant', 'Arrière', 'Côté gauche', 'Côté droit', 'Intérieur', 'Compteur'].map((a, i) => photoCase('p' + i, a, N.photos[i])).join('')}</div>
+      <div class="champ"><label class="tech">Dégâts déjà présents</label><textarea id="deg" placeholder="Ex. petite rayure pare-choc arrière droit">${esc(N.degats || '')}</textarea></div>
+      <div class="actions deuxb"><button class="btn btn-gris" id="prec">Retour</button><button class="btn btn-rouge" id="suiv">Continuer</button></div></div>`;
+    brancherPhotos(N.photos, 'p');
+    document.querySelectorAll('.carbu button').forEach(b => b.onclick = () => { N.km = $('#km').value; N.degats = $('#deg').value; N.carbu = +b.dataset.c; etape(); });
+  }
+  if (N.etape === 4) {
+    const v = V(N.veh), dur = { j: 1, we: 3, se: 7 }[N.formule];
+    const debut = Date.now(), fin = debut + dur * JOUR;
+    app.innerHTML = `<div class="ecran">${tete}
+      <div class="formules">${[['j', '24 h', '200 km'], ['we', 'Week-end', '600 km'], ['se', 'Semaine', '1 400 km']].map(f => `<button class="formule${N.formule === f[0] ? ' on' : ''}" data-f="${f[0]}"><div class="f">${f[1]}</div><div class="p">${eur(v.t[f[0]])}</div><div class="k">${f[2]}</div></button>`).join('')}</div>
+      <div class="recap"><div><span>Véhicule</span><b>${v.nom}</b></div><div><span>Départ</span><b>${fDH(debut)}</b></div><div><span>Retour prévu</span><b>${fDH(fin)}</b></div><div><span>Caution</span><b>${eur(v.caution)}</b></div><div class="tot"><span>Total location</span><b>${eur(v.t[N.formule])}</b></div></div>
+      <div class="bloc-t tech">Signature du client</div>
+      <div class="sign"><canvas id="sig"></canvas><div class="l"></div><div class="x">✕</div><button class="eff" id="eff">Effacer</button></div>
+      <label class="case"><input type="checkbox" id="cgl"> Le client a lu et accepte les conditions de location, l'état des lieux et le montant de la caution.</label>
+      <div class="actions deuxb"><button class="btn btn-gris" id="prec">Retour</button><button class="btn btn-rouge" id="fin" disabled>${ICON.ok} Valider</button></div></div>`;
+    document.querySelectorAll('.formule').forEach(b => b.onclick = () => { N.formule = b.dataset.f; etape(); });
+    const cv = $('#sig'), ctx = cv.getContext('2d'); let signe = false, dessin = false;
+    const taille = () => { const r = cv.getBoundingClientRect(), k = devicePixelRatio || 1; cv.width = r.width * k; cv.height = r.height * k; ctx.scale(k, k); ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111'; };
+    taille();
+    const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    cv.onpointerdown = e => { dessin = true; cv.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.moveTo(...pos(e)); };
+    cv.onpointermove = e => { if (!dessin) return; ctx.lineTo(...pos(e)); ctx.stroke(); signe = true; verif(); };
+    cv.onpointerup = cv.onpointercancel = () => dessin = false;
+    $('#eff').onclick = () => { ctx.clearRect(0, 0, cv.width, cv.height); signe = false; verif(); };
+    const verif = () => { $('#fin').disabled = !(signe && $('#cgl').checked); };
+    $('#cgl').onchange = verif;
+    $('#fin').onclick = () => {
+      const num = 'PCR-2026-' + String(143 + D.contrats.filter(c => c.num >= 'PCR-2026-0143').length).padStart(4, '0');
+      D.contrats.unshift({ num, veh: N.veh, client: Object.assign({ prenom: '', nom: '', naissance: '', tel: '', adresse: '', permis: '', permisDate: '' }, N.client),
+        debut, fin, formule: N.formule, kmDepart: +N.km || 0, kmRetour: null, carbuDepart: N.carbu, prix: v.t[N.formule], caution: v.caution, statut: 'cours',
+        signature: cv.toDataURL('image/png'), photos: N.photos.slice(0, 4), degats: N.degats || '' });
+      D.etat[N.veh] = 'loue'; sauver();
+      toast('Contrat ' + num + ' créé ✓'); aller('fiche', num, true);
+    };
+  }
+  const prec = $('#prec'), suiv = $('#suiv');
+  if (prec) prec.onclick = () => { garder(); N.etape--; etape(); };
+  if (suiv) suiv.onclick = () => {
+    garder();
+    if (N.etape === 2 && !(N.client.prenom && N.client.nom)) return toast('Prénom et nom du client obligatoires');
+    if (N.etape === 3 && !N.km) return toast('Indique le kilométrage de départ');
+    N.etape++; etape();
+  };
+  window.scrollTo(0, 0);
+}
+function garder() {
+  if (N.etape === 2) ['prenom', 'nom', 'naissance', 'tel', 'adresse', 'permis', 'permisDate'].forEach(k => N.client[k] = $('#c-' + k).value.trim());
+  if (N.etape === 3) { N.km = $('#km').value; N.degats = $('#deg').value; }
+}
+function photoCase(id, label, src) {
+  return `<label class="ph${src ? ' ok' : ''}">${src ? `<img src="${src}">` : ICON.photo + label}<input type="file" accept="image/*" capture="environment" data-id="${id}"></label>`;
+}
+function brancherPhotos(tab, p) {
+  document.querySelectorAll('.ph input').forEach(inp => inp.onchange = () => {
+    const f = inp.files[0]; if (!f) return;
+    const i = +inp.dataset.id.slice(1), img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => { // réduit la photo (le téléphone garde tout en mémoire locale)
+      const c = document.createElement('canvas'), k = Math.min(1, 640 / Math.max(img.width, img.height));
+      c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      tab[i] = c.toDataURL('image/jpeg', .7); URL.revokeObjectURL(url); garder(); etape();
+    };
+    img.src = url;
+  });
+}
+
+// ── PDF (impression du navigateur → « Enregistrer en PDF ») ──
+function imprimer(num) {
+  const c = D.contrats.find(x => x.num === num), v = V(c.veh);
+  $('#doc').innerHTML = `<h2>PERFORM CAR RENT · Contrat de location</h2><div>${c.num} · Mantes-la-Ville · 07 64 20 36 14</div>
+    <table><tr><td><b>Véhicule</b><br>${v.nom}<br>Immatriculation : ${v.plaque}</td><td><b>Conducteur</b><br>${esc(c.client.prenom)} ${esc(c.client.nom)}<br>${esc(c.client.adresse)}<br>Permis n° ${esc(c.client.permis)}</td></tr>
+    <tr><td><b>Départ</b><br>${fDH(c.debut)}<br>Km : ${c.kmDepart}</td><td><b>Retour prévu</b><br>${fDH(c.fin)}${c.kmRetour ? '<br>Km retour : ' + c.kmRetour : ''}</td></tr>
+    <tr><td><b>Formule</b><br>${NOM_F[c.formule]} · ${eur(c.prix)}<br>Km sup. : ${String(v.km).replace('.', ',')} €/km</td><td><b>Caution</b><br>${eur(c.caution)}</td></tr>
+    <tr><td colspan="2"><b>État des lieux / remarques</b><br>${esc(c.degats || 'RAS')}</td></tr>
+    <tr><td colspan="2" class="sig"><b>Signature du client</b><br>${c.signature ? `<img src="${c.signature}" style="height:26mm">` : ''}</td></tr></table>
+    <div style="font-size:8pt;color:#555">Document généré par PCR Pro (maquette de démonstration).</div>`;
+  window.print();
+}
+
+aller('accueil', null, true);
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
