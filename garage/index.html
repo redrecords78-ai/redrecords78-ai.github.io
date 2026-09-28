@@ -190,9 +190,11 @@ nav{
 .hspot-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,.2),rgba(8,8,8,.55))}
 .hspot{
   position:absolute;transform:translate(-50%,-50%);z-index:3;
+  width:18px;height:18px;padding:0;
   background:none;border:none;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:4px;
 }
+.hspot::before{content:'';position:absolute;inset:-12px}   /* zone de toucher plus large que le point */
+.hspot.sel{z-index:4}
 .hspot-dot{
   width:18px;height:18px;border-radius:50%;display:block;
   background:rgba(201,168,76,.9);border:2.5px solid rgba(255,255,255,.85);
@@ -208,12 +210,17 @@ nav{
 @keyframes ledCycle{0%{filter:hue-rotate(0deg) brightness(1.15)}100%{filter:hue-rotate(360deg) brightness(1.15)}}
 .hspot-img.led-active{animation:ledCycle 2.5s linear infinite}
 .hspot-tip{
+  position:absolute;left:50%;top:calc(100% + 4px);transform:translateX(-50%);pointer-events:none;
   font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
   background:rgba(8,8,8,.82);color:var(--gold);
   padding:2px 7px;border-radius:50px;white-space:nowrap;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   border:1px solid rgba(201,168,76,.25);
 }
+
+.hspot.tip-t .hspot-tip{top:auto;bottom:calc(100% + 4px)}
+.hspot.tip-r .hspot-tip{left:calc(100% + 5px);top:50%;transform:translateY(-50%)}
+.hspot.tip-l .hspot-tip{left:auto;right:calc(100% + 5px);top:50%;transform:translateY(-50%)}
 
 /* ── SERVICE CARDS ── */
 .svc-list{
@@ -456,11 +463,11 @@ var ICONS={
 var CATS={
   moto:{label:"Moto",emoji:"🏍️",
     spots:[
-      {id:"nett-moto", x:38, y:55, tip:"Nettoyage"},
-      {id:"detail-m",  x:54, y:40, tip:"Detailing"},
-      {id:"logo-led",  x:64, y:52, tip:"Logo LED"},
-      {id:"selle",     x:40, y:30, tip:"Selle"},
-      {id:"sabot",     x:48, y:68, tip:"Sabot"}
+      {id:"nett-moto", x:57, y:30, tip:"Nettoyage"},
+      {id:"detail-m",  x:49, y:64, tip:"Detailing"},
+      {id:"logo-led",  x:54, y:51, tip:"Logo LED"},
+      {id:"selle",     x:38, y:45, tip:"Selle"},
+      {id:"sabot",     x:45, y:80, tip:"Sabot"}
     ],
     items:[
     {id:"nett-moto", n:"Nettoyage moto",     d:"Forfait express — nettoyage complet",   p:"dès 50 €"},
@@ -474,11 +481,11 @@ var CATS={
   ]},
   auto:{label:"Auto",emoji:"🚗",
     spots:[
-      {id:"nett-exp",  x:46, y:66, tip:"Nettoyage"},
-      {id:"polissage", x:63, y:50, tip:"Polissage"},
-      {id:"ceramique", x:53, y:42, tip:"Céramique"},
-      {id:"cuir",      x:71, y:33, tip:"Cuir intérieur"},
-      {id:"pluie",     x:74, y:24, tip:"Pare-brise"}
+      {id:"nett-exp",  x:36, y:66, tip:"Nettoyage"},
+      {id:"polissage", x:62, y:66, tip:"Polissage"},
+      {id:"ceramique", x:67, y:48, tip:"Céramique"},
+      {id:"cuir",      x:40, y:37, tip:"Cuir intérieur"},
+      {id:"pluie",     x:52, y:34, tip:"Pare-brise"}
     ],
     items:[
     {id:"nett-exp",  n:"Nettoyage Express",  d:"Lavage & aspiration complète",          p:"100 €",    badge:"populaire"},
@@ -599,6 +606,7 @@ function renderSvcs(){
   document.getElementById("bkHome").onclick=function(){st.cat=null;st.svc=null;go(renderHome);};
   cta("Touchez un repère ou choisissez",false);rv();
   if(PLACER) activerPlacement();
+  requestAnimationFrame(placerEtiquettes);setTimeout(placerEtiquettes,600);   // après l'animation d'apparition
 }
 
 /* ── FORMULAIRE ── */
@@ -747,6 +755,27 @@ document.addEventListener("click",function(e){
   window.open(a.href,"_blank","noopener,noreferrer");
 });
 
+/* ── NOMS DES REPÈRES : dessous, sinon droite, gauche, dessus — le premier côté libre ── */
+function placerEtiquettes(){
+  var wrap=document.getElementById("hspotWrap");if(!wrap)return;
+  var W=wrap.getBoundingClientRect(), btns=[].slice.call(wrap.querySelectorAll(".hspot"));
+  var pris=btns.map(function(b){var r=b.getBoundingClientRect();return {l:r.left-3,t:r.top-3,r:r.right+3,b:r.bottom+3,moi:b};});
+  function croise(a,c){return a.l<c.r&&a.r>c.l&&a.t<c.b&&a.b>c.t;}
+  btns.sort(function(a,b){return parseFloat(a.style.top)-parseFloat(b.style.top);});
+  btns.forEach(function(b){
+    var tip=b.querySelector(".hspot-tip"), cotes=["","tip-r","tip-l","tip-t"], choisi="";
+    for(var i=0;i<cotes.length;i++){
+      b.classList.remove("tip-r","tip-l","tip-t");if(cotes[i])b.classList.add(cotes[i]);
+      var r=tip.getBoundingClientRect(), z={l:r.left-2,t:r.top-2,r:r.right+2,b:r.bottom+2};
+      var dedans=z.l>=W.left&&z.r<=W.right&&z.t>=W.top&&z.b<=W.bottom;
+      var libre=pris.every(function(o){return o.moi===b||!croise(z,o);});
+      if(dedans&&libre){choisi=cotes[i];pris.push({l:z.l,t:z.t,r:z.r,b:z.b,moi:null});break;}
+    }
+    b.classList.remove("tip-r","tip-l","tip-t");if(choisi)b.classList.add(choisi);
+    if(!choisi){var r2=tip.getBoundingClientRect();pris.push({l:r2.left,t:r2.top,r:r2.right,b:r2.bottom,moi:null});}
+  });
+}
+
 /* ── MODE PLACEMENT DES REPÈRES (?placer=1, réservé à Ridwane) ──
    On déplace chaque point au doigt, puis « Copier » donne le texte à envoyer à Claude. */
 var PLACER=/[?&]placer=1/.test(location.search);
@@ -768,7 +797,7 @@ function activerPlacement(){
         sp.y=Math.round(Math.max(4,Math.min(96,(ev.clientY-r.top)/r.height*100)));
         btn.style.left=sp.x+"%";btn.style.top=sp.y+"%";maj();
       }
-      function fin(){btn.removeEventListener("pointermove",bouge);btn.removeEventListener("pointerup",fin);btn.removeEventListener("pointercancel",fin);btn.classList.remove("sel");}
+      function fin(){placerEtiquettes();btn.removeEventListener("pointermove",bouge);btn.removeEventListener("pointerup",fin);btn.removeEventListener("pointercancel",fin);btn.classList.remove("sel");}
       btn.addEventListener("pointermove",bouge);btn.addEventListener("pointerup",fin);btn.addEventListener("pointercancel",fin);
     });
   });
