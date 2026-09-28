@@ -208,7 +208,11 @@ nav{
 }
 .hspot.sel .hspot-dot{transform:scale(1.4);background:var(--gold2);animation:none;box-shadow:0 0 22px rgba(201,168,76,1)}
 @keyframes ledCycle{0%{filter:hue-rotate(0deg) brightness(1.15)}100%{filter:hue-rotate(360deg) brightness(1.15)}}
-.hspot-img.led-active{animation:ledCycle 2.5s linear infinite}
+/* Effet « Logo LED » : seuls les feux et le logo changent de couleur (pas tout le garage) */
+.led-calque{position:absolute;inset:-6%;background-size:cover;pointer-events:none;opacity:0;transition:opacity .3s;
+  -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1660 948'><defs><radialGradient id='g'><stop offset='0' stop-color='white'/><stop offset='.55' stop-color='white'/><stop offset='1' stop-color='white' stop-opacity='0'/></radialGradient></defs><g fill='url(%23g)'><ellipse cx='1002' cy='392' rx='88' ry='52'/><ellipse cx='868' cy='515' rx='50' ry='50'/><ellipse cx='1030' cy='545' rx='44' ry='44'/><ellipse cx='755' cy='575' rx='32' ry='30'/><ellipse cx='738' cy='408' rx='22' ry='22'/></g></svg>");mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1660 948'><defs><radialGradient id='g'><stop offset='0' stop-color='white'/><stop offset='.55' stop-color='white'/><stop offset='1' stop-color='white' stop-opacity='0'/></radialGradient></defs><g fill='url(%23g)'><ellipse cx='1002' cy='392' rx='88' ry='52'/><ellipse cx='868' cy='515' rx='50' ry='50'/><ellipse cx='1030' cy='545' rx='44' ry='44'/><ellipse cx='755' cy='575' rx='32' ry='30'/><ellipse cx='738' cy='408' rx='22' ry='22'/></g></svg>");
+  -webkit-mask-size:cover;mask-size:cover;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.led-calque.on{opacity:1;animation:ledCycle 2.5s linear infinite}
 .hspot-tip{
   position:absolute;left:50%;top:calc(100% + 4px);transform:translateX(-50%);pointer-events:none;
   font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
@@ -551,6 +555,7 @@ function renderSvcs(){
   // Image + hotspots
   h+='<div class="hspot-wrap rv d2" id="hspotWrap">';
   h+='<div class="hspot-img" style="background-image:url(images/'+img+'.jpg);background-position:center '+(img==="moto"?"35%":"42%")+'" ></div>';
+  if(img==="moto") h+='<div class="led-calque" id="ledCalque" style="background-image:url(images/moto.jpg);background-position:center 35%;-webkit-mask-position:center 35%;mask-position:center 35%"></div>';
   h+='<div class="hspot-overlay"></div>';
   cat.spots.forEach(function(sp){
     h+='<button class="hspot" data-id="'+sp.id+'" style="left:'+sp.x+'%;top:'+sp.y+'%">';
@@ -578,10 +583,9 @@ function renderSvcs(){
       var id=btn.dataset.id;
       document.querySelectorAll(".hspot").forEach(function(b){b.classList.remove("sel");});
       btn.classList.add("sel");
-      // Effet LED : change la couleur des phares sur la photo
-      var img=document.querySelector(".hspot-img");
-      if(id==="logo-led"){img.classList.add("led-active");}
-      else{img.classList.remove("led-active");}
+      // Effet LED : seuls les feux et le logo changent de couleur
+      var led=document.getElementById("ledCalque");
+      if(led) led.classList.toggle("on",id==="logo-led");
       var card=document.querySelector('.svc-card[data-id="'+id+'"]');
       if(card){
         document.querySelectorAll(".svc-card").forEach(function(x){x.setAttribute("aria-pressed","false");});
