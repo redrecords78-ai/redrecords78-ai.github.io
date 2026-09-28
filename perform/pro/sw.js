@@ -1,5 +1,5 @@
 // Service worker Perform Car Rent : rend l'app installable (Android) et garde la page hors connexion.
-const CACHE = 'pcrpro-v1';
+const CACHE = 'pcrpro-v2';
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'manifest.json', 'icons/icon-192.png']))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('pcrpro-') && k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', e => {

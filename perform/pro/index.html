@@ -190,6 +190,42 @@ h1.titre{font-size:40px;margin:16px 0 4px}
 .fl .pl{display:inline-block;margin-top:5px;font-family:Michroma;font-size:9px;letter-spacing:.08em;padding:3px 7px;border-radius:5px;background:#fff;color:#111;border-left:6px solid #1747b3}
 .fl .d{font-size:11.5px;color:var(--gris);margin-top:4px}
 .etat-sel{display:flex;gap:4px;margin-top:8px}
+.fl-ouvrir{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:8px;height:34px;padding:0 12px;border-radius:9px;border:1px solid rgba(255,31,31,.45);font-size:12px;color:#fff}
+.fl-ouvrir svg{width:15px;height:15px;color:var(--rouge)}
+.alerte{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:10.5px;color:var(--orange)}
+.alerte.urg{color:var(--rouge)}
+.onglets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:16px 0 4px;background:var(--noir2);border:1px solid var(--trait);border-radius:12px;padding:4px}
+.onglet{height:36px;border-radius:9px;font-size:12px;color:var(--gris)}
+.onglet.on{background:var(--rouge2);color:#fff}
+.km-big{display:flex;align-items:baseline;gap:8px;margin-top:14px}
+.km-big b{font-weight:900;font-style:italic;font-size:44px;line-height:1}
+.km-big span{font-size:12px;color:var(--gris)}
+.jauge{height:8px;border-radius:5px;background:var(--noir3);overflow:hidden;margin-top:6px}
+.jauge i{display:block;height:100%;background:linear-gradient(90deg,var(--vert),var(--orange),var(--rouge))}
+.ech{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--noir2);border:1px solid var(--trait)}
+.ech .ic{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,31,31,.6);display:grid;place-items:center}
+.ech .ic svg{width:18px;height:18px}
+.ech .c{flex:1}
+.ech b{display:block;font-weight:600;font-size:14px}
+.ech span{font-size:12px;color:var(--gris)}
+.ech .tag{flex:none;font-size:7.5px;padding:5px 8px;border-radius:20px;border:1px solid}
+.ech.ok .tag{color:var(--vert);border-color:rgba(37,211,102,.4)}
+.ech.bientot .tag{color:var(--orange);border-color:rgba(255,176,32,.45)}
+.ech.urg{border-color:rgba(255,31,31,.55)}
+.ech.urg .tag{color:var(--rouge);border-color:rgba(255,31,31,.55)}
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--trait)}
+.tl-i{position:relative;padding:10px 12px;margin-bottom:8px;border-radius:12px;background:var(--noir2);border:1px solid var(--trait);width:100%;text-align:left;display:block}
+.tl-i::before{content:'';position:absolute;left:-20px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--noir);border:2px solid var(--rouge)}
+.tl-i.ent::before{border-color:var(--orange)}
+.tl-i.deg::before{border-color:#fff;background:var(--rouge)}
+.tl-i .h{font-size:8.5px;color:var(--gris2)}
+.tl-i b{display:block;font-weight:600;font-size:14px;margin:2px 0}
+.tl-i span{font-size:12px;color:var(--gris)}
+.galerie{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.galerie div{aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:var(--noir3);border:1px solid var(--trait);display:grid;place-items:center;font-size:8px;color:var(--gris);text-align:center;padding:4px}
+.galerie img{width:100%;height:100%;object-fit:cover}
+.galerie .leg{font-size:8px}
 .etat-sel button{flex:1;height:30px;border-radius:8px;font-size:10.5px;background:var(--noir3);border:1px solid var(--trait)}
 .etat-sel button.on.d{background:rgba(37,211,102,.18);border-color:var(--vert)}
 .etat-sel button.on.l{background:rgba(255,31,31,.2);border-color:var(--rouge)}
@@ -245,7 +281,7 @@ h1.titre{font-size:40px;margin:16px 0 4px}
 <script>
 // ───────────────────────── Données de démonstration ─────────────────────────
 // Tout reste sur le téléphone (localStorage). Aucune donnée n'est envoyée : c'est une maquette.
-const CLE = 'pcrpro-v1';
+const CLE = 'pcrpro-v2';
 const JOUR = 86400000;
 const VEHICULES = [
   { id: 'rs6', nom: 'Audi RS6 Performance', court: 'RS6', plaque: 'GR-630-PC', img: '../web/rs6-performance/1-avant-couverture.jpg', t: { j: 400, we: 1500, se: 2500 }, km: 4.5, caution: 8000 },
@@ -265,6 +301,25 @@ function demo() {
   });
   return {
     etat: { rs6: 'loue', golfn: 'dispo', golfg: 'loue', polo: 'loue', clio: 'dispo' },
+    // Échéances par véhicule (dates AAAA-MM-JJ, km) + historique d'entretien
+    echeances: {
+      rs6:   { vidangeKm: 30000, ct: '2027-04-10', assurance: '2026-10-15', pneus: '2026-11-30' },
+      golfn: { vidangeKm: 45000, ct: '2028-02-01', assurance: '2027-01-20', pneus: '2027-03-01' },
+      golfg: { vidangeKm: 33500, ct: '2028-05-12', assurance: '2026-10-05', pneus: '2027-02-15' },
+      polo:  { vidangeKm: 20000, ct: '2028-06-30', assurance: '2027-03-01', pneus: '2026-10-20' },
+      clio:  { vidangeKm: 15000, ct: '2028-04-22', assurance: '2027-02-10', pneus: '2027-05-01' }
+    },
+    entretiens: [
+      { veh: 'rs6', date: at(-40, 10), type: 'Vidange + filtres', km: 20100, prix: 480, note: 'Huile 0W-40' },
+      { veh: 'rs6', date: at(-18, 10), type: 'Plaquettes avant', km: 20850, prix: 620, note: '' },
+      { veh: 'golfg', date: at(-25, 9), type: 'Nettoyage complet', km: 32300, prix: 90, note: 'Detailing' },
+      { veh: 'polo', date: at(-60, 14), type: 'Vidange', km: 15200, prix: 190, note: '' },
+      { veh: 'clio', date: at(-30, 11), type: 'Pneus avant', km: 9400, prix: 260, note: 'Michelin' }
+    ],
+    degats: [
+      { veh: 'rs6', date: at(-6, 10), texte: 'Petite rayure jante arrière gauche', contrat: 'PCR-2026-0138', statut: 'à réparer' },
+      { veh: 'golfn', date: at(-5, 14), texte: 'Impact pare-brise (5 mm)', contrat: 'PCR-2026-0139', statut: 'réparé' }
+    ],
     contrats: [
       c('PCR-2026-0142', 'rs6', 'Yanis', 'Démo', -1, 10, 2, 10, 'we', 21450, null, 1500, 'cours'),
       c('PCR-2026-0141', 'golfg', 'Sarah', 'Démo', -3, 9, 4, 9, 'se', 33120, null, 600, 'cours'),
@@ -476,10 +531,90 @@ ECRANS.flotte = () => {
       const e = D.etat[v.id], c = D.contrats.find(x => x.veh === v.id && x.statut === 'cours');
       return `<div class="fl"><img src="${v.img}" alt=""><div class="c"><b>${v.nom}</b><span class="pl">${v.plaque}</span>
         <div class="d">${c ? `Louée à ${esc(c.client.prenom)} · retour ${fDH(c.fin)}` : e === 'entretien' ? 'À l\'entretien' : 'Disponible à l\'agence'}</div>
-        <div class="etat-sel" data-v="${v.id}"><button class="d${e === 'dispo' ? ' on' : ''}" data-e="dispo">Dispo</button><button class="l${e === 'loue' ? ' on' : ''}" data-e="loue">Louée</button><button class="e${e === 'entretien' ? ' on' : ''}" data-e="entretien">Entretien</button></div></div></div>`;
+        ${alertesVeh(v.id).map(a => `<div class="alerte${a.urg ? ' urg' : ''}">⚠ ${a.t}</div>`).join('')}
+        <div class="etat-sel" data-v="${v.id}"><button class="d${e === 'dispo' ? ' on' : ''}" data-e="dispo">Dispo</button><button class="l${e === 'loue' ? ' on' : ''}" data-e="loue">Louée</button><button class="e${e === 'entretien' ? ' on' : ''}" data-e="entretien">Entretien</button></div>
+        <button class="fl-ouvrir" onclick="aller('carnet','${v.id}')">Carnet du véhicule<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></div></div>`;
     }).join('')}</div>
     <div class="actions"><button class="btn btn-gris" onclick="if(confirm('Remettre les données de démo ?')){localStorage.removeItem(CLE);location.reload()}">Remettre la démo à zéro</button></div></div>`;
   document.querySelectorAll('.etat-sel button').forEach(b => b.onclick = () => { D.etat[b.parentNode.dataset.v] = b.dataset.e; sauver(); ECRANS.flotte(); toast('État mis à jour'); });
+};
+
+// ── Carnet du véhicule : kilométrage, échéances, historique complet, photos ──
+function kmActuel(id) {
+  const l = D.contrats.filter(c => c.veh === id).map(c => c.kmRetour || c.kmDepart);
+  const e = (D.entretiens || []).filter(x => x.veh === id).map(x => x.km);
+  return Math.max(0, ...l, ...e);
+}
+function joursAvant(d) { return Math.ceil((new Date(d + 'T12:00:00') - Date.now()) / JOUR); }
+function echeancesVeh(id) {
+  const e = (D.echeances || {})[id] || {}, km = kmActuel(id), out = [];
+  if (e.vidangeKm) { const r = e.vidangeKm - km; out.push({ ic: 'huile', t: 'Vidange', d: r > 0 ? `dans ${r.toLocaleString('fr-FR')} km (à ${e.vidangeKm.toLocaleString('fr-FR')} km)` : `dépassée de ${(-r).toLocaleString('fr-FR')} km`, niv: r <= 0 ? 'urg' : r < 1500 ? 'bientot' : 'ok' }); }
+  [['assurance', 'Assurance', 'bouclier'], ['ct', 'Contrôle technique', 'check'], ['pneus', 'Pneus', 'pneu']].forEach(([k, n, ic]) => {
+    if (!e[k]) return; const j = joursAvant(e[k]);
+    out.push({ ic, t: n, d: (j < 0 ? 'expiré depuis ' + (-j) + ' j' : 'le ' + new Date(e[k]).toLocaleDateString('fr-FR') + ' · dans ' + j + ' j'), niv: j < 0 ? 'urg' : j <= 30 ? 'bientot' : 'ok' });
+  });
+  return out;
+}
+function alertesVeh(id) { return echeancesVeh(id).filter(x => x.niv !== 'ok').map(x => ({ t: x.t + ' ' + x.d, urg: x.niv === 'urg' })); }
+const ICE = {
+  huile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+  bouclier: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>',
+  pneu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>'
+};
+ECRANS.carnet = (id, onglet) => {
+  const v = V(id), km = kmActuel(id), ech = echeancesVeh(id);
+  onglet = onglet || 'suivi';
+  const contrats = D.contrats.filter(c => c.veh === id);
+  const ent = (D.entretiens || []).filter(x => x.veh === id);
+  const deg = (D.degats || []).filter(x => x.veh === id);
+  const ca = contrats.reduce((t, c) => t + c.prix, 0), cout = ent.reduce((t, x) => t + x.prix, 0);
+  const jours = contrats.reduce((t, c) => t + Math.max(1, Math.round((c.fin - c.debut) / JOUR)), 0);
+  const vid = (D.echeances[id] || {}).vidangeKm || km + 1, pct = Math.min(100, Math.round(100 - (vid - km) / 150));
+  let corps = '';
+  if (onglet === 'suivi') corps = `
+    <div class="km-big"><b>${km.toLocaleString('fr-FR')}</b><span>km au compteur</span></div>
+    <div class="jauge"><i style="width:${Math.max(4, pct)}%"></i></div>
+    <div class="sous" style="margin-top:4px;font-size:11.5px">Prochaine vidange à ${vid.toLocaleString('fr-FR')} km</div>
+    <div class="kpis"><div class="kpi"><div class="v">${eur(ca)}</div><div class="k">Rapporté (${contrats.length} locations)</div></div>
+    <div class="kpi"><div class="v">${jours}<small> j</small></div><div class="k">Jours loués</div></div>
+    <div class="kpi"><div class="v">${eur(cout)}</div><div class="k">Coût entretien</div></div>
+    <div class="kpi"><div class="v">${eur(ca - cout)}</div><div class="k">Bénéfice net</div></div></div>
+    <div class="bloc-t tech">Échéances</div>
+    <div class="liste">${ech.map(e => `<div class="ech ${e.niv}"><div class="ic">${ICE[e.ic]}</div><div class="c"><b>${e.t}</b><span>${e.d}</span></div><span class="tag tech">${e.niv === 'ok' ? 'OK' : e.niv === 'urg' ? 'Urgent' : 'Bientôt'}</span></div>`).join('')}</div>`;
+  if (onglet === 'histo') {
+    const tl = contrats.map(c => ({ t: c.debut, h: `<button class="tl-i" onclick="aller('fiche','${c.num}')"><div class="h tech">${fDate(c.debut)} · ${c.num}</div><b>Location · ${esc(c.client.prenom)} ${esc(c.client.nom)}</b><span>${NOM_F[c.formule]} · ${eur(c.prix)} · ${c.kmRetour ? (c.kmRetour - c.kmDepart) + ' km' : 'en cours'}</span></button>` }))
+      .concat(ent.map(x => ({ t: x.date, h: `<div class="tl-i ent"><div class="h tech">${fDate(x.date)} · ${x.km.toLocaleString('fr-FR')} km</div><b>${esc(x.type)}</b><span>${eur(x.prix)}${x.note ? ' · ' + esc(x.note) : ''}</span></div>` })))
+      .concat(deg.map(x => ({ t: x.date, h: `<div class="tl-i deg"><div class="h tech">${fDate(x.date)} · ${x.contrat}</div><b>Dégât : ${esc(x.texte)}</b><span>${esc(x.statut)}</span></div>` })))
+      .sort((a, b) => b.t - a.t);
+    corps = `<div class="bloc-t tech">Tout l'historique</div><div class="tl">${tl.map(x => x.h).join('') || '<div class="vide">Rien pour l\'instant.</div>'}</div>`;
+  }
+  if (onglet === 'photos') {
+    const ph = contrats.flatMap(c => (c.photos || []).map((u, i) => ({ u, l: fDate(c.debut) + ' · ' + ['Avant', 'Arrière', 'Gauche', 'Droite'][i] })));
+    corps = `<div class="bloc-t tech">Photos officielles</div><div class="galerie">${v.img ? `<div><img src="${v.img}"></div>` : ''}</div>
+      <div class="bloc-t tech">États des lieux</div>
+      <div class="galerie">${ph.length ? ph.map(x => `<div><img src="${x.u}" alt="${x.l}"></div>`).join('') : ['Avant', 'Arrière', 'Gauche', 'Droite', 'Intérieur', 'Compteur'].map(a => `<div><span class="leg">${a}<br>photos prises<br>à chaque contrat</span></div>`).join('')}</div>`;
+  }
+  if (onglet === 'entretien') corps = `
+    <div class="bloc-t tech">Ajouter un entretien</div>
+    <div class="champ"><label class="tech">Type</label><select id="e-type"><option>Vidange</option><option>Pneus</option><option>Freins / plaquettes</option><option>Contrôle technique</option><option>Nettoyage complet</option><option>Carrosserie</option><option>Autre</option></select></div>
+    <div class="deux"><div class="champ"><label class="tech">Kilométrage</label><input id="e-km" type="number" inputmode="numeric" value="${km}"></div><div class="champ"><label class="tech">Coût (€)</label><input id="e-prix" type="number" inputmode="numeric" placeholder="0"></div></div>
+    <div class="champ"><label class="tech">Note</label><input id="e-note" placeholder="Garage, pièces…"></div>
+    <div class="actions"><button class="btn btn-rouge" id="e-ok">Enregistrer l'entretien</button></div>
+    <div class="bloc-t tech">Entretiens passés</div>
+    <div class="liste">${ent.length ? ent.slice().sort((a, b) => b.date - a.date).map(x => `<div class="ech ok"><div class="ic">${ICE.huile}</div><div class="c"><b>${esc(x.type)}</b><span>${fDate(x.date)} · ${x.km.toLocaleString('fr-FR')} km · ${eur(x.prix)}</span></div></div>`).join('') : '<div class="vide">Aucun entretien enregistré.</div>'}</div>`;
+  app.innerHTML = `<div class="ecran">
+    <div class="fiche-img"><img src="${v.img}" alt=""><div class="t"><div class="tech" style="font-size:9px;color:#ddd">Carnet du véhicule</div><b>${v.nom}</b><div><span class="fl"><span class="pl" style="margin-top:6px">${v.plaque}</span></span></div></div></div>
+    <div class="onglets">${[['suivi', 'Suivi'], ['histo', 'Historique'], ['photos', 'Photos'], ['entretien', 'Entretien']].map(o => `<button class="onglet${o[0] === onglet ? ' on' : ''}" data-o="${o[0]}">${o[1]}</button>`).join('')}</div>
+    ${corps}</div>`;
+  document.querySelectorAll('.onglet').forEach(b => b.onclick = () => { app._arg = id; ECRANS.carnet(id, b.dataset.o); });
+  const ok = document.getElementById('e-ok');
+  if (ok) ok.onclick = () => {
+    D.entretiens = D.entretiens || [];
+    D.entretiens.push({ veh: id, date: Date.now(), type: $('#e-type').value, km: +$('#e-km').value || km, prix: +$('#e-prix').value || 0, note: $('#e-note').value.trim() });
+    if ($('#e-type').value === 'Vidange') D.echeances[id].vidangeKm = (+$('#e-km').value || km) + 15000;
+    sauver(); toast('Entretien enregistré ✓'); ECRANS.carnet(id, 'entretien');
+  };
 };
 
 // ── Nouveau contrat : 4 étapes ──
