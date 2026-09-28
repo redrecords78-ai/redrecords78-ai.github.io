@@ -1099,6 +1099,10 @@ async function loadMembres() {
 function renderMembres(team) {
   const el = document.getElementById('membres-list');
   if (!el) return;
+  // Retirés depuis plus de 30 jours : masqués (ils restent dans le registre serveur,
+  // donc toujours bloqués, et leurs anciennes sessions restent chiffrées).
+  const limite = Date.now() - 30 * 86400000;
+  team = team.filter(m => m.actif || !m.retireLe || new Date(m.retireLe).getTime() > limite);
   if (!team.length) { el.innerHTML = '<div class="demande-vide">Aucun membre</div>'; return; }
   el.innerHTML = team.map(m => {
     const pastille = `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${m.couleur || '#888'};margin-right:7px;vertical-align:middle"></span>`;

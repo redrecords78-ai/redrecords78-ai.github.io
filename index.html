@@ -830,8 +830,8 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       Discuter sur WhatsApp
     </a>
     <div style="margin-top:1.75rem;">
-      <button onclick="annulerDemande()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
-        Faire une nouvelle demande
+      <button onclick="annulerReservation()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
+        Annuler ma demande
       </button>
     </div>
   </div>
@@ -852,6 +852,11 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       Payer l'acompte (CB)
     </a>
     <p style="color:var(--gray);font-size:13px;line-height:1.7;margin-top:1.75rem;">…ou au studio en <strong style="color:var(--white)">CB / espèces</strong>, <strong style="color:var(--white)">2 jours max</strong> avant ta session.<br>Si tu ne peux pas, préviens-nous <strong style="color:var(--white)">la veille minimum</strong> 🙏</p>
+    <div style="margin-top:1.25rem;">
+      <button onclick="annulerReservation()" style="background:none;border:1px solid var(--gray2);color:var(--gray);padding:10px 24px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;border-radius:4px;">
+        Annuler ma session
+      </button>
+    </div>
   </div>
 
   <!-- Acompte validé par le studio → écran final : confirmation + retour auto à l'accueil -->
@@ -1324,14 +1329,34 @@ function afficherEtatEnCours() {
   if (encours) encours.style.display = 'block';
 }
 
-function annulerDemande() {
-  localStorage.removeItem('rr-demande-pending');
-  const form    = document.getElementById('demandeForm');
-  const encours = document.getElementById('demande-en-cours');
-  const msg     = document.getElementById('msgRetour');
-  if (form)    { form.style.display = 'block'; form.reset(); }
-  if (encours)   encours.style.display = 'none';
-  if (msg)       msg.style.display     = 'none';
+// Annulation par le client, à n'importe quelle étape (demande en cours ou acompte en attente) :
+// le serveur retire la demande / la session de l'agenda grâce à la clé de la demande.
+function annulerReservation() {
+  const enAcompte = localStorage.getItem('rr-acompte-pending') === '1';
+  if (!confirm(enAcompte ? 'Annuler ta session ? Le créneau sera libéré.' : 'Annuler ta demande de réservation ?')) return;
+  const cle = localStorage.getItem('rr-demande-cle') || '';
+  if (cle) {
+    fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'annulerClient', cle: cle }) })
+      .catch(() => {});
+  }
+  reinitialiserReservation('Ta réservation a bien été annulée.');
+}
+
+// Retour au formulaire vide + message éventuel (annulation, session passée…)
+function reinitialiserReservation(texte) {
+  ['rr-demande-pending', 'rr-acompte-pending', 'rr-demande-cle', 'rr-derniere-demande'].forEach(k => localStorage.removeItem(k));
+  ['demande-en-cours', 'demande-confirmee', 'demande-finale'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const form = document.getElementById('demandeForm');
+  const msg  = document.getElementById('msgRetour');
+  if (form) { form.style.display = 'block'; form.reset(); }
+  if (msg) {
+    msg.style.display = texte ? 'block' : 'none';
+    msg.style.color   = 'var(--gray)';
+    msg.textContent   = texte || '';
+  }
 }
 
 // Écran "Session confirmée + acompte" — persiste tant que l'acompte n'est pas réglé
@@ -1385,6 +1410,9 @@ function verifierAcompte() {
     .then(r => r.json())
     .then(data => {
       if (data && data.pending === false) {
+        // Session annulée ou passée sans acompte → pas d'écran « acompte reçu »
+        if (data.clos === 'annulee') return reinitialiserReservation('Ta session a été annulée. Tu peux refaire une demande.');
+        if (data.clos === 'passee')  return reinitialiserReservation('');
         localStorage.removeItem('rr-acompte-pending');
         afficherFinale();
       }
@@ -1424,6 +1452,14 @@ function nouvelleCleDemande() {
   localStorage.setItem('rr-demande-cle', cle);
   return cle;
 }
+
+// ─── LOGO → RETOUR ACCUEIL (comme DCL) ───────────────────────────────────────
+// Remonte en haut et nettoie l'ancre (#tarifs…). Le triple-clic admin reste géré à part.
+document.querySelector('nav .nav-logo').addEventListener('click', function(e) {
+  e.preventDefault();
+  if (location.hash) history.replaceState({}, '', location.pathname + location.search);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
 // ─── SECRET ADMIN ACCESS (triple-clic sur le logo R) ─────────────────────────
 (function() {
