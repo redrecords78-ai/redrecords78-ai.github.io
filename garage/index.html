@@ -598,6 +598,7 @@ function renderSvcs(){
   };
   document.getElementById("bkHome").onclick=function(){st.cat=null;st.svc=null;go(renderHome);};
   cta("Touchez un repère ou choisissez",false);rv();
+  if(PLACER) activerPlacement();
 }
 
 /* ── FORMULAIRE ── */
@@ -745,6 +746,46 @@ document.addEventListener("click",function(e){
   e.preventDefault();
   window.open(a.href,"_blank","noopener,noreferrer");
 });
+
+/* ── MODE PLACEMENT DES REPÈRES (?placer=1, réservé à Ridwane) ──
+   On déplace chaque point au doigt, puis « Copier » donne le texte à envoyer à Claude. */
+var PLACER=/[?&]placer=1/.test(location.search);
+function activerPlacement(){
+  var wrap=document.getElementById("hspotWrap");if(!wrap)return;
+  var cat=CATS[st.cat];
+  wrap.style.touchAction="none";wrap.style.outline="2px dashed var(--gold)";
+  document.querySelectorAll(".hspot").forEach(function(btn){
+    var sp=cat.spots.filter(function(x){return x.id===btn.dataset.id;})[0];
+    var tip=btn.querySelector(".hspot-tip"), base=tip.textContent;
+    function maj(){tip.textContent=base+" · "+sp.x+","+sp.y;}
+    maj();
+    btn.onclick=function(e){e.preventDefault();e.stopPropagation();};
+    btn.addEventListener("pointerdown",function(e){
+      e.preventDefault();btn.setPointerCapture(e.pointerId);btn.classList.add("sel");
+      function bouge(ev){
+        var r=wrap.getBoundingClientRect();
+        sp.x=Math.round(Math.max(2,Math.min(98,(ev.clientX-r.left)/r.width*100)));
+        sp.y=Math.round(Math.max(4,Math.min(96,(ev.clientY-r.top)/r.height*100)));
+        btn.style.left=sp.x+"%";btn.style.top=sp.y+"%";maj();
+      }
+      function fin(){btn.removeEventListener("pointermove",bouge);btn.removeEventListener("pointerup",fin);btn.removeEventListener("pointercancel",fin);btn.classList.remove("sel");}
+      btn.addEventListener("pointermove",bouge);btn.addEventListener("pointerup",fin);btn.addEventListener("pointercancel",fin);
+    });
+  });
+  var box=document.createElement("div");
+  box.style.cssText="margin:-.5rem 0 1.25rem;padding:12px 14px;border:1px solid rgba(201,168,76,.4);border-radius:12px;background:var(--black3);font-size:12.5px;color:var(--gray);line-height:1.5";
+  box.innerHTML='<strong style="color:var(--gold);display:block;margin-bottom:4px">Mode placement · '+esc(cat.label)+'</strong>Glisse chaque point à sa place, puis copie et envoie le texte à Claude.'+
+    '<button id="plCopy" style="display:block;width:100%;margin-top:10px;padding:11px;border-radius:9px;background:var(--gold);color:#080808;font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:12px">Copier les positions</button>'+
+    '<textarea id="plTxt" readonly style="margin-top:10px;height:96px;font-size:12px"></textarea>';
+  wrap.parentNode.insertBefore(box,wrap.nextSibling);
+  function texte(){return "DCL "+cat.label+" : "+cat.spots.map(function(sp){return sp.id+"="+sp.x+","+sp.y;}).join(" ; ");}
+  document.getElementById("plCopy").onclick=function(){
+    var t=texte(), ta=document.getElementById("plTxt");ta.value=t;
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast("Copié ✓ colle-le à Claude");},function(){ta.select();toast("Sélectionne et copie le texte");});}
+    else{ta.select();toast("Sélectionne et copie le texte");}
+  };
+  document.getElementById("plTxt").value=texte();
+}
 
 /* ── OUVERT / FERMÉ (heure de Lyon) ── */
 function majOuvert(){
