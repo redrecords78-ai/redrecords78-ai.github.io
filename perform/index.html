@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Perform Car Rent · Location de voitures sportives">
+<meta property="og:description" content="RS6, Golf GTD, Polo GTI, Clio Alpine · Mantes-la-Ville · Île-de-France">
+<meta property="og:image" content="https://redrecords78-ai.github.io/perform/web/rs6-performance/1-avant-couverture.jpg">
+<meta name="theme-color" content="#080808">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERFORM CAR RENT — Location Sportives & Citadines</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --red: #e8003d;
+    --black: #080808;
+    --dark: #101010;
+    --card: #141414;
+    --border: rgba(255,255,255,0.07);
+    --text: #ffffff;
+    --muted: #777777;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(8,8,8,0.9);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1.5px solid var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-circle span {
+    font-size: 6.5px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    color: white;
+    text-transform: uppercase;
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: white;
+  }
+
+  .nav-cta {
+    background: var(--red);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 140px 40px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    bottom: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(232,0,61,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,0,61,0.08);
+    border: 1px solid rgba(232,0,61,0.2);
+    color: var(--red);
+    padding: 7px 18px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .hero h1 {
+    font-size: clamp(56px, 11vw, 120px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 0.92;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 .red { color: var(--red); }
+
+  .hero-sub {
+    font-size: clamp(15px, 2vw, 19px);
+    color: var(--muted);
+    margin-bottom: 52px;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  .hero-sub strong { color: white; font-weight: 500; }
+
+  .hero-btns {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: white;
+    padding: 16px 38px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 8px 32px rgba(232,0,61,0.25);
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  .btn-outline {
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    padding: 16px 38px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--red); background: rgba(232,0,61,0.06); }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 48px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.35;
+    animation: float 2.5s ease-in-out infinite;
+  }
+  .scroll-indicator span { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; }
+  .scroll-line { width: 1px; height: 44px; background: linear-gradient(to bottom, var(--red), transparent); }
+
+  @keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(10px); }
+  }
+
+  /* ── STATS ── */
+  .stats-bar {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--dark);
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .stat.visible { opacity: 1; transform: translateY(0); }
+  .stat-n { font-size: 38px; font-weight: 900; color: var(--red); letter-spacing: -0.03em; }
+  .stat-l { font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 6px; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 110px 48px; max-width: 1200px; margin: 0 auto; }
+
+  .section-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-size: clamp(34px, 5vw, 60px);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 520px;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── FLOTTE ── */
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 18px;
+    margin-top: 64px;
+  }
+
+  .car-card {
+    background: var(--card);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .car-card.visible { opacity: 1; transform: translateY(0); }
+  .car-card:hover { transform: translateY(-5px); border-color: rgba(232,0,61,0.25); }
+
+  .car-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    background: #1a1a1a;
+  }
+
+  .car-img-placeholder {
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(135deg, #141414, #1e1e1e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+
+  .car-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 50px;
+  }
+
+  .car-img-wrap { position: relative; }
+
+  .car-body { padding: 24px 26px 26px; }
+
+  .car-model {
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+
+  .car-type {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .car-specs {
+    display: flex;
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    gap: 0;
+  }
+
+  .spec {
+    flex: 1;
+    text-align: center;
+  }
+  .spec:not(:last-child) { border-right: 1px solid var(--border); }
+  .spec-v { font-size: 16px; font-weight: 800; color: white; }
+  .spec-k { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 64px;
+  }
+
+  .feature {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 34px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s, transform 0.3s;
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .feature.visible { opacity: 1; transform: translateY(0); }
+  .feature:hover { border-color: rgba(232,0,61,0.2); transform: translateY(-4px); }
+
+  .icon-box {
+    width: 48px; height: 48px;
+    background: rgba(232,0,61,0.08);
+    border: 1px solid rgba(232,0,61,0.15);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+
+  .icon-box svg { width: 22px; height: 22px; stroke: var(--red); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .feature h3 {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+
+  .feature p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+  /* ── PITCH (convaincre) ── */
+  .pitch-section { background: var(--dark); }
+  .pitch-inner { padding: 110px 48px; max-width: 1200px; margin: 0 auto; }
+
+  .pitch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 64px;
+  }
+
+  @media (max-width: 768px) { .pitch-grid { grid-template-columns: 1fr; } }
+
+  .pitch-left .big-number {
+    font-size: 120px;
+    font-weight: 900;
+    color: var(--red);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    opacity: 0.12;
+    position: absolute;
+    top: -20px; left: -10px;
+    pointer-events: none;
+  }
+
+  .pitch-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--card);
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .pitch-item.visible { opacity: 1; transform: translateX(0); }
+
+  .pitch-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--red);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .pitch-text h4 {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .pitch-text p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .pitch-visual {
+    background: var(--card);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .pitch-visual.visible { opacity: 1; transform: translateX(0); }
+
+  .phone-mock {
+    width: 180px;
+    height: 360px;
+    background: #0a0a0a;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 36px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(232,0,61,0.12);
+  }
+
+  .phone-mock::before {
+    content: '';
+    width: 60px; height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    position: absolute;
+    top: 14px;
+  }
+
+  .notif {
+    background: var(--card);
+    border: 1px solid rgba(232,0,61,0.2);
+    border-radius: 14px;
+    padding: 12px 14px;
+    width: 148px;
+    text-align: left;
+  }
+
+  .notif-title { font-size: 10px; font-weight: 700; color: white; margin-bottom: 3px; }
+  .notif-body { font-size: 9px; color: var(--muted); line-height: 1.4; }
+  .notif-dot { width: 7px; height: 7px; background: var(--red); border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+  .pitch-visual h3 {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+
+  .pitch-visual p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── PARALLAX ── */
+  .parallax-wrap {
+    overflow: hidden;
+    background: #0a0a0a;
+    border-top: 1px solid rgba(232,0,61,0.1);
+    border-bottom: 1px solid rgba(232,0,61,0.1);
+    padding: 90px 0;
+    text-align: center;
+  }
+
+  .parallax-content { will-change: transform; }
+
+  .parallax-content h2 {
+    font-size: clamp(44px, 9vw, 100px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+
+  .parallax-content h2 .red { color: var(--red); }
+  .parallax-content p { font-size: 15px; color: var(--muted); margin-top: 20px; letter-spacing: 0.08em; }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    text-align: center;
+    padding: 110px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,0,61,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-box {
+    background: var(--card);
+    border: 1px solid rgba(232,0,61,0.15);
+    border-radius: 28px;
+    padding: 70px 60px;
+    max-width: 660px;
+    margin: 0 auto;
+  }
+
+  .cta-box h2 {
+    font-size: clamp(30px, 4.5vw, 52px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+
+  .cta-box h2 .red { color: var(--red); }
+
+  .cta-box p {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  .cta-phone {
+    background: var(--red);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 8px 28px rgba(232,0,61,0.25);
+  }
+  .cta-phone:hover { opacity: 0.88; transform: translateY(-2px); }
+
+  .cta-snap {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .cta-snap:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  footer .f-logo { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+  footer .f-logo span { color: var(--red); }
+  footer .f-right { font-size: 12px; color: var(--muted); }
+/* Véhicule réservé : photo grisée + badge « Pas disponible » (28/09/2026) */
+.car-card.off .car-img{filter:grayscale(1) brightness(.55)}
+.car-card.off .car-model,.car-card.off .car-type{opacity:.55}
+.car-card.off .car-badge{background:#2a2a2a;color:#bbb}
+.car-dispo{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.demo-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
+/* ── Flotte réelle (28/09/2026) ── */
+.car-slider{position:relative;height:300px;overflow:hidden;background:#111}
+.car-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.car-track::-webkit-scrollbar{display:none}
+.car-track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start;display:block}
+.car-dots{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.car-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);transition:all .2s}
+.car-dots i.on{background:#fff;width:16px;border-radius:3px}
+.car-card.off .car-track img{filter:grayscale(1) brightness(.5)}
+.car-prix{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.prix{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center}
+.prix-f{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.prix-v{font-size:clamp(14px,4.4vw,19px);font-weight:800;color:#fff;margin:3px 0 1px;white-space:nowrap}
+.prix-k{font-size:10.5px;color:var(--muted)}
+.car-sup{font-size:11px;color:var(--muted);margin-top:8px;text-align:center}
+.car-cta{display:block;margin-top:16px;text-align:center;background:var(--red);color:#fff;border-radius:12px;padding:13px;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:.03em}
+.car-card.off .car-cta{background:#2a2a2a;color:#999;pointer-events:none}
+.conditions{margin-top:28px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px}
+.cond-titre{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.cond-liste{display:flex;flex-wrap:wrap;gap:8px}
+.cond-liste span{font-size:13px;color:#fff;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:30px;padding:7px 13px}
+.cond-note{font-size:12px;color:var(--muted);margin-top:12px}
+@media (max-width:400px){.fleet-grid{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo-nav">
+    <div class="logo-circle">
+      <span>PERFORM<br>CAR<br>RENT</span>
+    </div>
+    <div class="logo-text">Perform Car Rent</div>
+  </div>
+  <a href="tel:+33764203614" class="nav-cta">Réserver</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">🏁 Mantes-la-Ville · Île-de-France</div>
+  <h1>PERFORM<br><span class="red">CAR</span> RENT</h1>
+  <p class="hero-sub">Location de voitures <strong>sportives & citadines</strong><br>à votre niveau, dans votre région.</p>
+  <div class="hero-btns">
+    <a href="tel:+33764203614" class="btn-primary">Réserver maintenant</a>
+    <a href="#flotte" class="btn-outline">Voir la flotte</a>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n">7j/7</div><div class="stat-l">Disponibilité</div></div>
+  <div class="stat"><div class="stat-n">IDF</div><div class="stat-l">Zone de service</div></div>
+  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Satisfaction client</div></div>
+  <div class="stat"><div class="stat-n">5</div><div class="stat-l">Véhicules</div></div>
+</div>
+
+<!-- FLOTTE -->
+<div id="flotte">
+  <div class="section">
+    <div class="reveal">
+      <div class="section-tag">La flotte</div>
+      <h2 class="section-title">Des véhicules<br><span style="color:var(--red)">d'exception</span></h2>
+      <p class="section-desc">Sportives premium et citadines élégantes. Un véhicule pour chaque besoin, chaque occasion.</p>
+    </div>
+
+    <div class="fleet-grid" id="flotte-grid"></div>
+    <div class="conditions">
+      <div class="cond-titre">Pour louer</div>
+      <div class="cond-liste"><span>Permis B valide</span><span>Carte d'identité</span><span>Justificatif de domicile</span><span>Caution obligatoire</span></div>
+      <div class="cond-note">Livraison possible en Île-de-France · tarif sur devis</div>
+    </div>
+    <p class="demo-note">Aperçu : la Golf GTD grise est affichée « Pas disponible » pour montrer une voiture réservée.</p>
+  </div>
+</div>
+
+<!-- POURQUOI NOUS -->
+<div style="background:var(--dark)">
+  <div class="section">
+    <div class="reveal">
+      <div class="section-tag">Pourquoi nous</div>
+      <h2 class="section-title">Simple.<br><span style="color:var(--red)">Direct.</span> Fiable.</h2>
+      <p class="section-desc">Pas de plateforme intermédiaire. Vous nous contactez, on s'occupe du reste.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3>Réponse immédiate</h3>
+        <p>On répond dans la minute. Pas de formulaire, pas d'attente. Un message suffit.</p>
+      </div>
+      <div class="feature">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>Disponible 7j/7</h3>
+        <p>Weekend, soirée, jours fériés — on est là quand vous avez besoin d'un véhicule.</p>
+      </div>
+      <div class="feature">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Zone Île-de-France</h3>
+        <p>Basé à Mantes-la-Ville. Livraison possible dans toute l'IDF selon disponibilité.</p>
+      </div>
+      <div class="feature">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Véhicules entretenus</h3>
+        <p>Chaque voiture est soignée, propre, et prête à rouler. Zéro mauvaise surprise.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PARALLAX -->
+<div class="parallax-wrap">
+  <div class="parallax-content" id="parallax">
+    <h2>LA ROUTE<br>VOUS <span class="red">APPARTIENT</span></h2>
+    <p>Mantes-la-Ville · Île-de-France · performcar.rent@gmail.com</p>
+  </div>
+</div>
+
+<!-- PITCH APP (convaincre) -->
+<div class="pitch-section">
+  <div class="pitch-inner">
+    <div class="reveal">
+      <div class="section-tag">Pour le patron</div>
+      <h2 class="section-title">Tout dans<br><span style="color:var(--red)">votre main</span></h2>
+      <p class="section-desc">Une app à votre image qui centralise tout. Réservations, clients, planning — géré depuis votre téléphone.</p>
+    </div>
+
+    <div class="pitch-grid">
+      <div>
+        <div class="pitch-item">
+          <div class="pitch-num">01</div>
+          <div class="pitch-text">
+            <h4>Réservation sur votre téléphone</h4>
+            <p>Dès qu'un client demande une voiture, vous recevez une notification. Vous acceptez ou refusez en un tap. Terminé les appels ratés.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">02</div>
+          <div class="pitch-text">
+            <h4>Planning centralisé</h4>
+            <p>Votre agenda en temps réel. Vous voyez d'un coup d'œil quels véhicules sont disponibles, lesquels sont loués, et pour qui.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">03</div>
+          <div class="pitch-text">
+            <h4>Image 100% professionnelle</h4>
+            <p>Vos clients arrivent sur une app à votre nom, votre logo, vos couleurs. Perform Car Rent a l'air d'une vraie société — parce que c'en est une.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">04</div>
+          <div class="pitch-text">
+            <h4>Historique & fidélisation</h4>
+            <p>Chaque client est enregistré. Relances, promos, infos fleet — vous gérez votre relation client comme un pro.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">05</div>
+          <div class="pitch-text">
+            <h4>Boutique en temps réel</h4>
+            <p>Toute votre flotte en vitrine, photo et caractéristiques. Dès qu'une voiture est réservée, elle passe en gris « Pas disponible », avec sa date de retour.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">06</div>
+          <div class="pitch-text">
+            <h4>Contrat de location dans l'app</h4>
+            <p>Le client remplit ses infos, envoie la photo de son permis et de sa pièce d'identité, et signe au doigt. Vous recevez le contrat en PDF.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">07</div>
+          <div class="pitch-text">
+            <h4>Acompte & caution</h4>
+            <p>Lien de paiement envoyé directement. Vous voyez en un coup d'œil qui a payé et qui est encore « en attente d'acompte ».</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">08</div>
+          <div class="pitch-text">
+            <h4>Une notif à tous vos clients</h4>
+            <p>Nouvelle voiture, dispo ce week-end, promo : un message part sur le téléphone de tous ceux qui ont installé l'app. Vous choisissez l'heure.</p>
+          </div>
+        </div>
+        <div class="pitch-item">
+          <div class="pitch-num">09</div>
+          <div class="pitch-text">
+            <h4>Dashboard chiffres & stats</h4>
+            <p>Chiffre d'affaires, demandes en cours, véhicules les plus loués, taux d'occupation, visites de l'app. Tout se pilote depuis votre téléphone.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pitch-visual" id="pitch-visual">
+        <div class="phone-mock">
+          <div class="notif">
+            <div class="notif-title"><span class="notif-dot"></span>Nouvelle réservation</div>
+            <div class="notif-body">Audi RS6 · Sam 14 juin<br>Location 24 h · Client : Marc T.</div>
+          </div>
+          <div class="notif">
+            <div class="notif-title"><span class="notif-dot"></span>Réservation confirmée</div>
+            <div class="notif-body">✅ Acompte reçu · contrat signé<br>La RS6 passe en « Pas disponible »</div>
+          </div>
+          <div class="notif" style="border-color:rgba(255,255,255,0.08)">
+            <div class="notif-title" style="color:var(--muted)">Planning · Aujourd'hui</div>
+            <div class="notif-body">2 véhicules loués · 1 dispo<br>Chiffre du jour : 340€</div>
+          </div>
+        </div>
+        <h3>Perform Car Rent App</h3>
+        <p>Votre business dans la poche.<br>Accessible depuis n'importe quel téléphone.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DÉJÀ EN SERVICE -->
+<div style="background:var(--dark)">
+  <div class="section">
+    <div class="reveal">
+      <div class="section-tag">Déjà en service</div>
+      <h2 class="section-title">Le même système<br><span style="color:var(--red)">tourne déjà</span></h2>
+      <p class="section-desc">Ce n'est pas une maquette : cette technologie fait déjà tourner deux entreprises au quotidien.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <h3>Red Records 78 · studio</h3>
+        <p>Réservations en ligne, créneaux dispo en direct, acompte, équipe notifiée sur son téléphone, dashboard avec chiffres et stats. Une notif promo touche d'un coup tous les clients équipés.</p>
+      </div>
+      <div class="feature">
+        <h3>Detailing Center Lyon · garage</h3>
+        <p>Vitrine des prestations moto et auto, réservation guidée, avis Google, horaires en direct, installation de l'app en quelques secondes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-glow"></div>
+  <div class="cta-box reveal">
+    <h2>Prêt à<br><span class="red">PERFORMER ?</span></h2>
+    <p>Contactez-nous maintenant pour réserver votre véhicule.<br>On vous répond dans la minute, 7j/7.</p>
+    <div class="cta-btns">
+      <a href="tel:+33764203614" class="cta-phone">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 5.72 5.72l1.56-1.56a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 14.92z"/></svg>
+        +33 7 64 20 36 14
+      </a>
+      <a href="https://snapchat.com/t/GYop3nPU" target="_blank" class="cta-snap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12s.5 3 4 3 4-3 4-3"/><path d="M9 9h.01M15 9h.01"/></svg>
+        Snapchat
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">PERFORM <span>CAR</span> RENT</div>
+  <div class="f-right">Mantes-la-Ville · performcar.rent@gmail.com · +33 7 64 20 36 14</div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal, .stat, .car-card, .feature, .pitch-item, #pitch-visual').forEach(el => observer.observe(el));
+
+  // Parallax
+  const parallax = document.getElementById('parallax');
+  window.addEventListener('scroll', () => {
+    const rect = parallax.closest('.parallax-wrap').getBoundingClientRect();
+    const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * 0.12;
+    parallax.style.transform = `translateY(${offset}px)`;
+  }, { passive: true });
+</script>
+
+
+<script>
+// Flotte réelle Perform Car Rent (flyers du patron, 28/09/2026). Pour marquer une voiture réservée : dispo:false + retour.
+const FLOTTE = [{"id": "rs6", "caution": "8 000 €", "modele": "Audi RS6 Performance", "type": "Break sportif · gris mat", "photos": ["web/rs6-performance/1-avant-couverture.jpg", "web/rs6-performance/2-avant-roulage.jpg", "web/rs6-performance/3-arriere-roulage.jpg", "web/rs6-performance/4-arriere-3-4.jpg", "web/rs6-performance/5-arriere-face.jpg", "web/rs6-performance/6-avant-3-4-jantes.jpg"], "specs": [["630", "Ch"], ["Auto 8", "Tiptronic"], ["5", "Places"]], "tarifs": [["24 h", "lun-jeu", "400 €", "200 km"], ["Week-end", "ven-lun", "1 500 €", "600 km"], ["Semaine", "7 jours", "2 500 €", "1 400 km"]], "kmSup": "4,50 €/km supplémentaire", "dispo": true}, {"id": "golf-noir", "caution": "2 000 €", "modele": "Volkswagen Golf 8 GTD", "type": "Compacte sportive · noire", "photos": ["web/golf-8-gtd-noir/1-avant-feux-couverture.jpg", "web/golf-8-gtd-noir/2-3-4-avant-tours.jpg", "web/golf-8-gtd-noir/3-vue-haut-avant.jpg", "web/golf-8-gtd-noir/4-vue-haut-arriere.jpg", "web/golf-8-gtd-noir/5-interieur.jpg", "web/golf-8-gtd-noir/6-3-4-avant-parking.jpg"], "specs": [["200", "Ch"], ["DSG7", "Boîte auto"], ["5", "Places"]], "tarifs": [["24 h", "lun-jeu", "120 €", "200 km"], ["Week-end", "ven-lun", "450 €", "600 km"], ["Semaine", "7 jours", "600 €", "1 400 km"]], "kmSup": "0,50 €/km supplémentaire", "dispo": true}, {"id": "golf-grise", "caution": "2 000 €", "modele": "Volkswagen Golf 8 GTD", "type": "Compacte sportive · grise · 2024", "photos": ["web/golf-8-gtd-grise/1-3-4-avant-couverture.jpg", "web/golf-8-gtd-grise/2-face-avant.jpg", "web/golf-8-gtd-grise/3-sieges.jpg"], "specs": [["200", "Ch"], ["DSG7", "Boîte auto"], ["5", "Places"]], "tarifs": [["24 h", "lun-jeu", "120 €", "200 km"], ["Week-end", "ven-lun", "450 €", "600 km"], ["Semaine", "7 jours", "600 €", "1 400 km"]], "kmSup": "0,50 €/km supplémentaire", "dispo": false, "retour": "de nouveau dispo le 12/10"}, {"id": "polo", "caution": "2 000 €", "modele": "Volkswagen Polo GTI", "type": "Citadine sportive · noire · 2024", "photos": ["web/polo-gti/1-avant-couverture.jpg", "web/polo-gti/2-arriere-3-4.jpg", "web/polo-gti/3-jante-detail.jpg", "web/polo-gti/4-interieur.jpg", "web/polo-gti/5-sieges.jpg", "web/polo-gti/6-3-4-avant-mur.jpg", "web/polo-gti/7-detail-calandre.jpg"], "specs": [["207", "Ch"], ["DSG7", "Boîte auto"], ["5", "Places"]], "tarifs": [["24 h", "lun-jeu", "120 €", "200 km"], ["Week-end", "ven-lun", "450 €", "600 km"], ["Semaine", "7 jours", "600 €", "1 400 km"]], "kmSup": "0,50 €/km supplémentaire", "dispo": true}, {"id": "clio", "caution": "1 500 €", "modele": "Renault Clio E-Tech Esprit Alpine", "type": "Citadine hybride · grise", "photos": ["web/clio-v-alpine/1-avant-couverture.jpg", "web/clio-v-alpine/2-avant-rue.jpg", "web/clio-v-alpine/3-arriere.jpg", "web/clio-v-alpine/4-interieur.jpg", "web/clio-v-alpine/5-detail-tableau-de-bord.jpg"], "specs": [["145", "Ch"], ["Auto", "Boîte"], ["5", "Places"]], "tarifs": [["24 h", "lun-jeu", "70 €", "200 km"], ["Week-end", "ven-lun", "250 €", "600 km"], ["Semaine", "7 jours", "450 €", "1 400 km"]], "kmSup": "0,50 €/km supplémentaire", "dispo": true}];
+const TEL = '+33764203614';
+(function () {
+  const g = document.getElementById('flotte-grid');
+  g.innerHTML = FLOTTE.map(v => `
+    <div class="car-card${v.dispo ? '' : ' off'}">
+      <div class="car-img-wrap car-slider">
+        <div class="car-track">${v.photos.map((ph, i) => `<img src="${ph}" alt="${v.modele}" loading="${i ? 'lazy' : 'eager'}">`).join('')}</div>
+        <div class="car-dots">${v.photos.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>
+        <div class="car-badge">${v.dispo ? 'Disponible' : 'Pas disponible'}</div>
+      </div>
+      <div class="car-body">
+        <div class="car-model">${v.modele}</div>
+        <div class="car-type">${v.type}</div>
+        <div class="car-specs">${v.specs.map(s => `<div class="spec"><div class="spec-v">${s[0]}</div><div class="spec-k">${s[1]}</div></div>`).join('')}</div>
+        ${v.dispo ? '' : `<div class="car-dispo">Réservée · ${v.retour}</div>`}
+        <div class="car-prix">${v.tarifs.map(t => `<div class="prix"><div class="prix-f">${t[0]}<br>${t[1]}</div><div class="prix-v">${t[2]}</div><div class="prix-k">${t[3]}</div></div>`).join('')}</div>
+        <div class="car-sup">+ ${v.kmSup} · caution ${v.caution}</div>
+        <a class="car-cta" href="tel:${TEL}">${v.dispo ? 'Réserver cette voiture' : 'Indisponible pour le moment'}</a>
+      </div>
+    </div>`).join('');
+  // points du diaporama
+  g.querySelectorAll('.car-slider').forEach(sl => {
+    const t = sl.querySelector('.car-track'), d = sl.querySelectorAll('.car-dots i');
+    t.addEventListener('scroll', () => { const k = Math.round(t.scrollLeft / t.clientWidth); d.forEach((x, j) => x.classList.toggle('on', j === k)); }, { passive: true });
+  });
+  // apparition au défilement (comme le reste de la page)
+  if (window.IntersectionObserver) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }), { threshold: .08 });
+    g.querySelectorAll('.car-card').forEach(c => io.observe(c));
+  } else g.querySelectorAll('.car-card').forEach(c => c.classList.add('visible'));
+})();
+</script>
+</body>
+</html>
