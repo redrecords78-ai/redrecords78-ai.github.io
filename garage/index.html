@@ -276,6 +276,16 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),l
 .open-badge b{width:7px;height:7px;border-radius:50%;background:#4caf50;box-shadow:0 0 8px rgba(76,175,80,.8)}
 .open-badge.ferme b{background:#e0625a;box-shadow:0 0 8px rgba(224,98,90,.6)}
 .open-badge strong{color:var(--white);font-weight:500}
+.avis-list{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -1.5rem 12px;padding:0 1.5rem 4px;scrollbar-width:none}
+.avis-list::-webkit-scrollbar{display:none}
+.avis-card{flex:0 0 82%;scroll-snap-align:start;background:var(--black2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px}
+.avis-etoiles{color:var(--gold);font-size:13px;letter-spacing:2px}
+.avis-txt{font-size:13px;color:var(--white);line-height:1.55;margin:8px 0}
+.avis-nom{font-size:11.5px;color:var(--gray)}
+.avis-cta{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.03));border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:16px}
+.avis-cta p{flex:1;font-size:12.5px;color:var(--gray);line-height:1.5}
+.avis-cta p strong{display:block;color:var(--white);font-size:14px;margin-bottom:2px}
+.avis-btn{flex:none;background:var(--gold);color:#080808;border-radius:9px;padding:10px 13px;font-size:11.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 input[type=date]::-webkit-calendar-picker-indicator{
   filter:invert(.45) sepia(1) hue-rotate(5deg) saturate(1.8);
@@ -453,6 +463,10 @@ var WA="33668163064";
 // jours : 0 = dimanche … 6 = samedi
 var HORAIRES={jours:[1,2,3,4,5,6],ouvre:10,ferme:20};
 var CRENEAUX_H=[10,11,12,13,14,15,16,17,18,19];
+// Avis clients : UNIQUEMENT de vrais avis (copiés de la fiche Google), jamais inventés.
+// Format : {nom:"Karim B.", note:5, texte:"...", quand:"sept. 2026"}. Vide = seul le bouton s'affiche.
+var AVIS=[];
+var LIEN_AVIS="https://share.google/URnAZ3CJ5ApWVKRD6";
 var ONESIGNAL_ID=""; // App ID OneSignal du garage (vide = bandeau notifs masqué)
 
 var ICONS={
@@ -530,6 +544,18 @@ function renderHome(){
   var h='<div class="cats rv d1">';
   h+='<button class="cat-card" id="c-moto"><div class="cat-bg"></div><div class="cat-content"><i class="fa-solid fa-motorcycle cat-ico-lg"></i><div class="cat-name">Moto</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
   h+='<button class="cat-card" id="c-auto"><div class="cat-bg"></div><div class="cat-content"><i class="fa-solid fa-car-side cat-ico-lg"></i><div class="cat-name">Auto</div></div><div class="cat-arrow"><i class="fa-solid fa-chevron-right"></i></div></button>';
+  h+='</div>';
+  // Avis clients
+  h+='<div class="wrap" style="margin-top:2rem">';
+  h+='<div class="sec-tag rv d2">Avis clients</div>';
+  h+='<div class="sec-h rv d3">'+(AVIS.length?'Ils nous font confiance':'Votre avis compte')+'</div>';
+  if(AVIS.length){
+    h+='<div class="avis-list rv d3">'+AVIS.map(function(a){
+      return '<div class="avis-card"><div class="avis-etoiles">'+"★★★★★".slice(0,a.note||5)+'</div><div class="avis-txt">« '+esc(a.texte)+' »</div><div class="avis-nom">'+esc(a.nom)+(a.quand?' · '+esc(a.quand):'')+'</div></div>';
+    }).join("")+'</div>';
+  }
+  h+='<div class="avis-cta rv d4"><p><strong><span style="color:var(--gold);letter-spacing:2px">★★★★★</span> Satisfait de votre passage ?</strong>Un avis Google aide le garage à se faire connaître.</p>';
+  h+='<a class="avis-btn" href="'+LIEN_AVIS+'" target="_blank" rel="noopener">Laisser un avis</a></div>';
   h+='</div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Contact</div>';
