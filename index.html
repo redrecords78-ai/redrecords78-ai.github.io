@@ -274,13 +274,8 @@ nav {
   font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
   margin-bottom: 2rem; animation: fadeUp 0.8s ease both; border-radius: 20px;
 }
-.hero-promo {
-  display: inline-flex; align-items: center; gap: 8px; margin: 1.75rem auto 0;
-  background: rgba(232,25,44,0.12); border: 1px solid rgba(232,25,44,0.45); color: var(--white);
-  padding: 9px 16px; border-radius: 30px; font-size: 13px; text-decoration: none;
-  animation: fadeUp 0.8s 0.45s ease both;
-}
-.hero-promo strong { color: var(--red); }
+.hero-promo { display: block; width: min(100%, 640px); margin: 0 auto 1.5rem; border-radius: 14px; overflow: hidden; border: 1px solid rgba(232,25,44,0.35); box-shadow: 0 12px 40px rgba(232,25,44,0.18); animation: fadeUp 0.8s 0.45s ease both; }
+.hero-promo img { display: block; width: 100%; height: auto; }
 .share-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; background: var(--black2); border: 1px solid var(--gray2); border-radius: 12px; padding: 16px 18px; }
 .share-card-txt { font-size: 13px; color: var(--gray); line-height: 1.5; }
 .share-card-txt strong { color: var(--white); font-size: 15px; display: block; margin-bottom: 2px; }
@@ -293,7 +288,7 @@ nav {
   line-height: 0.9; letter-spacing: 4px; margin-bottom: 1.5rem; animation: fadeUp 0.8s 0.1s ease both;
 }
 .hero-title span { color: var(--red); }
-.hero-sub { font-size: 16px; color: var(--gray); max-width: 400px; margin: 0 auto 2.5rem; animation: fadeUp 0.8s 0.2s ease both; }
+.hero-sub { font-size: 16px; color: var(--gray); max-width: 400px; margin: 0 auto 1.75rem; animation: fadeUp 0.8s 0.2s ease both; }
 .hero-cta {
   display: inline-flex; align-items: center; gap: 12px; background: var(--red); color: white;
   text-decoration: none; padding: 16px 36px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase;
@@ -656,6 +651,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <div class="hero-tag">Studio · Mantes-la-Jolie · 78</div>
   <h1 class="hero-title">RED<br><span>RECORDS</span></h1>
   <p class="hero-sub">Enregistrement · Mix · Mastering · Production.<br>Un son professionnel, une vraie vision.</p>
+  <a href="#reservation" class="hero-promo" id="hero-promo" aria-label="Cadeau : réserve sur l'app, 1h offerte"><img src="icons/banniere-1h-offerte.jpg" alt="Cadeau : réserve sur l'app, 1h offerte" width="1400" height="525"></a>
   <div class="hero-ctas">
     <a href="#reservation" class="hero-cta">
       Réserver une session
@@ -666,7 +662,6 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       WhatsApp
     </a>
   </div>
-  <a href="#reservation" class="hero-promo" id="hero-promo">🎁 <span>Réserve sur l'app : <strong>1h offerte</strong></span></a>
 </div>
 
 <div class="divider"></div>
