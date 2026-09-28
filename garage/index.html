@@ -477,7 +477,28 @@ var HORAIRES={jours:[1,2,3,4,5,6],ouvre:10,ferme:20};
 var CRENEAUX_H=[10,11,12,13,14,15,16,17,18,19];
 // Avis clients : UNIQUEMENT de vrais avis (copiés de la fiche Google), jamais inventés.
 // Format : {nom:"Karim B.", note:5, texte:"...", quand:"sept. 2026"}. Vide = seul le bouton s'affiche.
-var AVIS=[];
+var AVIS=[
+  {"nom": "Rayan D.", "note": 5, "quand": "juillet 2026", "texte": "Lavage sur ma Gs 10/10 du petit au plus gros détaille ! Personel 10/10 accueillant et chaleureux !"},
+  {"nom": "A 69", "note": 5, "quand": "juillet 2026", "texte": "Excellente expérience chez Detailing Center Lyon ! L’équipe est très professionnelle, accueillante et passionnée par son travail. …"},
+  {"nom": "Bachir S.", "note": 5, "quand": "avril 2026", "texte": "Je recommande vivement Detailing Center Lyon ! Le service est vraiment excellent. L’équipe est très accueillante, professionnelle et attentive aux détails. …"},
+  {"nom": "y0", "note": 5, "quand": "janvier 2026", "texte": "Petit nettoyage interieur d'une citadine pas trop sale en un peu plus d'une heure. Accueil excelent, tarif correct et soin du détail."},
+  {"nom": "Bartenders France", "note": 5, "quand": "janvier 2026", "texte": "Nous recommandons les yeux fermés cette entreprise. Respects des délais d’attente, une équipe clairement compétente et passionnée !…"},
+  {"nom": "TriVi A.", "note": 5, "quand": "octobre 2025", "texte": "Je recommande , très avenant et rapide en intervention ! Il y a également une voiture de prêt si besoin !"},
+  {"nom": "Sabrina C.", "note": 5, "quand": "avril 2025", "texte": "J’ai ramené ma 208 pour un nettoyage premium, très satisfaite du résultat. Équipe accueillante très professionnel et respectueuse. …"},
+  {"nom": "Yannick M.", "note": 5, "quand": "décembre 2024", "texte": "Prestation au top ! J’ai déposé ma 308 dans un sale état autant à l’intérieur qu’à l’extérieur …"},
+  {"nom": "Rémi K.", "note": 5, "quand": "septembre 2024", "texte": "Au top....je recommande pour votre véhicule. Travail soigné. …"},
+  {"nom": "Jet V.", "note": 5, "quand": "août 2024", "texte": "Satisfait de la rénovation des optiques de phare de ma voiture Gérant du centre très sympathique et qui donne de bons conseils pour l’entretien esthétique de sa voiture 👍🏼"},
+  {"nom": "Undeuxtrois T.", "note": 5, "quand": "août 2024", "texte": "Très bon accueil, équipe dynamique et motivé ! Travail soigné, atelier très propre et accueillant. …"},
+  {"nom": "Hemlyn H.", "note": 5, "quand": "août 2024", "texte": "Une équipe professionnelle, qui travaille avec minutie. Un accueil agréable et sympathique et un espace d'attente confortable. Je recommande fortement. …"},
+  {"nom": "Ahlam H.", "note": 5, "quand": "juin 2024", "texte": "J’ai fait appel à detailing centre pour la première fois pour nettoyer ma voiture et je ne regrette pas! Service au Top, équipe très professionnelle …"},
+  {"nom": "Haythem B.", "note": 5, "quand": "mai 2024", "texte": "L’équipe de Detailing center est vraiment au top, d’un professionnalisme incontournable. …"},
+  {"nom": "Antinea G.", "note": 5, "quand": "mars 2024", "texte": "Un accueil super et un travail de très bonne qualité, pour un prix vraiment abordable ! …"},
+  {"nom": "Nyro69", "note": 5, "quand": "janvier 2024", "texte": "J’ai ramené ma M2 chez eux pour un service complet nettoyage intérieur prémium et service complet extérieur polissage personnalisé et traitement céramique …"},
+  {"nom": "KHALIS_692", "note": 5, "quand": "décembre 2023", "texte": "Alors que dire franchement prestation au top le nettoyage intérieur est juste fait au détails prêt ma voiture a retrouvé une seconde jeunesse!! …"},
+  {"nom": "Lili R.", "note": 5, "quand": "décembre 2023", "texte": "Je suis allé faire nettoyer ma voiture car les sièges étaient dans un sale état ( siège en tissus beige ) très salissant 🙄 …"},
+  {"nom": "Yacine L.", "note": 5, "quand": "novembre 2023", "texte": "Equipe de professionnels, j’ai ramené ma voiture pour sa futur vente et c’est nickel je n’aurai jamais pu la rendre aussi neuve que ça et l’accueil était super merci à vous"},
+  {"nom": "Song B.", "note": 5, "quand": "novembre 2023", "texte": "L’équipe Detailing c’est occupé de mon véhicule en urgence. Équipe très professionnelle, prestation au delà de mes attentes, prix plus que correcte …"}
+];
 var LIEN_AVIS="https://share.google/URnAZ3CJ5ApWVKRD6";
 var ONESIGNAL_ID=""; // App ID OneSignal du garage (vide = bandeau notifs masqué)
 
@@ -565,6 +586,7 @@ function renderHome(){
     h+='<div class="avis-list rv d3">'+AVIS.map(function(a){
       return '<div class="avis-card"><div class="avis-etoiles">'+"★★★★★".slice(0,a.note||5)+'</div><div class="avis-txt">« '+esc(a.texte)+' »</div><div class="avis-nom">'+esc(a.nom)+(a.quand?' · '+esc(a.quand):'')+'</div></div>';
     }).join("")+'</div>';
+    h+='<div style="text-align:center;font-size:11px;color:var(--gray);margin:-6px 0 8px">Avis Google</div>';
     h+='<div class="avis-dots" id="avisDots">'+AVIS.map(function(_,i){return '<i'+(i?'':' class="on"')+'></i>';}).join("")+'</div>';
   }
   h+='<div class="avis-cta rv d4"><p><strong><span style="color:var(--gold);letter-spacing:2px">★★★★★</span> Satisfait de votre passage ?</strong>Un avis Google aide le garage à se faire connaître.</p>';
