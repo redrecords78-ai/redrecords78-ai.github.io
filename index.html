@@ -15,13 +15,15 @@
 <meta property="og:site_name" content="Red Records 78">
 <meta property="og:title" content="Red Records 78 · Studio d'enregistrement">
 <meta property="og:description" content="Enregistrement · Mix · Mastering · Production à Mantes-la-Jolie (78). Réserve ta session en ligne.">
-<meta property="og:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
+<meta property="og:image" content="https://redrecords78-ai.github.io/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:url" content="https://redrecords78-ai.github.io/">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Red Records 78 · Studio d'enregistrement">
 <meta name="twitter:description" content="Enregistrement · Mix · Mastering · Production à Mantes-la-Jolie (78).">
-<meta name="twitter:image" content="https://redrecords78-ai.github.io/icons/icon-512.png">
+<meta name="twitter:image" content="https://redrecords78-ai.github.io/icons/og-image.png">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -272,6 +274,18 @@ nav {
   font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
   margin-bottom: 2rem; animation: fadeUp 0.8s ease both; border-radius: 20px;
 }
+.hero-promo {
+  display: inline-flex; align-items: center; gap: 8px; margin: 1.75rem auto 0;
+  background: rgba(232,25,44,0.12); border: 1px solid rgba(232,25,44,0.45); color: var(--white);
+  padding: 9px 16px; border-radius: 30px; font-size: 13px; text-decoration: none;
+  animation: fadeUp 0.8s 0.45s ease both;
+}
+.hero-promo strong { color: var(--red); }
+.share-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; background: var(--black2); border: 1px solid var(--gray2); border-radius: 12px; padding: 16px 18px; }
+.share-card-txt { font-size: 13px; color: var(--gray); line-height: 1.5; }
+.share-card-txt strong { color: var(--white); font-size: 15px; display: block; margin-bottom: 2px; }
+.share-btn { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; background: var(--red); color: #fff; border: none; border-radius: 30px; padding: 11px 18px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.share-btn svg { stroke: #fff; }
 .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 .hero-title {
@@ -652,6 +666,7 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       WhatsApp
     </a>
   </div>
+  <a href="#reservation" class="hero-promo" id="hero-promo">🎁 <span>Réserve sur l'app : <strong>1h offerte</strong></span></a>
 </div>
 
 <div class="divider"></div>
@@ -742,6 +757,10 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       </div>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
+  </div>
+  <div class="share-card">
+    <div class="share-card-txt"><strong>Fais tourner l'app</strong>Envoie-la à ceux qui kickent.</div>
+    <button type="button" class="share-btn" onclick="partagerApp()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Partager</button>
   </div>
 </section>
 
@@ -889,6 +908,10 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       WhatsApp
     </a>
+    <button type="button" class="f-btn" onclick="partagerApp()" style="font-family:inherit;cursor:pointer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Partager l'app
+    </button>
   </div>
   <div class="footer-info">1 Rue Armand Cassan, Mantes-la-Jolie 78200<br>@red_records78 · Studio de production musicale<br><a href="legal.html" style="color:#666;text-decoration:none;font-size:11px">Mentions légales &amp; confidentialité</a></div>
 </footer>
@@ -1251,6 +1274,31 @@ document.getElementById('heure').addEventListener('change', majDispo);
   }
 })();
 
+// Partage de l'app (menu natif du téléphone : WhatsApp, Snap, Insta…), sinon copie du lien
+function partagerApp() {
+  const url = 'https://redrecords78-ai.github.io/';
+  const texte = "Red Records 78 : réserve ta session studio sur l'app, 1h offerte 🎁";
+  if (navigator.share) { navigator.share({ title: 'Red Records 78', text: texte, url }).catch(() => {}); return; }
+  const fini = () => alert("Lien copié ✅ Colle-le à qui tu veux.");
+  if (navigator.clipboard) navigator.clipboard.writeText(texte + ' ' + url).then(fini).catch(() => prompt('Copie ce lien :', url));
+  else prompt('Copie ce lien :', url);
+}
+// Bandeau promo du haut : seulement tant que la promo tourne
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof PROMO_HEURE_OFFERTE !== 'undefined' && !PROMO_HEURE_OFFERTE) { const b = document.getElementById('hero-promo'); if (b) b.style.display = 'none'; }
+});
+
+// Client qui revient : nom d'artiste + contact préremplis (gardés sur SON téléphone uniquement)
+function preremplirClient() {
+  try {
+    const c = JSON.parse(localStorage.getItem('rr-client') || '{}');
+    const a = document.getElementById('artiste'), k = document.getElementById('contact');
+    if (a && !a.value && c.artiste) a.value = c.artiste;
+    if (k && !k.value && c.contact) k.value = c.contact;
+  } catch(e) {}
+}
+preremplirClient();
+
 document.getElementById('demandeForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -1314,6 +1362,8 @@ document.getElementById('demandeForm').addEventListener('submit', async function
   fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) })
     .catch(() => {}); // ignorer les erreurs reseau silencieusement
   // On considere la demande envoyee des qu'on envoie (le mail + push confirment cote serveur)
+  // Mémorise nom + contact pour préremplir la prochaine réservation
+  try { localStorage.setItem('rr-client', JSON.stringify({ artiste: data.artiste, contact: data.contact })); } catch(e) {}
   localStorage.setItem('rr-demande-pending', '1');
   // Mémorise les infos pour préremplir le message WhatsApp final (étape post-acompte)
   localStorage.setItem('rr-derniere-demande', JSON.stringify({
@@ -1351,7 +1401,7 @@ function reinitialiserReservation(texte) {
   });
   const form = document.getElementById('demandeForm');
   const msg  = document.getElementById('msgRetour');
-  if (form) { form.style.display = 'block'; form.reset(); }
+  if (form) { form.style.display = 'block'; form.reset(); preremplirClient(); }
   if (msg) {
     msg.style.display = texte ? 'block' : 'none';
     msg.style.color   = 'var(--gray)';
@@ -1396,7 +1446,7 @@ function fermerFinale() {
   const form = document.getElementById('demandeForm');
   const fin  = document.getElementById('demande-finale');
   if (fin)  fin.style.display  = 'none';
-  if (form) { form.style.display = 'block'; form.reset(); }
+  if (form) { form.style.display = 'block'; form.reset(); preremplirClient(); }
   // Scroll vers le haut pour repartir propre
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1476,7 +1526,7 @@ document.querySelector('nav .nav-logo').addEventListener('click', function(e) {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   // Purge des caches fossiles : des iPhones restaient bloqués sur une vieille version des pages
-  if ('caches' in window) caches.keys().then(ks => ks.filter(k => k.startsWith('red-records-') && k !== 'red-records-v11').forEach(k => caches.delete(k))).catch(() => {});
+  if ('caches' in window) caches.keys().then(ks => { const v = k => +(k.match(/^red-records-v(\d+)$/) || [0, -1])[1]; const garde = Math.max(...ks.map(v)); ks.filter(k => k.startsWith('red-records-') && v(k) !== garde).forEach(k => caches.delete(k)); }).catch(() => {});  // garde le cache le plus récent (celui du SW), purge les fossiles
   if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(() => {});
 }
 
@@ -2255,9 +2305,60 @@ if ('serviceWorker' in navigator) {
   </button>
 </div>
 
+<!-- Bandeau « Installe l'app » : visiteurs mobiles hors app (Safari, Instagram, Chrome…) -->
+<div id="install-banner" style="display:none;position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;z-index:500;
+  background:#141414;border:1px solid #2a2a2a;border-left:3px solid var(--red);border-radius:14px;
+  padding:14px 16px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  transform:translateY(20px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease;">
+  <img src="icons/icon-192.png" alt="" style="width:38px;height:38px;border-radius:10px;flex-shrink:0">
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Installe l'app <strong style="color:var(--red)">RED</strong> · 1h offerte</div>
+    <div id="install-banner-sous" style="font-size:12px;color:var(--gray);margin-top:3px;line-height:1.45"></div>
+  </div>
+  <button id="install-banner-btn" onclick="installerApp()" style="display:none;background:var(--red);color:white;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0">Installer</button>
+  <button onclick="fermerInstall()" aria-label="Fermer" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0">×</button>
+</div>
+<script>
+(function() {
+  const ua = navigator.userAgent;
+  const installee = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+  const mobile = /iPhone|iPad|iPod|Android/i.test(ua);
+  let snooze = 0; try { snooze = +localStorage.getItem('rr-install-snooze') || 0; } catch(e) {}
+  let promptAndroid = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptAndroid = e; });
+  window.installerApp = function() {
+    if (!promptAndroid) return;
+    promptAndroid.prompt();
+    promptAndroid.userChoice.finally(() => { promptAndroid = null; fermerInstall(); });
+  };
+  window.fermerInstall = function() {
+    try { localStorage.setItem('rr-install-snooze', String(Date.now() + 3 * 86400000)); } catch(e) {}   // revient dans 3 jours
+    const b = document.getElementById('install-banner');
+    b.classList.remove('show'); setTimeout(() => b.style.display = 'none', 400);
+  };
+  if (installee || !mobile || Date.now() < snooze) return;
+  setTimeout(() => {
+    const nb = document.getElementById('notif-banner');
+    if (nb && nb.style.display !== 'none') return;          // le bandeau notifs est déjà là : on ne s'empile pas
+    const ios = /iPhone|iPad|iPod/.test(ua);
+    const inApp = /Instagram|FBAN|FBAV|Snapchat|TikTok|musical_ly|Line\//i.test(ua);
+    const sous = document.getElementById('install-banner-sous');
+    if (inApp) sous.innerHTML = ios
+      ? 'Appuie sur <strong>•••</strong> puis <strong>Ouvrir dans Safari</strong>, et installe-la depuis là.'
+      : 'Appuie sur <strong>⋮</strong> puis <strong>Ouvrir dans Chrome</strong>, et installe-la depuis là.';
+    else if (ios) sous.innerHTML = "Appuie sur <strong>Partager</strong> <span style='font-size:14px'>⬆️</span> puis <strong>Sur l'écran d'accueil</strong>.";
+    else if (promptAndroid) { sous.textContent = 'Réserve en 2 clics et reçois les promos.'; document.getElementById('install-banner-btn').style.display = 'block'; }
+    else sous.innerHTML = "Menu <strong>⋮</strong> puis <strong>Installer l'application</strong>.";
+    const b = document.getElementById('install-banner');
+    b.style.display = 'flex';
+    requestAnimationFrame(() => b.classList.add('show'));
+  }, 6000);
+})();
+</script>
+
 <style>
 #dispo-info .dispo-prop { background:var(--red); color:#fff; border:0; border-radius:8px; padding:7px 12px; font-size:13px; margin:2px 4px 2px 0; cursor:pointer; }
-#notif-banner.show { transform: translateY(0) !important; opacity: 1 !important; }
+#notif-banner.show, #install-banner.show { transform: translateY(0) !important; opacity: 1 !important; }
 </style>
 
 <!-- ÉCRAN MAINTENANCE (verrou d'urgence) — masqué par défaut, affiché si l'app est bloquée -->
