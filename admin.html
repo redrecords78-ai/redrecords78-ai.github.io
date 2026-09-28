@@ -110,6 +110,14 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .inge-bar-wrap { height: 3px; background: var(--gray2); margin-top: 6px; }
 .inge-bar { height: 100%; }
 .creneau-list { display: flex; flex-direction: column; gap: 10px; }
+.vis-chart-card { margin-top: 12px; background: var(--black2); border: 1px solid var(--gray2); border-radius: 12px; padding: 14px 14px 10px; }
+.vis-chart-titre { font-size: 11px; color: var(--gray); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 10px; }
+.vis-bars { display: flex; align-items: flex-end; gap: 2px; height: 110px; border-bottom: 1px solid var(--gray2); }
+.vis-bar { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; cursor: default; }
+.vis-bar > i { display: block; width: 100%; background: var(--red); border-radius: 4px 4px 0 0; min-height: 2px; transition: opacity 0.15s; }
+.vis-bar.vide > i { background: var(--gray2); }
+.vis-bars:hover .vis-bar:not(:hover) > i { opacity: 0.45; }
+.vis-axe { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); margin-top: 6px; font-variant-numeric: tabular-nums; }
 .camemberts { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; align-items: start; }
 .camemberts > div { min-width: 0; }
 .camemberts .section-label { min-height: 2.6em; white-space: normal; }
@@ -316,6 +324,17 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       <div class="section-label">Prochaines sessions</div>
       <div class="sessions-list" id="next-sessions-list">
         <div class="session-row"><div style="font-size:13px;color:var(--gray)">Chargement…</div></div>
+      </div>
+    </div>
+
+    <!-- VISITES (OWNER uniquement, compteur privé) -->
+    <div id="visites-section" style="display:none">
+      <div class="section-label">Visites de l'app · 30 jours <span style="color:var(--gray2);letter-spacing:0.05em;text-transform:none">· visible par toi seul</span></div>
+      <div class="kpi-grid" id="visites-kpi"></div>
+      <div class="vis-chart-card">
+        <div class="vis-chart-titre">Visiteurs par jour</div>
+        <div class="vis-bars" id="visites-bars"></div>
+        <div class="vis-axe" id="visites-axe"></div>
       </div>
     </div>
 
@@ -622,6 +641,7 @@ function unlockWithData(data, pin) {
       loadMembres();
       document.getElementById('killswitch-section').style.display = 'block';
       refreshLockState();
+      fetchVisites();
     }
   }
 
@@ -906,7 +926,44 @@ function camembert(parts, unite) {
   return `<svg class="pie-svg" viewBox="0 0 110 110" role="img" aria-label="Répartition sur ${pluriel(total)}">${formes}</svg><div class="pie-legend">${legende}</div>`;
 }
 
-function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') { loadTeam(); loadMembres(); } }
+// Visites de l'app (compteur privé, OWNER seulement) : 4 chiffres + barres des 30 derniers jours
+async function fetchVisites() {
+  const pin = localStorage.getItem('rr-pin-admin') || '';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=visites&jours=30&pin=${pin}`);
+    const data = await res.json();
+    if (data.error || !data.total) return;
+    renderVisites(data);
+  } catch(e) {}
+}
+
+function renderVisites(data) {
+  const t = data.total;
+  document.getElementById('visites-kpi').innerHTML = `
+    <div class="kpi-card accent"><div class="kpi-num">${t.visiteurs}</div><div class="kpi-label">Visiteurs</div><div class="kpi-sub">cumul des visiteurs par jour</div></div>
+    <div class="kpi-card"><div class="kpi-num">${t.nouveaux}</div><div class="kpi-label">Nouveaux</div><div class="kpi-sub">première visite</div></div>
+    <div class="kpi-card"><div class="kpi-num">${t.vues}</div><div class="kpi-label">Pages vues</div></div>
+    <div class="kpi-card"><div class="kpi-num">${t.vues ? Math.round(t.app / t.vues * 100) : 0}<span>%</span></div><div class="kpi-label">Depuis l'app</div><div class="kpi-sub">${t.app} vues app installée</div></div>`;
+  // 30 jours pleins, jours sans visite compris (barre grise)
+  const parJour = {}; (data.jours || []).forEach(j => parJour[j.jour] = j);
+  const jours = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const cle = d.toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' });   // AAAA-MM-JJ
+    jours.push({ cle, d, j: parJour[cle] });
+  }
+  const max = Math.max(1, ...jours.map(x => x.j ? x.j.visiteurs : 0));
+  const fmt = d => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  document.getElementById('visites-bars').innerHTML = jours.map(x => {
+    const v = x.j ? x.j.visiteurs : 0;
+    const info = x.j ? `${fmt(x.d)} : ${v} visiteur${v > 1 ? 's' : ''}, ${x.j.nouveaux} nouveau${x.j.nouveaux > 1 ? 'x' : ''}, ${x.j.vues} vues` : `${fmt(x.d)} : aucune visite`;
+    return `<div class="vis-bar${v ? '' : ' vide'}" title="${info}"><i style="height:${v ? Math.max(4, v / max * 100) : 2}%"></i></div>`;
+  }).join('');
+  document.getElementById('visites-axe').innerHTML = `<span>${fmt(jours[0].d)}</span><span>max ${max}/jour</span><span>aujourd'hui</span>`;
+  document.getElementById('visites-section').style.display = 'block';
+}
+
+function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') { loadTeam(); loadMembres(); fetchVisites(); } }
 
 function toggleAcc(id, trigger) {
   document.getElementById(id).classList.toggle('open');
