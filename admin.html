@@ -108,6 +108,19 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .inge-bar-wrap { height: 3px; background: var(--gray2); margin-top: 6px; }
 .inge-bar { height: 100%; }
 .creneau-list { display: flex; flex-direction: column; gap: 10px; }
+.camemberts { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; align-items: start; }
+.camemberts > div { min-width: 0; }
+.camemberts .section-label { min-height: 2.6em; white-space: normal; }
+.camemberts .section-label::before { display: none; }
+.pie-card { background: var(--black2); border: 1px solid var(--gray2); border-radius: 12px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.pie-svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.pie-svg path, .pie-svg circle { transition: opacity 0.15s; cursor: default; }
+.pie-svg:hover path:not(:hover), .pie-svg:hover circle:not(:hover) { opacity: 0.45; }
+.pie-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.pie-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--white); }
+.pie-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.pie-nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pie-val { color: var(--gray); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .creneau-row { display: flex; align-items: center; gap: 1rem; }
 .creneau-label { font-size: 13px; color: var(--gray); min-width: 100px; }
 .creneau-bar-wrap { flex: 1; height: 6px; background: var(--black2); border-radius: 3px; overflow: hidden; }
@@ -304,16 +317,16 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
       </div>
     </div>
 
-    <!-- INGES -->
-    <div id="inges-wrap" style="display:none">
-      <div class="section-label">Activité par ingé · ce mois</div>
-      <div class="inge-grid" id="inge-grid"></div>
-    </div>
-
-    <!-- CRÉNEAUX -->
-    <div id="creneaux-wrap" style="display:none">
-      <div class="section-label">Créneaux les plus demandés</div>
-      <div class="creneau-list" id="creneau-list"></div>
+    <!-- INGES + CRÉNEAUX : camemberts côte à côte -->
+    <div class="camemberts">
+      <div id="inges-wrap" style="display:none">
+        <div class="section-label">Activité par ingé · ce mois</div>
+        <div class="pie-card" id="inge-grid"></div>
+      </div>
+      <div id="creneaux-wrap" style="display:none">
+        <div class="section-label">Créneaux les plus demandés</div>
+        <div class="pie-card" id="creneau-list"></div>
+      </div>
     </div>
 
     <!-- DIFFUSION -->
@@ -866,6 +879,31 @@ async function annulerAcompte(id) {
   } catch(e) { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur réseau'); }
 }
 
+// Couleur fixe par créneau (validée daltonisme sur fond sombre) + libellé accentué
+const CRENEAU_COULEUR = { 'Soir / Nuit': '#E8192C', 'Apres-midi': '#3f8efc', 'Matin': '#b07c00' };
+const CRENEAU_LIBELLE = { 'Apres-midi': 'Après-midi' };
+
+// Camembert SVG + légende (nom, nombre, %). Survol d'une part = infobulle, les autres s'estompent.
+function camembert(parts, unite) {
+  const total = parts.reduce((t, p) => t + p.val, 0);
+  if (!total) return '';
+  const R = 50, C = 55;
+  const pt = a => [C + R * Math.sin(a), C - R * Math.cos(a)].map(v => v.toFixed(2)).join(' ');
+  const pluriel = n => n + ' ' + unite + (n > 1 ? 's' : '');
+  let angle = 0;
+  const formes = parts.map(p => {
+    const pct = Math.round(p.val / total * 100);
+    const titre = `<title>${esc(p.nom)} : ${pluriel(p.val)} (${pct} %)</title>`;
+    if (parts.length === 1) return `<circle cx="${C}" cy="${C}" r="${R}" fill="${p.couleur}">${titre}</circle>`;
+    const a0 = angle, a1 = angle + p.val / total * 2 * Math.PI;
+    angle = a1;
+    const grand = (a1 - a0) > Math.PI ? 1 : 0;
+    return `<path d="M${C} ${C} L${pt(a0)} A${R} ${R} 0 ${grand} 1 ${pt(a1)} Z" fill="${p.couleur}" stroke="var(--black2)" stroke-width="2" stroke-linejoin="round">${titre}</path>`;
+  }).join('');
+  const legende = parts.map(p => `<div class="pie-row"><span class="pie-dot" style="background:${p.couleur}"></span><span class="pie-nom">${esc(p.nom)}</span><span class="pie-val">${p.val} · ${Math.round(p.val / total * 100)} %</span></div>`).join('');
+  return `<svg class="pie-svg" viewBox="0 0 110 110" role="img" aria-label="Répartition sur ${pluriel(total)}">${formes}</svg><div class="pie-legend">${legende}</div>`;
+}
+
 function refreshAll() { fetchDemandes(); fetchAcomptes(); fetchStats(); if (currentUser?.role === 'OWNER') { loadTeam(); loadMembres(); } }
 
 function toggleAcc(id, trigger) {
@@ -929,28 +967,22 @@ function renderStats(data) {
     }).join('');
   }
 
+  // Camemberts côte à côte (28/09/2026) : ingés à la couleur de leur agenda, créneaux à couleur fixe.
   const ingeMap  = data.ingeMonth || {};
-  const ingeKeys = Object.keys(ingeMap).filter(k => k !== 'Non assigné');
+  const ingeKeys = Object.keys(ingeMap).filter(k => k !== 'Non assigné').sort((a, b) => ingeMap[b] - ingeMap[a]);
   if (ingeKeys.length > 0) {
-    const max = Math.max(...ingeKeys.map(k => ingeMap[k]));
-    document.getElementById('inge-grid').innerHTML = ingeKeys.map(nom => {
-      const couleur = COULEURS_INGE[nom] || '#888';
-      const pct = Math.round(ingeMap[nom] / max * 100);
-      return `<div class="inge-card"><div class="inge-name" style="color:${couleur}">${esc(nom)}</div><div class="inge-count">${ingeMap[nom]} session${ingeMap[nom] > 1 ? 's' : ''}</div><div class="inge-bar-wrap"><div class="inge-bar" style="width:${pct}%;background:${couleur}"></div></div></div>`;
-    }).join('');
+    document.getElementById('inge-grid').innerHTML = camembert(ingeKeys.map(nom => ({
+      nom, val: ingeMap[nom], couleur: COULEURS_INGE[nom] || '#888'
+    })), 'session');
     document.getElementById('inges-wrap').style.display = 'block';
   }
 
   const creneaux = data.creneaux || {};
-  const crKeys   = Object.keys(creneaux);
+  const crKeys   = Object.keys(creneaux).sort((a, b) => creneaux[b] - creneaux[a]);
   if (crKeys.length > 0) {
-    const maxCr = Math.max(...crKeys.map(k => creneaux[k]));
-    document.getElementById('creneau-list').innerHTML = crKeys
-      .sort((a, b) => creneaux[b] - creneaux[a])
-      .map(slot => {
-        const pct = Math.round(creneaux[slot] / maxCr * 100);
-        return `<div class="creneau-row"><div class="creneau-label">${esc(slot)}</div><div class="creneau-bar-wrap"><div class="creneau-bar" style="width:${pct}%"></div></div><div class="creneau-count">${creneaux[slot]}</div></div>`;
-      }).join('');
+    document.getElementById('creneau-list').innerHTML = camembert(crKeys.map(slot => ({
+      nom: CRENEAU_LIBELLE[slot] || slot, val: creneaux[slot], couleur: CRENEAU_COULEUR[slot] || '#888'
+    })), 'session');
     document.getElementById('creneaux-wrap').style.display = 'block';
   }
 
