@@ -663,18 +663,17 @@
 @media (max-width:400px){.fleet-grid{grid-template-columns:1fr!important}}
 /* App installée (iPhone) : la barre du haut passe sous l'heure / la batterie */
 nav{padding-top:calc(18px + env(safe-area-inset-top,0px))!important}
+.logo-pcr{height:54px;width:auto;display:block;margin:-6px 0}
+@media (max-width:600px){.logo-pcr{height:48px}}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <div class="logo-nav">
-    <div class="logo-circle">
-      <span>PERFORM<br>CAR<br>RENT</span>
-    </div>
-    <div class="logo-text">Perform Car Rent</div>
-  </div>
+  <a class="logo-nav" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false" aria-label="Perform Car Rent — accueil">
+    <img class="logo-pcr" src="icons/logo-pcr.png" alt="PCR Car Rent" width="520" height="280">
+  </a>
   <a href="tel:+33764203614" class="nav-cta">Réserver</a>
 </nav>
 
