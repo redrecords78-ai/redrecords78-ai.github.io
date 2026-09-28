@@ -831,6 +831,7 @@ function renderAcomptes(list) {
       </div>
       <div class="demande-actions">
         <button class="btn-accepter" onclick="validerAcompte('${esc(a.id)}')">✓ Acompte réglé</button>
+        <button class="btn-refuser" onclick="annulerAcompte('${esc(a.id)}')" title="Annule la session : retirée de l'agenda et du chat, le client est prévenu">✕ Annuler</button>
       </div>
     </div>`;
   }).join('');
@@ -845,6 +846,23 @@ async function validerAcompte(id) {
     const data = await res.json();
     if (data.ok) fetchAcomptes();
     else { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur : ' + (data.error || 'réessaie')); }
+  } catch(e) { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur réseau'); }
+}
+
+// Annulation côté studio : session retirée de l'agenda + du chat, client prévenu par notif.
+async function annulerAcompte(id) {
+  const artiste = document.querySelector('#acompte-' + CSS.escape(id) + ' .demande-artiste')?.textContent || 'ce client';
+  if (!confirm(`Annuler la session de ${artiste} ?\n\nElle sera retirée de l'agenda et du chat, et le client sera prévenu.`)) return;
+  const pin  = localStorage.getItem('rr-pin-admin') || '';
+  const card = document.getElementById('acompte-' + id);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=annulerAcompte&id=${encodeURIComponent(id)}&pin=${pin}`);
+    const data = await res.json();
+    if (data.ok) {
+      if (!data.agenda) alert('Session introuvable dans l\'agenda : pense à la retirer à la main.');
+      fetchAcomptes(); fetchStats();
+    } else { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur : ' + (data.error || 'réessaie')); }
   } catch(e) { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } alert('Erreur réseau'); }
 }
 
