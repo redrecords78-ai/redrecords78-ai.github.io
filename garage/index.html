@@ -392,6 +392,30 @@ footer{padding:2rem 1.5rem 1.25rem;text-align:center}
 }
 .nb-no{color:var(--gray);font-size:20px;padding:4px}
 
+/* ── COMMENT ÇA MARCHE ── */
+.steps{display:flex;flex-direction:column;gap:1px;background:var(--gray2);border-radius:14px;overflow:hidden}
+.step{background:var(--black2);padding:1rem 1.2rem;display:flex;gap:14px;align-items:flex-start}
+.step-n{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--gold);flex:none;width:22px}
+.step-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;line-height:1.1}
+.step-d{font-size:12.5px;color:var(--gray);margin-top:3px;line-height:1.45}
+
+/* ── FAQ ── */
+.faq{border-radius:14px;overflow:hidden;background:var(--gray2);display:flex;flex-direction:column;gap:1px}
+.faq details{background:var(--black2)}
+.faq summary{list-style:none;cursor:pointer;padding:1rem 1.2rem;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white);font-weight:400}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';margin-left:auto;color:var(--gold);font-size:20px;line-height:1;transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{padding:0 1.2rem 1rem;font-size:13px;color:var(--gray);line-height:1.6}
+
+/* ── BOUTONS ITINÉRAIRE ── */
+.go-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.go-btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:10px;border:1px solid rgba(201,168,76,.35);background:var(--black2);color:var(--white);font-size:13px;letter-spacing:.04em}
+.go-btn i{color:var(--gold)}
+.go-btn:active{border-color:var(--gold)}
+.go-btn.wa{grid-column:1/-1;background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.35)}
+.go-btn.wa i{color:#25D366}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -499,6 +523,15 @@ var AVIS=[
   {"nom": "Yacine L.", "note": 5, "quand": "novembre 2023", "texte": "Equipe de professionnels, j’ai ramené ma voiture pour sa futur vente et c’est nickel je n’aurai jamais pu la rendre aussi neuve que ça et l’accueil était super merci à vous"},
   {"nom": "Song B.", "note": 5, "quand": "novembre 2023", "texte": "L’équipe Detailing c’est occupé de mon véhicule en urgence. Équipe très professionnelle, prestation au delà de mes attentes, prix plus que correcte …"}
 ];
+var ADRESSE_URL=encodeURIComponent("388 Avenue Charles de Gaulle, 69200 Vénissieux");
+// FAQ : réponses prudentes, rien d'inventé (durées/paiement à faire valider par le garage avant d'être précis)
+var FAQ=[
+  ["Faut-il prendre rendez-vous ?","Oui, le garage travaille sur rendez-vous. Envoyez votre demande ici, on vous confirme le créneau sur WhatsApp."],
+  ["Combien de temps dure une prestation ?","Ça dépend de la prestation et de l'état du véhicule : de l'ordre d'une à deux heures pour un nettoyage, davantage pour un polissage ou un traitement céramique. Le garage vous donne la durée en confirmant le RDV."],
+  ["Les prix affichés sont-ils définitifs ?","Les prix « dès » sont des tarifs de départ : le prix final dépend de la taille et de l'état du véhicule. Il vous est annoncé avant le début des travaux."],
+  ["Que veut dire « sur devis » ?","Pour le film PPF ou l'anti-pluie, le prix dépend du véhicule. Décrivez-le dans votre demande (ou envoyez des photos sur WhatsApp) pour recevoir un devis."],
+  ["Je peux venir avec une moto ?","Oui : nettoyage, detailing et personnalisation moto (logo LED, feux, sabot, selle, crash bar)."]
+];
 var LIEN_AVIS="https://share.google/URnAZ3CJ5ApWVKRD6";
 var ONESIGNAL_ID=""; // App ID OneSignal du garage (vide = bandeau notifs masqué)
 
@@ -592,6 +625,22 @@ function renderHome(){
   h+='<div class="avis-cta rv d4"><p><strong><span style="color:var(--gold);letter-spacing:2px">★★★★★</span> Satisfait de votre passage ?</strong>Un avis Google aide le garage à se faire connaître.</p>';
   h+='<a class="avis-btn" href="'+LIEN_AVIS+'" target="_blank" rel="noopener">Laisser un avis</a></div>';
   h+='</div>';
+  // Comment ça marche
+  h+='<div class="wrap" style="margin-top:2rem">';
+  h+='<div class="sec-tag rv d2">Réservation</div>';
+  h+='<div class="sec-h rv d3">Comment ça marche</div>';
+  h+='<div class="steps rv d3">'+[
+    ["Choisissez","Moto ou auto, puis la prestation : les prix sont affichés."],
+    ["Envoyez","Votre demande part sur WhatsApp avec le véhicule et la date souhaitée."],
+    ["C'est calé","Le garage vous confirme le créneau et répond à vos questions."]
+  ].map(function(s,i){return '<div class="step"><div class="step-n">'+(i+1)+'</div><div><div class="step-t">'+s[0]+'</div><div class="step-d">'+s[1]+'</div></div></div>';}).join("")+'</div>';
+  h+='</div>';
+  // FAQ
+  h+='<div class="wrap" style="margin-top:2rem">';
+  h+='<div class="sec-tag rv d2">Questions</div>';
+  h+='<div class="sec-h rv d3">Questions fréquentes</div>';
+  h+='<div class="faq rv d3">'+FAQ.map(function(q){return '<details><summary>'+esc(q[0])+'</summary><p>'+esc(q[1])+'</p></details>';}).join("")+'</div>';
+  h+='</div>';
   h+='<div class="wrap" style="margin-top:2rem">';
   h+='<div class="sec-tag rv d2">Contact</div>';
   h+='<div class="sec-h rv d3">Nous trouver</div>';
@@ -599,6 +648,11 @@ function renderHome(){
   h+='<div class="info-r rv d4"><span class="ico">'+ICONS.phone+'</span><span><a href="tel:0668163064">06 68 16 30 64</a></span></div>';
   h+='<div class="info-r rv d4"><span class="ico">'+ICONS.clock+'</span><span>Lundi au samedi · 10h – 20h<br><span style="font-size:12px">Fermé le dimanche · sur rendez-vous</span></span></div>';
   h+='<div class="info-r rv d4"><span class="ico">'+ICONS.mail+'</span><span><a href="mailto:contact.detailingcenterlyon@gmail.com">contact.detailingcenterlyon@gmail.com</a></span></div>';
+  h+='<div class="go-row rv d4">';
+  h+='<a class="go-btn" href="https://www.google.com/maps/dir/?api=1&destination='+ADRESSE_URL+'" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right"></i>Itinéraire</a>';
+  h+='<a class="go-btn" href="https://waze.com/ul?q='+ADRESSE_URL+'&navigate=yes" target="_blank" rel="noopener"><i class="fa-brands fa-waze"></i>Waze</a>';
+  h+='<a class="go-btn wa" href="https://wa.me/'+WA+'?text='+encodeURIComponent("Bonjour, j'ai une question :")+'" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i>Une question ? Écrivez-nous</a>';
+  h+='</div>';
   h+='</div>';
   document.getElementById("view").innerHTML=h;
   demarrerAvis();
@@ -928,6 +982,7 @@ majOuvert();setInterval(majOuvert,60000);
 
 /* ── INIT ── */
 renderHome();
+if("serviceWorker" in navigator) window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});
 setTimeout(tryNotifBanner,4500);
 setTimeout(tryInstallBanner,6500);
 
