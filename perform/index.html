@@ -183,6 +183,43 @@ footer .tech{font-size:9px;color:var(--gris2);line-height:2}
 .cta-bas .btn{flex:1;height:54px}
 .cta-bas .btn-cadre{flex:0 0 54px;padding:0}
 
+
+/* ── Demande de réservation (feuille du bas) ── */
+.fond{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .25s}
+.fond.on{opacity:1;pointer-events:auto}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:91;max-height:92svh;overflow-y:auto;background:var(--noir2);border-top:1.5px solid var(--rouge);border-radius:22px 22px 0 0;padding:10px 18px calc(20px + var(--safe-b));transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(255,31,31,.15)}
+.feuille.on{transform:none}
+@media (min-width:640px){.feuille{max-width:520px;margin:0 auto}}
+.feuille .poignee{width:44px;height:4px;border-radius:4px;background:#333;margin:0 auto 14px}
+.feuille .titre{font-size:30px}
+.f-lbl{display:block;font-size:9.5px;color:var(--gris);margin:14px 0 6px}
+.f-in{width:100%;height:48px;background:var(--noir3);border:1px solid var(--trait);border-radius:10px;color:#fff;padding:0 14px;font:inherit;font-size:16px;-webkit-appearance:none;appearance:none;color-scheme:dark}
+.f-in:focus{outline:2px solid var(--rouge);outline-offset:1px;border-color:transparent}
+textarea.f-in{height:74px;padding:12px 14px;resize:none}
+.formules{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.formule{border:1.5px solid var(--trait);border-radius:12px;padding:10px 4px;text-align:center;background:var(--noir3)}
+.formule .f{font-size:11px;font-weight:600;text-transform:uppercase}
+.formule .p{font-size:19px;font-weight:900;font-style:italic;line-height:1.1;margin-top:2px}
+.formule .j{font-size:9.5px;color:var(--gris)}
+.formule.on{border-color:var(--rouge);background:rgba(255,31,31,.1);box-shadow:0 0 16px rgba(255,31,31,.2)}
+.f-deux{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.f-note{font-size:11.5px;color:var(--gris);margin-top:12px;line-height:1.45}
+.f-envoi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.f-envoi .btn{height:52px;padding:0 10px;font-size:14px}
+.btn[aria-disabled=true]{opacity:.35;pointer-events:none}
+.btn-wa{background:#128c4a}
+.f-err{font-size:12px;color:#ff6b6b;margin-top:8px}
+
+/* ── FAQ ── */
+.faq{margin-top:22px;display:grid;gap:8px}
+.faq details{background:var(--noir2);border:1px solid var(--trait);border-radius:14px}
+.faq details[open]{border-color:rgba(255,31,31,.45)}
+.faq summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';margin-left:auto;color:var(--rouge);font-size:22px;line-height:1;font-weight:400;transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{padding:0 16px 15px;font-size:13px;color:var(--gris);line-height:1.6}
+
 /* Apparitions */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
 .rv.vu{opacity:1;transform:none}
@@ -250,6 +287,20 @@ footer .tech{font-size:9px;color:var(--gris2);line-height:2}
   </div>
 </section>
 
+<!-- FAQ (uniquement des infos données par le loueur : flyers + réponses du 28/09) -->
+<section>
+  <div class="eyebrow tech rv">Questions</div>
+  <h2 class="sec-titre titre rv">Avant de<br><span class="r">rouler</span></h2>
+  <div class="faq rv">
+    <details><summary>Qu'est-ce qu'il faut pour louer ?</summary><p>Un permis B valide, une carte d'identité, un justificatif de domicile et la caution. Les documents sont vérifiés à la remise des clés.</p></details>
+    <details><summary>Combien coûte la caution ?</summary><p>Elle dépend de la voiture : 1 500 € pour la Clio, 2 000 € pour les Golf et la Polo, 8 000 € pour la RS6.</p></details>
+    <details><summary>Combien de kilomètres sont inclus ?</summary><p>200 km pour 24h, 600 km le week-end et 1 400 km la semaine. Au-delà, chaque kilomètre est facturé : 0,50 €/km, et 4,50 €/km pour la RS6.</p></details>
+    <details><summary>Le week-end, c'est quels jours ?</summary><p>Du vendredi au lundi. La formule 24h s'applique du lundi au jeudi.</p></details>
+    <details><summary>Vous livrez la voiture ?</summary><p>Oui, partout en Île-de-France. La livraison se fait sur devis selon l'adresse.</p></details>
+    <details><summary>Comment je réserve ?</summary><p>Touche « Réserver cette voiture », choisis la formule et la date : ta demande part par SMS ou WhatsApp. On te confirme la dispo et le rendez-vous pour les clés.</p></details>
+  </div>
+</section>
+
 <!-- RÉSERVATION -->
 <div class="resa rv">
   <div class="tech">Réservation</div>
@@ -269,6 +320,30 @@ footer .tech{font-size:9px;color:var(--gris2);line-height:2}
 <div class="cta-bas">
   <a class="btn btn-rouge" href="#flotte">Réserver une voiture</a>
   <a class="btn btn-cadre" href="tel:+33764203614" aria-label="Appeler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>
+</div>
+
+<!-- Demande de réservation -->
+<div class="fond" id="fond" onclick="fermerResa()"></div>
+<div class="feuille" id="feuille" role="dialog" aria-modal="true" aria-labelledby="rs-titre">
+  <div class="poignee"></div>
+  <div class="eyebrow tech">Demande de réservation</div>
+  <div class="titre" id="rs-titre"></div>
+  <label class="f-lbl tech">Formule</label>
+  <div class="formules" id="rs-formules"></div>
+  <div class="f-deux">
+    <div><label class="f-lbl tech" for="rs-date">Date de début</label><input class="f-in" type="date" id="rs-date"></div>
+    <div><label class="f-lbl tech" for="rs-heure">Heure</label><input class="f-in" type="time" id="rs-heure" value="10:00"></div>
+  </div>
+  <div class="f-err" id="rs-err" hidden></div>
+  <label class="f-lbl tech" for="rs-nom">Prénom</label><input class="f-in" type="text" id="rs-nom" autocomplete="given-name" placeholder="Ex. Yanis">
+  <label class="f-lbl tech" for="rs-msg">Précisions (livraison, questions…)</label>
+  <textarea class="f-in" id="rs-msg" placeholder="Ex. livraison à Poissy possible ?"></textarea>
+  <p class="f-note">Rien n'est bloqué tant qu'on ne t'a pas confirmé la dispo. Prévois ton permis, ta carte d'identité, un justificatif de domicile et la caution.</p>
+  <div class="f-envoi">
+    <a class="btn btn-rouge" id="rs-sms" href="#" aria-disabled="true">Envoyer par SMS</a>
+    <a class="btn btn-wa" id="rs-wa" href="#" target="_blank" rel="noopener" aria-disabled="true">WhatsApp</a>
+  </div>
+  <a class="btn btn-cadre" href="tel:+33764203614" style="width:100%;margin-top:8px;height:46px;font-size:13.5px">Ou appelle : 07 64 20 36 14</a>
 </div>
 
 <script>
@@ -324,7 +399,7 @@ const TELSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
         <div class="bandeau"><span class="petit">À partir de</span><span class="gros">${v.des}</span><span class="unite">/ 24H</span></div>
         <div class="tarifs">${v.tarifs.map(t => `<div class="tarif">${CAL}<div class="f">${t[0]}</div><div class="j">${t[1]}</div><div class="p">${t[2]}</div><div class="km">${t[3]}</div></div>`).join('')}</div>
         <div class="vh-plus"><span>Km sup. <strong>${v.km}/km</strong></span><span>Caution <strong>${v.caution}</strong></span></div>
-        <a class="btn btn-rouge vh-cta" href="tel:${TEL}">${TELSVG}${v.dispo ? 'Réserver cette voiture' : 'Indisponible pour le moment'}</a>
+        <button class="btn btn-rouge vh-cta" onclick="ouvrirResa(${n})">${CAL}${v.dispo ? 'Réserver cette voiture' : 'Indisponible pour le moment'}</button>
       </div>
     </article>`;
   }).join('');
@@ -352,6 +427,47 @@ const TELSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
     els.forEach(e => io.observe(e));
   } else els.forEach(e => e.classList.add('vu'));
 })();
+
+// ── Demande de réservation : formule + date → message prêt en SMS / WhatsApp ──
+let rs = { v: null, f: 0 };
+const pad = x => String(x).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const $ = id => document.getElementById(id);
+function ouvrirResa(n) {
+  const v = FLOTTE[n]; rs = { v, f: 0 };
+  $('rs-titre').innerHTML = `${v.blanc ? v.blanc + ' ' : ''}<span class="r">${v.rouge}</span>${v.suite ? ' ' + v.suite : ''}`;
+  $('rs-formules').innerHTML = v.tarifs.map((t, i) => `<button type="button" class="formule${i ? '' : ' on'}" data-i="${i}"><div class="f">${t[0]}</div><div class="p">${t[2]}</div><div class="j">${t[1]} · ${t[3]}</div></button>`).join('');
+  document.querySelectorAll('.formule').forEach(b => b.onclick = () => { rs.f = +b.dataset.i; document.querySelectorAll('.formule').forEach(x => x.classList.toggle('on', x === b)); maj(); });
+  $('rs-date').min = iso(new Date());
+  try { const c = JSON.parse(localStorage.getItem('pcr-client') || '{}'); if (c.nom && !$('rs-nom').value) $('rs-nom').value = c.nom; } catch (e) {}
+  $('fond').classList.add('on'); $('feuille').classList.add('on');
+  document.body.style.overflow = 'hidden'; maj();
+}
+function fermerResa() { $('fond').classList.remove('on'); $('feuille').classList.remove('on'); document.body.style.overflow = ''; }
+function maj() {
+  const v = rs.v; if (!v) return;
+  const t = v.tarifs[rs.f], dv = $('rs-date').value, h = $('rs-heure').value;
+  const nom = $('rs-nom').value.trim(), msg = $('rs-msg').value.trim();
+  let pb = '';
+  if (dv) {
+    const j = new Date(dv + 'T12:00:00').getDay();
+    if (t[0] === 'Week-end' && j !== 5) pb = 'Le week-end commence le vendredi : choisis un vendredi.';
+    else if (t[0] === '24h' && (j === 5 || j === 6 || j === 0)) pb = 'La formule 24h est du lundi au jeudi. Pour le vendredi, prends le week-end.';
+  }
+  $('rs-err').textContent = pb; $('rs-err').hidden = !pb;
+  const ok = !!dv && !!nom && !pb;
+  let quand = '';
+  if (dv) quand = new Date(dv + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + (h ? ' à ' + h.replace(':', 'h') : '');
+  const nomV = `${v.marque} ${v.blanc ? v.blanc + ' ' : ''}${v.rouge}${v.suite ? ' ' + v.suite : ''}${v.couleur ? ' (' + v.couleur + ')' : ''}`;
+  const txt = `Salut Perform Car Rent 👋\nJe voudrais réserver :\n🚗 ${nomV}\n📦 Formule ${t[0]} (${t[1]}) · ${t[2]} · ${t[3]}\n📅 Début : ${quand}\n👤 ${nom}${msg ? '\n📝 ' + msg : ''}\nC'est dispo ?`;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  $('rs-sms').href = ok ? `sms:${TEL}${ios ? '&' : '?'}body=${encodeURIComponent(txt)}` : '#';
+  $('rs-wa').href = ok ? `https://wa.me/${TEL.replace('+', '')}?text=${encodeURIComponent(txt)}` : '#';
+  $('rs-sms').setAttribute('aria-disabled', String(!ok)); $('rs-wa').setAttribute('aria-disabled', String(!ok));
+}
+['rs-date', 'rs-heure', 'rs-nom', 'rs-msg'].forEach(id => { $(id).addEventListener('input', maj); $(id).addEventListener('change', maj); });
+['rs-sms', 'rs-wa'].forEach(id => $(id).addEventListener('click', () => { try { localStorage.setItem('pcr-client', JSON.stringify({ nom: $('rs-nom').value.trim() })); } catch (e) {} }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerResa(); });
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
