@@ -947,7 +947,7 @@ const NEWS = {
 (function() {
   const section = document.getElementById('actu');
   const wrap = document.getElementById('actu-card-wrap');
-  section.style.display = 'block';
+  section.style.display = 'none';   // plus d'offre en cours (1h offerte retirée le 01/10/2026)
   document.getElementById('actu-divider').style.display = 'block';
   if (!NEWS.title) {
     wrap.innerHTML = `<div style="padding:2rem;background:var(--black2);border-radius:12px;border:1px dashed var(--gray2);text-align:center">
@@ -975,7 +975,7 @@ const NEWS = {
       ${NEWS.lienLabel ? `<div style="margin-top:1rem;display:inline-block;background:var(--red);color:white;padding:8px 18px;border-radius:8px;font-size:13px;letter-spacing:0.05em">${NEWS.lienLabel}</div>` : ''}
     </div>
   </div>${outerClose}`;
-  section.style.display = 'block';
+  section.style.display = 'none';   // plus d'offre en cours (1h offerte retirée le 01/10/2026)
   document.getElementById('actu-divider').style.display = 'block';
 })();
 
@@ -1004,7 +1004,7 @@ const HEURES_FORMAT = {
 // propose que les heures de début où la session + 1h reste dans son créneau
 // (fin ≤ 20h en journée, fin ≤ 04h la nuit). Ex. Format Court 2h jour : 17h max.
 // Mettre à false à la fin de la promo : les heures normales reviennent.
-const PROMO_HEURE_OFFERTE = true;
+const PROMO_HEURE_OFFERTE = false;
 function dureeFormat(val) { const m = /(\d)h/.exec(val); return m ? +m[1] : 0; }
 function heuresDisponibles(val) {
   const heures = HEURES_FORMAT[val];
@@ -1272,7 +1272,7 @@ document.getElementById('heure').addEventListener('change', majDispo);
 // Partage de l'app (menu natif du téléphone : WhatsApp, Snap, Insta…), sinon copie du lien
 function partagerApp() {
   const url = 'https://redrecords78-ai.github.io/';
-  const texte = "Red Records 78 : réserve ta session studio sur l'app, 1h offerte 🎁";
+  const texte = "Red Records 78 : réserve ta session studio sur l'app 🎙️";
   if (navigator.share) { navigator.share({ title: 'Red Records 78', text: texte, url }).catch(() => {}); return; }
   const fini = () => alert("Lien copié ✅ Colle-le à qui tu veux.");
   if (navigator.clipboard) navigator.clipboard.writeText(texte + ' ' + url).then(fini).catch(() => prompt('Copie ce lien :', url));
@@ -2323,7 +2323,7 @@ if ('serviceWorker' in navigator) {
   transform:translateY(20px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease;">
   <img src="icons/icon-192.png" alt="" style="width:38px;height:38px;border-radius:10px;flex-shrink:0">
   <div style="flex:1;min-width:0">
-    <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Installe l'app <strong style="color:var(--red)">RED</strong> · 1h offerte</div>
+    <div style="font-size:14px;font-weight:500;color:var(--white);line-height:1.3">Installe l'app <strong style="color:var(--red)">RED</strong></div>
     <div id="install-banner-sous" style="font-size:12px;color:var(--gray);margin-top:3px;line-height:1.45"></div>
   </div>
   <button id="install-banner-video" onclick="ouvrirTutoApp()" style="display:none;background:var(--red);color:white;border:none;padding:9px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0">▶ Voir</button>
