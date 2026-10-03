@@ -680,49 +680,32 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
   <div class="section-tag reveal">Fonctionnement 2026</div>
   <h2 class="section-title reveal reveal-delay-1">Nos tarifs</h2>
   <div class="tarif-grid reveal reveal-delay-2">
-    <div class="tarif-card" data-type="Session Jour 4h" onclick="choisirTarif(this)" style="grid-column: 1 / -1;">
+    <div class="tarif-card" onclick="choisirTarif(this)">
       <div class="tarif-card-left">
         <div class="tarif-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         </div>
         <div>
           <div class="tarif-name">Jour</div>
-          <div class="tarif-hours">4h · entre 12h et 20h</div>
+          <div class="tarif-hours">12h – 20h</div>
         </div>
       </div>
-      <div class="tarif-price"><s class="tarif-old">120€</s>100<span>€</span></div>
+      <div class="tarif-price">30<span>€/h</span></div>
     </div>
-    <div class="tarif-card featured" data-type="Session Soir 20h-00h" onclick="choisirTarif(this)">
+    <div class="tarif-card featured" onclick="choisirTarif(this)">
       <div class="tarif-card-left">
         <div class="tarif-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </div>
         <div>
-          <div class="tarif-name">Soir<span class="tarif-pop">Populaire</span></div>
-          <div class="tarif-hours">20h – 00h</div>
+          <div class="tarif-name">Soir &amp; nuit<span class="tarif-pop">Populaire</span></div>
+          <div class="tarif-hours">20h – 04h</div>
         </div>
       </div>
-      <div class="tarif-price"><s class="tarif-old">160€</s>130<span>€</span></div>
-    </div>
-    <div class="tarif-card" data-type="Session Nuit 00h-04h" onclick="choisirTarif(this)">
-      <div class="tarif-card-left">
-        <div class="tarif-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8192C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="M19 3v4M17 5h4" stroke-width="1.2"/></svg>
-        </div>
-        <div>
-          <div class="tarif-name">Nuit</div>
-          <div class="tarif-hours">00h – 04h</div>
-        </div>
-      </div>
-      <div class="tarif-price"><s class="tarif-old">160€</s>140<span>€</span></div>
+      <div class="tarif-price">40<span>€/h</span></div>
     </div>
   </div>
-  <div class="formats-grid">
-    <div class="format-card" data-type="Format Court 2h avant 20h" onclick="choisirTarif(this)"><div class="format-label">2h avant 20h</div><div class="format-price">60€</div></div>
-    <div class="format-card" data-type="Format Court 3h avant 20h" onclick="choisirTarif(this)"><div class="format-label">3h avant 20h</div><div class="format-price">90€</div></div>
-    <div class="format-card" data-type="Format Court 2h apres 20h" onclick="choisirTarif(this)"><div class="format-label">2h après 20h</div><div class="format-price">80€</div></div>
-    <div class="format-card" data-type="Format Court 3h apres 20h" onclick="choisirTarif(this)"><div class="format-label">3h après 20h</div><div class="format-price">120€</div></div>
-  </div>
+  <div style="margin-top:10px;font-size:13px;color:var(--gray);">Minimum 2h · tu choisis ta durée et ton heure de début</div>
   <div id="tarif-confirm" style="display:none;margin-top:12px;font-size:13px;color:var(--gray);">
     <span style="color:var(--red)">✓</span> <span style="color:var(--white)" id="tarif-confirm-txt"></span> &nbsp;—&nbsp; <a href="#reservation" style="color:var(--red);font-weight:500;text-decoration:none">finaliser ma réservation →</a>
   </div>
@@ -788,16 +771,16 @@ footer { border-top: 1px solid var(--gray2); padding: 3rem 2rem; display: flex; 
       </div>
 
       <div class="form-group">
-        <label class="form-label">Type de session</label>
+        <label class="form-label">Durée de la session</label>
         <select class="form-select" id="type" required>
           <option value="">-- Choisir --</option>
-          <option value="Session Jour 4h">Session Jour 4h - entre 12h et 20h</option>
-          <option value="Session Soir 20h-00h">Session Soir 4h - 20h à 00h</option>
-          <option value="Session Nuit 00h-04h">Session Nuit 4h - 00h à 04h</option>
-          <option value="Format Court 2h avant 20h">Format Court 2h - avant 20h</option>
-          <option value="Format Court 3h avant 20h">Format Court 3h - avant 20h</option>
-          <option value="Format Court 2h apres 20h">Format Court 2h - après 20h</option>
-          <option value="Format Court 3h apres 20h">Format Court 3h - après 20h</option>
+          <option value="Session 2h">2 heures</option>
+          <option value="Session 3h">3 heures</option>
+          <option value="Session 4h">4 heures</option>
+          <option value="Session 5h">5 heures</option>
+          <option value="Session 6h">6 heures</option>
+          <option value="Session 7h">7 heures</option>
+          <option value="Session 8h">8 heures</option>
         </select>
       </div>
 
@@ -980,25 +963,23 @@ const NEWS = {
 })();
 
 // ─── TARIFS CLIQUABLES + RÉCAP PRIX ──────────────────────────────────────────
-// [libellé, prix actuel, ancien prix barré (null = pas de promo affichée)]
-const TARIF_INFOS = {
-  'Session Jour 4h':           ['Session Jour · 4h', 100, 120],
-  'Session Soir 20h-00h':      ['Session Soir · 20h – 00h', 130, 160],
-  'Session Nuit 00h-04h':      ['Session Nuit · 00h – 04h', 140, 160],
-  'Format Court 2h avant 20h': ['Format Court 2h · avant 20h', 60, null],
-  'Format Court 3h avant 20h': ['Format Court 3h · avant 20h', 90, null],
-  'Format Court 2h apres 20h': ['Format Court 2h · après 20h', 80, null],
-  'Format Court 3h apres 20h': ['Format Court 3h · après 20h', 120, null],
-};
-
-// Heures de début possibles selon le format (heures pleines, cohérentes : min 2h, jour ≤20h, nuit ≤04h)
-const HEURES_FORMAT = {
-  'Session Jour 4h':           [12,13,14,15,16],
-  'Format Court 2h avant 20h': [12,13,14,15,16,17,18],
-  'Format Court 3h avant 20h': [12,13,14,15,16,17],
-  'Format Court 2h apres 20h': [20,21,22,23,0,1,2],
-  'Format Court 3h apres 20h': [20,21,22,23,0,1],
-};
+// Prix à l'heure (03/10/2026) : 30€/h de 12h à 20h, 40€/h de 20h à 04h, minimum 2h.
+// Les sessions de 4h (Jour/Soir/Nuit) et les formats courts sont mis de côté.
+const PRIX_JOUR = 30, PRIX_SOIR = 40;
+const prixHeure = h => (h % 24 >= 12 && h % 24 < 20) ? PRIX_JOUR : PRIX_SOIR;
+function prixSession(debut, duree) {
+  let total = 0;
+  for (let i = 0; i < duree; i++) total += prixHeure(debut + i);
+  return total;
+}
+const TARIF_INFOS = {}, HEURES_FORMAT = {};
+for (let d = 2; d <= 8; d++) {
+  const k = 'Session ' + d + 'h';
+  TARIF_INFOS[k] = ['Session ' + d + 'h'];
+  // Heures de début : de 12h jusqu'à ce que la session finisse au plus tard à 04h
+  HEURES_FORMAT[k] = [];
+  for (let h = 12; h + d <= 28; h++) HEURES_FORMAT[k].push(h % 24);
+}
 // ─── PROMO « 1 session réservée sur l'appli = 1h offerte » ───────────────────
 // Tant qu'elle est active, l'heure offerte s'ajoute à la fin de la session : on ne
 // propose que les heures de début où la session + 1h reste dans son créneau
@@ -1046,38 +1027,22 @@ function majRecap(val) {
   document.querySelectorAll('.tarif-card, .format-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.type === val));
   if (!info) { tag.style.display = 'none'; return; }
-  // Promo 1h offerte : on barre la VALEUR des heures reellement faites (meme tarif horaire)
-  // -> ex. Format Court 2h jour : 3h de studio, 60€ au lieu de 90€.
-  const d = dureeFormat(val);
-  const FIXES = { 'Session Soir 20h-00h': [20, 4], 'Session Nuit 00h-04h': [0, 4] };
-  if (PROMO_HEURE_OFFERTE && FIXES[val]) {
-    // Sessions à heure fixe : l'heure offerte s'ajoute à la fin (Soir 20h→01h, Nuit 00h→05h)
-    const [h0, dd] = FIXES[val];
-    const valeur = Math.round((info[2] || info[1]) * (dd + 1) / dd);
-    document.getElementById('pt-name').innerHTML = info[0] + ' + 1h offerte (' + hh(h0) + ' → ' + hh(h0 + dd + 1) + ', ' + (dd + 1) + 'h de studio)' +
-      '<div style="color:var(--red);font-weight:700;margin-top:4px;white-space:nowrap">Tu économises ' + (valeur - info[1]) + '€</div>';
-    document.getElementById('pt-amount').innerHTML = '<s class="tarif-old">' + valeur + '€</s>' + info[1] + '€';
-  } else if (PROMO_HEURE_OFFERTE && HEURES_FORMAT[val] && d) {
-    // on part de l'ancien prix barre s'il existe (Session Jour 4h : 120€) -> la remise d'origine est gardee
-    const valeur = Math.round((info[2] || info[1]) * (d + 1) / d);
-    document.getElementById('pt-name').innerHTML = info[0] + ' + 1h offerte (' + (d + 1) + 'h de studio)' +
-      '<div style="color:var(--red);font-weight:700;margin-top:4px;white-space:nowrap">Tu économises ' + (valeur - info[1]) + '€</div>';
-    document.getElementById('pt-amount').innerHTML = '<s class="tarif-old">' + valeur + '€</s>' + info[1] + '€';
-  } else {
-    document.getElementById('pt-name').textContent = info[0];
-    document.getElementById('pt-amount').innerHTML =
-      (info[2] ? '<s class="tarif-old">' + info[2] + '€</s>' : '') + info[1] + '€';
-  }
+  majPrix();
   tag.style.display = 'block';
 }
 
+// Prix selon la durée ET l'heure de début choisies
+function majPrix() {
+  const val = document.getElementById('type').value;
+  const info = TARIF_INFOS[val];
+  if (!info) return;
+  const d = dureeFormat(val);
+  const hv = document.getElementById('heure').value;
+  document.getElementById('pt-name').textContent = info[0] + (hv ? ' · ' + hh(parseInt(hv, 10)) + ' → ' + hh(parseInt(hv, 10) + d) : '');
+  document.getElementById('pt-amount').textContent = hv ? prixSession(parseInt(hv, 10), d) + '€' : 'dès ' + d * PRIX_JOUR + '€';
+}
+
 function choisirTarif(el) {
-  document.getElementById('type').value = el.dataset.type;
-  majRecap(el.dataset.type);
-  const confirm = document.getElementById('tarif-confirm');
-  const info = TARIF_INFOS[el.dataset.type];
-  document.getElementById('tarif-confirm-txt').textContent = info ? info[0] + ' sélectionné' : '';
-  confirm.style.display = 'block';
   // Amene directement au formulaire de reservation, deja prerempli
   document.getElementById('reservation').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1213,11 +1178,11 @@ async function majDispo() {
     const p = props[+b.dataset.i];
     document.getElementById('date').value = p.date;
     if (p.h !== null) selH.value = String(p.h).padStart(2, '0') + ':00';
-    majDispo();
+    majPrix(); majDispo();
   });
 }
 document.getElementById('date').addEventListener('change', majDispo);
-document.getElementById('heure').addEventListener('change', majDispo);
+document.getElementById('heure').addEventListener('change', () => { majPrix(); majDispo(); });
 
 // Gérer ?reset=1 (push "refusé"), ?confirmed=1 (push "accepté" → acompte) + états persistants
 (function() {
