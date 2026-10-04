@@ -68,6 +68,9 @@ body { background: var(--black); color: var(--white); font-family: 'DM Sans', sa
 .demande-session { font-size: 12px; color: var(--red); margin-bottom: 4px; letter-spacing: 0.05em; }
 .demande-contact { font-size: 12px; color: var(--gray); margin-bottom: 2px; }
 .demande-note { font-size: 12px; color: var(--gray); font-style: italic; margin-bottom: 2px; }
+.demande-liens { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+.demande-liens a { font-size: 12px; text-decoration: none; color: white; background: var(--gray2); padding: 7px 12px; border-radius: 50px; white-space: nowrap; }
+.demande-liens a.wa { background: #25D366; }
 .demande-ts { font-size: 10px; color: var(--gray2); margin-top: 6px; letter-spacing: 0.05em; }
 .demande-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .btn-accepter { background: #33b679; border: none; color: white; padding: 10px 18px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; white-space: nowrap; border-radius: 10px; }
@@ -679,6 +682,33 @@ async function fetchDemandes(pin) {
   }
 }
 
+// Boutons pour joindre le client direct depuis la demande (le contact est un champ libre : numéro, @snap ou @insta).
+// Message prérempli avec l'acompte = commission (5 €/h) quand le type est « Session Xh ».
+function liensContact(d, dateFormatee) {
+  const c = String(d.contact || '').trim();
+  if (!c) return '';
+  const h = (String(d.type || '').match(/(\d+)\s*h/i) || [])[1];
+  const msg = `Salut ${d.artiste || ''}, j'ai bien reçu ta demande de session`
+    + (dateFormatee ? ` du ${dateFormatee}` : '') + (d.heure ? ` à ${d.heure}` : '') + (d.type ? ` (${d.type})` : '') + '.'
+    + ` Pour bloquer le créneau, je t'envoie le lien de l'acompte${h ? ` (${h * 5} €)` : ''}.`;
+  const tel = c.replace(/[\s.\-()]/g, '').match(/(?:\+33|0033|0)([1-9]\d{8})/);
+  if (tel) {
+    const n = '33' + tel[1];
+    return `<div class="demande-liens">
+        <a class="wa" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="tel:+${n}">Appeler</a>
+        <a href="sms:+${n}">SMS</a>
+      </div>`;
+  }
+  const pseudo = (c.match(/@([A-Za-z0-9._\-]{3,30})/)
+    || c.replace(/\b(snapchat|snap|instagram|insta|ig)\b/gi, ' ').match(/([A-Za-z0-9._\-]{3,30})/) || [])[1];
+  if (!pseudo) return '';
+  return `<div class="demande-liens">
+        <a href="https://www.snapchat.com/add/${encodeURIComponent(pseudo)}" target="_blank" rel="noopener">Snap</a>
+        <a href="https://www.instagram.com/${encodeURIComponent(pseudo)}/" target="_blank" rel="noopener">Insta</a>
+      </div>`;
+}
+
 function renderDemandes(demandes) {
   const list  = document.getElementById('demandes-list');
   const badge = document.getElementById('demandes-badge');
@@ -706,6 +736,7 @@ function renderDemandes(demandes) {
         <div class="demande-session">${dateFormatee}${d.heure ? ' · ' + esc(d.heure) : ''} · ${esc(d.type)}</div>
         ${d.horaire   ? `<div class="demande-contact">🕗 ${esc(d.horaire)}</div>`  : ''}
         ${d.contact   ? `<div class="demande-contact">📞 ${esc(d.contact)}</div>`  : ''}
+        ${liensContact(d, dateFormatee)}
         ${d.precision ? `<div class="demande-note">💬 ${esc(d.precision)}</div>`   : ''}
         <div class="demande-ts">Reçu le ${tsFormatee}</div>
       </div>
