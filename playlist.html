@@ -261,7 +261,8 @@ footer { border-top: 1px solid var(--gray2); padding: 2rem; display: flex; align
 #lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.94); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
 #lightbox.open { display: flex; }
 #lightbox .lb-in { width: min(94vw, 1100px, calc(86vh * 16 / 9)); aspect-ratio: 16/9; }
-#lightbox iframe { width: 100%; height: 100%; border: 0; border-radius: 12px; }
+#lightbox iframe, #lightbox video { width: 100%; height: 100%; border: 0; border-radius: 12px; }
+#lightbox video { background: #000; display: block; }
 .lb-close { position: absolute; top: calc(16px + var(--safe-top)); right: 18px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 22px; cursor: pointer; }
 .lb-close:hover { background: var(--red); }
 @media (max-width: 700px) { .sig-head { padding: 6rem 1.5rem 0.4rem; } .seg-wrap, .clips-wrap, .clips-count { padding-left: 1.5rem; padding-right: 1.5rem; } }
@@ -570,16 +571,18 @@ if ('serviceWorker' in navigator) {
 </script>
 <script>
 // ─── SIGNATURE : clips + switch Son/Clips ──────────────────────────────────────
+// id = vidéo YouTube · src + poster = vidéo hébergée dans video/clips/
 const CLIPS = [
+  { src: 'video/clips/zero-neuf-fais-mes-valises.mp4', poster: 'video/clips/zero-neuf-fais-mes-valises.jpg', title: 'FAIS MES VALISES', artist: 'ZÉRO NEUF' },
   { id: 'NdS96UOys9E', title: 'TIMINIK', artist: 'BOMY feat. THYSMAA' },
   { id: 'zDB2NeF-H2U', title: 'SZN1 · Épisode 1', artist: 'KRUSTY X HRN' },
 ];
 (function () {
   const grid = document.getElementById('clips-grid');
   grid.innerHTML = CLIPS.map((c, i) => `
-    <div class="clip-card" data-id="${c.id}">
+    <div class="clip-card" data-i="${i}">
       <div class="clip-thumb">
-        <img loading="lazy" src="https://i.ytimg.com/vi/${c.id}/hqdefault.jpg" alt="${c.title}">
+        <img loading="lazy" src="${c.poster || `https://i.ytimg.com/vi/${c.id}/hqdefault.jpg`}" alt="${c.title}">
         <div class="cnum">${String(i + 1).padStart(2, '0')}</div>
         <div class="cplay"><div class="cdisc"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
       </div>
@@ -589,7 +592,11 @@ const CLIPS = [
 
   const lb = document.getElementById('lightbox'), lbin = document.getElementById('lb-in');
   grid.querySelectorAll('.clip-card').forEach(card => card.addEventListener('click', () => {
-    lbin.innerHTML = `<iframe src="https://www.youtube.com/embed/${card.dataset.id}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    const c = CLIPS[+card.dataset.i];
+    if (typeof audio !== 'undefined' && !audio.paused) { audio.pause(); if (typeof setPlayIcon === 'function') setPlayIcon(false); }
+    lbin.innerHTML = c.src
+      ? `<video src="${c.src}" poster="${c.poster}" controls autoplay playsinline preload="metadata"></video>`
+      : `<iframe src="https://www.youtube.com/embed/${c.id}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
     lb.classList.add('open');
   }));
   window.closeClip = function () { lb.classList.remove('open'); lbin.innerHTML = ''; };
