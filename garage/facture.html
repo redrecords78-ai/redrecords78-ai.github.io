@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Facture DCL</title>
+<style>
+:root{--gold:#C9A84C;--gold3:#8A6E28;--noir:#111;--gris:#666;--trait:#ddd;--saisie:#FBF6E6}
+*{box-sizing:border-box}
+body{margin:0;background:#3a3a3a;font-family:Arial,Helvetica,sans-serif;color:var(--noir);font-size:13px}
+.barre{position:sticky;top:0;z-index:5;background:#111;color:#fff;padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.barre button{font:inherit;font-weight:bold;border:0;border-radius:6px;padding:9px 14px;cursor:pointer;background:#333;color:#fff}
+.barre button.principal{background:var(--gold);color:#111}
+.barre span{color:#bbb;font-size:12px}
+.barre form{flex:1;min-width:260px;display:flex;gap:6px}
+.barre #rapide{flex:1;min-width:0;background:#fff;border:2px solid var(--gold);border-radius:6px;padding:8px 10px;font-weight:bold}
+.app{display:flex;align-items:flex-start;justify-content:center;gap:16px;padding:16px}
+.catalogue{flex:none;width:300px;background:#1b1b1b;color:#eee;border-radius:8px;padding:12px;position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto}
+.catalogue h2{margin:0 0 4px;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.catalogue p{margin:0 0 10px;font-size:11px;color:#aaa}
+.cat-ligne{display:grid;grid-template-columns:30px 1fr 64px;gap:4px;margin-bottom:4px}
+.cat-ligne button{border:0;border-radius:4px;background:var(--gold);color:#111;font-weight:bold;cursor:pointer}
+.cat-ligne input{background:#2a2a2a;color:#fff;border:0;padding:5px}
+.cat-ligne input.prix{text-align:right}
+.catalogue .ajout{color:#eee;width:100%}
+.page{flex:none;width:210mm;min-height:297mm;background:#fff;padding:14mm 14mm 12mm;display:flex;flex-direction:column}
+.entete{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--gold);padding-bottom:12px}
+.logo{font-size:24px;font-weight:bold;letter-spacing:2px;line-height:1.1}
+.logo small{display:block;font-size:11px;letter-spacing:5px;color:var(--gold3);margin-top:4px}
+.titre{text-align:right}
+.titre h1{margin:0;font-size:30px;letter-spacing:4px}
+.ref{margin-top:8px;display:grid;grid-template-columns:auto 120px;gap:3px 8px;justify-content:end;align-items:center}
+.ref label{color:var(--gris);text-align:right}
+.blocs{display:flex;gap:14mm;margin:14px 0}
+.bloc{flex:1}
+.bloc h2{margin:0 0 6px;font-size:11px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase}
+.bloc p{margin:0;line-height:1.5}
+.client{border:1px solid var(--trait);border-radius:6px;padding:10px}
+.client input{width:100%;margin-bottom:3px}
+.duo{display:flex;gap:6px}
+input,select{font:inherit;color:inherit;border:0;border-bottom:1px dotted #bbb;background:var(--saisie);padding:3px 4px;min-width:0}
+input:focus,[contenteditable]:focus{outline:2px solid var(--gold)}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th{background:var(--noir);color:#fff;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 6px;text-align:right}
+td{border-bottom:1px solid var(--trait);padding:5px 6px;text-align:right;vertical-align:top}
+td.colDes{text-align:left}
+td input{width:100%;text-align:right}
+.des{background:var(--saisie);min-height:22px;padding:3px 4px;white-space:pre-wrap;word-break:break-word}
+.des:empty::before{content:attr(data-ph);color:#aaa}
+.suppr{border:0;background:none;color:#b00;cursor:pointer;font-size:16px;padding:0 4px}
+.ajout{margin-top:8px;font:inherit;border:1px dashed #999;background:none;border-radius:6px;padding:6px 12px;cursor:pointer}
+.bas{display:flex;gap:14mm;margin-top:16px;align-items:flex-start}
+.reglement{flex:1;line-height:1.9}
+.reglement input,.reglement select{width:60%}
+.totaux{width:78mm}
+.totaux div{display:flex;justify-content:space-between;align-items:center;padding:5px 8px}
+.totaux .ttc{background:var(--noir);color:#fff;font-weight:bold;font-size:15px}
+.totaux .reste{border:2px solid var(--gold);font-weight:bold;margin-top:6px}
+.totaux input{width:28mm;text-align:right}
+.mention{margin-top:10px;font-style:italic}
+.imp{display:none}
+.pied{margin-top:auto;padding-top:12px;border-top:1px solid var(--trait);font-size:9.5px;color:var(--gris);text-align:center;line-height:1.5}
+.pied input{font-size:9.5px;width:70px;text-align:center}
+@media screen and (max-width:1140px){.app{flex-direction:column;align-items:center}.catalogue{position:static;width:210mm;max-width:100%;max-height:none}}
+@media screen and (max-width:820px){
+  /* 16px minimum : en dessous, l'iPhone zoome tout seul quand on touche une case */
+  input,select,.des,.barre button{font-size:16px}
+  .barre{position:static}
+  .barre span{width:100%}
+  .catalogue{max-height:42vh}
+  .cat-ligne{grid-template-columns:44px 1fr 76px}
+  .cat-ligne button{min-height:40px}
+  .ref{grid-template-columns:auto 150px}
+  thead{display:none}
+  #lignes tr{display:grid;grid-template-columns:60px 1fr 1fr 34px;gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--trait)}
+  #lignes td{border:0;padding:0}
+  #lignes td.colDes{grid-column:2 / 5}
+  #lignes td.puHt{display:none}
+  .suppr{font-size:24px}
+  .reglement input,.reglement select{width:100%}
+  .totaux input{width:34mm}
+  .app{padding:0;gap:0}.catalogue{border-radius:0}.page{width:100%;min-height:0;padding:16px}.blocs,.bas{flex-direction:column;gap:14px}.totaux{width:100%}.entete{flex-direction:column;gap:10px}.titre{text-align:left}.ref{justify-content:start}}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff}
+  .barre,.catalogue,.ajout,.suppr,.vide,.colCode{display:none!important}
+  .app{display:block;padding:0}
+  .page{margin:0;width:210mm;min-height:297mm}
+  input,select,.des{background:none!important;border:0!important}
+  select{appearance:none;-webkit-appearance:none}
+  ::placeholder{color:transparent}
+  .des:empty::before{content:""}
+  .optionnel.vide-champ,.ecran{display:none!important}
+  .imp{display:inline}
+  input[type=date]::-webkit-calendar-picker-indicator{display:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="barre">
+  <button class="principal" id="btnPdf">Imprimer / Enregistrer en PDF</button>
+  <button id="btnNouvelle">Nouvelle facture</button>
+  <form id="formRapide">
+    <input id="rapide" inputmode="numeric" placeholder="Numéros des prestas, ex : 1 5 12" autocomplete="off">
+    <button class="principal">Ajouter</button>
+  </form>
+  <span id="info">Tape les numéros des prestas ou touche-les dans la liste : la désignation et le tarif se remplissent tout seuls.</span>
+</div>
+
+<div class="app">
+<div class="catalogue">
+  <h2>Prestations</h2>
+  <p>Clique sur un numéro pour l'ajouter à la facture. Noms et tarifs TTC modifiables ici, ils sont gardés en mémoire.</p>
+  <div id="catalogue"></div>
+  <button class="ajout" id="btnPresta">+ Ajouter une prestation</button>
+</div>
+
+<div class="page">
+  <div class="entete">
+    <div class="logo">DETAILING<br>CENTER LYON<small>DCL</small></div>
+    <div class="titre">
+      <h1>FACTURE</h1>
+      <div class="ref">
+        <label for="num">N°</label><input id="num">
+        <label for="date">Date</label><input id="date" type="date">
+        <label for="datePresta">Date de la prestation</label><input id="datePresta" type="date">
+      </div>
+    </div>
+  </div>
+
+  <div class="blocs">
+    <div class="bloc">
+      <h2>Émetteur</h2>
+      <p><strong>DETAILING CENTER LYON (DCL)</strong><br>
+      Bloc 117, 388 avenue Charles de Gaulle<br>
+      69200 Vénissieux<br>
+      SIRET 105 765 622 00011<br>
+      TVA FR81105765622</p>
+    </div>
+    <div class="bloc client">
+      <h2>Client</h2>
+      <input id="cNom" placeholder="Nom et prénom / Société">
+      <input id="cAdr" placeholder="Adresse">
+      <input id="cVille" placeholder="Code postal et ville">
+      <input id="cTel" class="optionnel" placeholder="Téléphone (facultatif)">
+      <input id="cPro" class="optionnel" placeholder="Client pro : SIREN et n° de TVA (facultatif)">
+      <div class="duo">
+        <input id="cVehicule" class="optionnel" placeholder="Véhicule (facultatif)">
+        <input id="cImmat" class="optionnel" placeholder="Immatriculation">
+        <input id="cKm" class="optionnel" placeholder="Km">
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="colCode" style="width:7%">N°</th>
+        <th style="width:41%;text-align:left">Désignation</th>
+        <th style="width:9%">Qté</th>
+        <th style="width:13%">PU HT</th>
+        <th style="width:13%">PU TTC</th>
+        <th style="width:14%">Total TTC</th>
+        <th style="width:3%"></th>
+      </tr>
+    </thead>
+    <tbody id="lignes"></tbody>
+  </table>
+  <div><button class="ajout" id="btnLigne">+ Ajouter une ligne</button></div>
+
+  <div class="bas">
+    <div class="reglement">
+      <div>Mode de règlement :
+        <select id="mode">
+          <option>Carte bancaire</option><option>Espèces</option><option>Virement</option><option>Chèque</option>
+        </select>
+      </div>
+      <div>Échéance : <input id="echeance" value="À réception"></div>
+      <div class="optionnel" id="ligneIban">IBAN : <input id="iban" class="optionnel" placeholder="IBAN (facultatif)"></div>
+      <div class="mention" id="mentionTva"></div>
+    </div>
+    <div class="totaux">
+      <div><span>Total HT</span><span id="tHt"></span></div>
+      <div><span>TVA <input id="taux" type="number" min="0" step="0.1" value="20" style="width:14mm"> %</span><span id="tTva"></span></div>
+      <div class="ttc"><span>Total TTC</span><span id="tTtc"></span></div>
+      <div class="optionnel"><span>Acompte versé</span><input id="acompte" class="ecran" type="number" min="0" step="0.01" placeholder="0,00"><span id="acompteImp" class="imp"></span></div>
+      <div class="reste"><span>Reste à payer</span><span id="tReste"></span></div>
+    </div>
+  </div>
+
+  <div class="pied">
+    DETAILING CENTER LYON (DCL) — SARL au capital de <input id="capital" placeholder="capital"> € — Bloc 117, 388 avenue Charles de Gaulle, 69200 Vénissieux<br>
+    RCS Lyon 105 765 622 — SIRET 105 765 622 00011 — TVA intracommunautaire FR81105765622 — APE 45.20A<br>
+    Pas d'escompte pour paiement anticipé. Clients professionnels : en cas de retard de paiement, pénalités au taux de 3 fois le taux d'intérêt légal et indemnité forfaitaire de 40 € pour frais de recouvrement.
+  </div>
+</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const euro = n => n.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+const nombre = v => parseFloat(String(v).replace(',', '.')) || 0;
+const arrondi = n => Math.round(n * 100) / 100;
+
+// Le navigateur peut refuser le stockage (navigation privée) : la facture doit marcher sans.
+const memoire = {
+  lire(cle) { try { return localStorage.getItem('dcl-facture-' + cle); } catch (e) { return null; } },
+  ecrire(cle, valeur) { try { localStorage.setItem('dcl-facture-' + cle, valeur); } catch (e) {} }
+};
+
+// Tarifs de départ repris de l'app DCL ; 0 = sur devis, le prix se tape sur la facture.
+const CATALOGUE_DEFAUT = [
+  ['Nettoyage Express', 100], ['Nettoyage Confort', 130], ['Nettoyage Premium', 170],
+  ['Lustrage', 100], ['Polissage', 100], ['Traitement céramique', 500],
+  ['Film PPF', 0], ['Soin du cuir', 80], ['Anti-pluie pare-brise', 0], ['Nettoyage concession', 400],
+  ['Nettoyage moto', 50], ['Detailing moto', 80], ['Logo LED', 90], ['Feu arrière', 100],
+  ['Sabot moteur', 110], ['Antibrouillards', 120], ['Housse de selle', 450], ['Crash bar', 350]
+].map(([nom, prix]) => ({nom, prix}));
+
+let catalogue = CATALOGUE_DEFAUT;
+try { catalogue = JSON.parse(memoire.lire('catalogue')) || CATALOGUE_DEFAUT; } catch (e) {}
+
+function afficherCatalogue() {
+  $('catalogue').innerHTML = '';
+  catalogue.forEach((presta, i) => {
+    const ligne = document.createElement('div');
+    ligne.className = 'cat-ligne';
+    const bouton = document.createElement('button');
+    bouton.textContent = i + 1;
+    bouton.title = 'Ajouter à la facture';
+    bouton.addEventListener('click', () => poserPresta(i + 1));
+    const nom = document.createElement('input');
+    nom.value = presta.nom;
+    nom.placeholder = 'Nom de la prestation';
+    nom.addEventListener('input', () => { presta.nom = nom.value; memoire.ecrire('catalogue', JSON.stringify(catalogue)); });
+    const prix = document.createElement('input');
+    prix.className = 'prix';
+    prix.type = 'number';
+    prix.min = 0;
+    prix.step = 0.01;
+    prix.value = presta.prix || '';
+    prix.placeholder = 'devis';
+    prix.addEventListener('input', () => { presta.prix = nombre(prix.value); memoire.ecrire('catalogue', JSON.stringify(catalogue)); });
+    ligne.append(bouton, nom, prix);
+    $('catalogue').appendChild(ligne);
+  });
+}
+
+function remplirLigne(tr, numero) {
+  const presta = catalogue[numero - 1];
+  if (!presta) return false;
+  tr.querySelector('.code').value = numero;
+  tr.querySelector('.des').textContent = presta.nom;
+  tr.querySelector('.puTtc').value = presta.prix || '';
+  return true;
+}
+
+function poserPresta(numero) {
+  if (!catalogue[numero - 1]) return false;
+  if (!document.querySelector('#lignes tr.vide')) ajouterLigne();
+  calculer();
+  remplirLigne(document.querySelector('#lignes tr.vide'), numero);
+  calculer();
+  return true;
+}
+
+function ajouterLigne() {
+  const tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td class="colCode"><input class="code" type="number" min="1" step="1" placeholder="N°" title="Numéro de la prestation"></td>' +
+    '<td class="colDes"><div class="des" contenteditable="true" data-ph="Prestation ou pièce"></div></td>' +
+    '<td><input class="qte" type="number" min="0" step="0.01" value="1"></td>' +
+    '<td class="puHt"></td>' +
+    '<td><input class="puTtc ecran" type="number" min="0" step="0.01" placeholder="0,00"><span class="puTtcImp imp"></span></td>' +
+    '<td class="totTtc"></td>' +
+    '<td><button class="suppr" title="Supprimer la ligne">×</button></td>';
+  $('lignes').appendChild(tr);
+}
+
+function calculer() {
+  const taux = nombre($('taux').value) / 100;
+  let totalTtc = 0, totalHt = 0;
+  document.querySelectorAll('#lignes tr').forEach(tr => {
+    const pu = nombre(tr.querySelector('.puTtc').value);
+    const ligneTtc = arrondi(nombre(tr.querySelector('.qte').value) * pu);
+    const vide = !tr.querySelector('.des').textContent.trim() && !pu;
+    tr.classList.toggle('vide', vide);
+    tr.querySelector('.puHt').textContent = pu ? euro(arrondi(pu / (1 + taux))) : '';
+    tr.querySelector('.puTtcImp').textContent = pu ? euro(pu) : '';
+    tr.querySelector('.totTtc').textContent = pu ? euro(ligneTtc) : '';
+    totalTtc += ligneTtc;
+    totalHt += arrondi(ligneTtc / (1 + taux));
+  });
+  totalTtc = arrondi(totalTtc);
+  totalHt = arrondi(totalHt);
+  $('tHt').textContent = euro(totalHt);
+  $('tTva').textContent = euro(arrondi(totalTtc - totalHt));
+  $('tTtc').textContent = euro(totalTtc);
+  $('tReste').textContent = euro(arrondi(totalTtc - nombre($('acompte').value)));
+  $('acompteImp').textContent = euro(nombre($('acompte').value));
+  $('mentionTva').textContent = taux === 0 ? 'TVA non applicable, art. 293 B du CGI' : '';
+  document.querySelectorAll('.optionnel').forEach(el => {
+    const champ = el.tagName === 'INPUT' ? el : el.querySelector('input');
+    el.classList.toggle('vide-champ', !champ.value.trim());
+  });
+  document.title = 'Facture ' + $('num').value + ($('cNom').value ? ' - ' + $('cNom').value : '');
+}
+
+function numeroSuivant() {
+  const annee = new Date().getFullYear();
+  const dernier = memoire.lire('dernier-numero') || '';
+  const m = dernier.match(/^F-(\d{4})-(\d+)$/);
+  const rang = m && Number(m[1]) === annee ? Number(m[2]) + 1 : 1;
+  return 'F-' + annee + '-' + String(rang).padStart(3, '0');
+}
+
+function nouvelleFacture() {
+  document.querySelectorAll('.client input, #acompte').forEach(i => i.value = '');
+  $('lignes').innerHTML = '';
+  for (let i = 0; i < 5; i++) ajouterLigne();
+  const aujourdhui = new Date().toLocaleDateString('fr-CA');
+  $('date').value = aujourdhui;
+  $('datePresta').value = aujourdhui;
+  $('num').value = numeroSuivant();
+  calculer();
+}
+
+$('btnLigne').addEventListener('click', () => { ajouterLigne(); calculer(); });
+$('lignes').addEventListener('click', e => {
+  if (e.target.classList.contains('suppr')) { e.target.closest('tr').remove(); calculer(); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'capital' || e.target.id === 'iban') memoire.ecrire(e.target.id, e.target.value);
+  if (e.target.classList.contains('code')) remplirLigne(e.target.closest('tr'), Number(e.target.value));
+  calculer();
+});
+$('formRapide').addEventListener('submit', e => {
+  e.preventDefault();
+  const inconnus = $('rapide').value.split(/[^0-9]+/).filter(Boolean).filter(n => !poserPresta(Number(n)));
+  $('info').textContent = inconnus.length ? 'Numéro inconnu : ' + inconnus.join(', ') : 'Prestations ajoutées.';
+  $('rapide').value = '';
+});
+$('btnPresta').addEventListener('click', () => {
+  catalogue.push({nom: '', prix: 0});
+  memoire.ecrire('catalogue', JSON.stringify(catalogue));
+  afficherCatalogue();
+  $('catalogue').lastElementChild.querySelector('input').focus();
+});
+$('btnPdf').addEventListener('click', () => {
+  calculer();
+  memoire.ecrire('dernier-numero', $('num').value);
+  window.print();
+});
+$('btnNouvelle').addEventListener('click', nouvelleFacture);
+
+$('capital').value = memoire.lire('capital') || '';
+$('iban').value = memoire.lire('iban') || '';
+afficherCatalogue();
+nouvelleFacture();
+</script>
+</body>
+</html>
