@@ -24,7 +24,9 @@ body{margin:0;background:#3a3a3a;font-family:Arial,Helvetica,sans-serif;color:va
 .cat-ligne input{background:#2a2a2a;color:#fff;border:0;padding:5px}
 .cat-ligne input.prix{text-align:right}
 .cat-ligne button.retirer{background:none;color:#e66;font-size:16px}
-.catalogue .ajout{color:#eee;width:100%}
+#formPresta{display:grid;grid-template-columns:1fr 84px;gap:4px;margin-bottom:10px}
+#formPresta input{background:#fff;color:#111;border:0;border-radius:4px;padding:8px}
+#formPresta button{grid-column:1 / 3;border:0;border-radius:6px;padding:10px;font:inherit;font-weight:bold;background:var(--gold);color:#111;cursor:pointer}
 .page{flex:none;width:210mm;min-height:297mm;background:#fff;padding:14mm 14mm 12mm;display:flex;flex-direction:column}
 .entete{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--gold);padding-bottom:12px}
 .logo{font-size:24px;font-weight:bold;letter-spacing:2px;line-height:1.1}
@@ -114,9 +116,13 @@ td input{width:100%;text-align:right}
 <div class="app">
 <div class="catalogue">
   <h2>Prestations</h2>
-  <p>Ajoute tes prestations avec leur tarif TTC : chacune reçoit un numéro et reste en mémoire. Touche un numéro pour la mettre sur la facture.</p>
+  <p>Écris la prestation et son tarif TTC, puis Valider : elle entre dans la liste avec un numéro et reste en mémoire. Touche un numéro pour la mettre sur la facture.</p>
+  <form id="formPresta">
+    <input id="nvNom" placeholder="Nouvelle prestation" autocomplete="off" required>
+    <input id="nvPrix" type="number" min="0" step="0.01" placeholder="Tarif" required>
+    <button class="principal">Valider</button>
+  </form>
   <div id="catalogue"></div>
-  <button class="ajout" id="btnPresta">+ Ajouter une prestation</button>
 </div>
 
 <div class="page">
@@ -214,7 +220,7 @@ const memoire = {
 
 // Le catalogue est vide au départ : le garage ajoute lui-même ses prestations et ses tarifs.
 let catalogue = [];
-try { catalogue = JSON.parse(memoire.lire('catalogue')) || []; } catch (e) {}
+try { catalogue = JSON.parse(memoire.lire('catalogue-v2')) || []; } catch (e) {}
 
 function afficherCatalogue() {
   $('catalogue').innerHTML = '';
@@ -228,7 +234,7 @@ function afficherCatalogue() {
     const nom = document.createElement('input');
     nom.value = presta.nom;
     nom.placeholder = 'Nom de la prestation';
-    nom.addEventListener('input', () => { presta.nom = nom.value; memoire.ecrire('catalogue', JSON.stringify(catalogue)); });
+    nom.addEventListener('input', () => { presta.nom = nom.value; memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); });
     const prix = document.createElement('input');
     prix.className = 'prix';
     prix.type = 'number';
@@ -236,12 +242,12 @@ function afficherCatalogue() {
     prix.step = 0.01;
     prix.value = presta.prix || '';
     prix.placeholder = 'Tarif';
-    prix.addEventListener('input', () => { presta.prix = nombre(prix.value); memoire.ecrire('catalogue', JSON.stringify(catalogue)); });
+    prix.addEventListener('input', () => { presta.prix = nombre(prix.value); memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); });
     const retirer = document.createElement('button');
     retirer.className = 'retirer';
     retirer.textContent = '×';
     retirer.title = 'Retirer cette prestation de la liste';
-    retirer.addEventListener('click', () => { catalogue.splice(i, 1); memoire.ecrire('catalogue', JSON.stringify(catalogue)); afficherCatalogue(); });
+    retirer.addEventListener('click', () => { catalogue.splice(i, 1); memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); afficherCatalogue(); });
     ligne.append(bouton, nom, prix, retirer);
     $('catalogue').appendChild(ligne);
   });
@@ -341,11 +347,14 @@ $('formRapide').addEventListener('submit', e => {
   $('info').textContent = inconnus.length ? 'Numéro inconnu : ' + inconnus.join(', ') : 'Prestations ajoutées.';
   $('rapide').value = '';
 });
-$('btnPresta').addEventListener('click', () => {
-  catalogue.push({nom: '', prix: 0});
-  memoire.ecrire('catalogue', JSON.stringify(catalogue));
+$('formPresta').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!$('nvNom').value.trim()) return;
+  catalogue.push({nom: $('nvNom').value.trim(), prix: nombre($('nvPrix').value)});
+  memoire.ecrire('catalogue-v2', JSON.stringify(catalogue));
   afficherCatalogue();
-  $('catalogue').lastElementChild.querySelector('input').focus();
+  $('nvNom').value = $('nvPrix').value = '';
+  $('nvNom').focus();
 });
 $('btnPdf').addEventListener('click', () => {
   calculer();
