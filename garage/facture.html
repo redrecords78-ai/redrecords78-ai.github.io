@@ -19,10 +19,11 @@ body{margin:0;background:#3a3a3a;font-family:Arial,Helvetica,sans-serif;color:va
 .catalogue{flex:none;width:300px;background:#1b1b1b;color:#eee;border-radius:8px;padding:12px;position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto}
 .catalogue h2{margin:0 0 4px;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
 .catalogue p{margin:0 0 10px;font-size:11px;color:#aaa}
-.cat-ligne{display:grid;grid-template-columns:30px 1fr 64px;gap:4px;margin-bottom:4px}
+.cat-ligne{display:grid;grid-template-columns:30px 1fr 64px 24px;gap:4px;margin-bottom:4px}
 .cat-ligne button{border:0;border-radius:4px;background:var(--gold);color:#111;font-weight:bold;cursor:pointer}
 .cat-ligne input{background:#2a2a2a;color:#fff;border:0;padding:5px}
 .cat-ligne input.prix{text-align:right}
+.cat-ligne button.retirer{background:none;color:#e66;font-size:16px}
 .catalogue .ajout{color:#eee;width:100%}
 .page{flex:none;width:210mm;min-height:297mm;background:#fff;padding:14mm 14mm 12mm;display:flex;flex-direction:column}
 .entete{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--gold);padding-bottom:12px}
@@ -69,7 +70,7 @@ td input{width:100%;text-align:right}
   .barre{position:static}
   .barre span{width:100%}
   .catalogue{max-height:42vh}
-  .cat-ligne{grid-template-columns:44px 1fr 76px}
+  .cat-ligne{grid-template-columns:44px 1fr 76px 30px}
   .cat-ligne button{min-height:40px}
   .ref{grid-template-columns:auto 150px}
   thead{display:none}
@@ -113,7 +114,7 @@ td input{width:100%;text-align:right}
 <div class="app">
 <div class="catalogue">
   <h2>Prestations</h2>
-  <p>Clique sur un numéro pour l'ajouter à la facture. Noms et tarifs TTC modifiables ici, ils sont gardés en mémoire.</p>
+  <p>Ajoute tes prestations avec leur tarif TTC : chacune reçoit un numéro et reste en mémoire. Touche un numéro pour la mettre sur la facture.</p>
   <div id="catalogue"></div>
   <button class="ajout" id="btnPresta">+ Ajouter une prestation</button>
 </div>
@@ -211,17 +212,9 @@ const memoire = {
   ecrire(cle, valeur) { try { localStorage.setItem('dcl-facture-' + cle, valeur); } catch (e) {} }
 };
 
-// Tarifs de départ repris de l'app DCL ; 0 = sur devis, le prix se tape sur la facture.
-const CATALOGUE_DEFAUT = [
-  ['Nettoyage Express', 100], ['Nettoyage Confort', 130], ['Nettoyage Premium', 170],
-  ['Lustrage', 100], ['Polissage', 100], ['Traitement céramique', 500],
-  ['Film PPF', 0], ['Soin du cuir', 80], ['Anti-pluie pare-brise', 0], ['Nettoyage concession', 400],
-  ['Nettoyage moto', 50], ['Detailing moto', 80], ['Logo LED', 90], ['Feu arrière', 100],
-  ['Sabot moteur', 110], ['Antibrouillards', 120], ['Housse de selle', 450], ['Crash bar', 350]
-].map(([nom, prix]) => ({nom, prix}));
-
-let catalogue = CATALOGUE_DEFAUT;
-try { catalogue = JSON.parse(memoire.lire('catalogue')) || CATALOGUE_DEFAUT; } catch (e) {}
+// Le catalogue est vide au départ : le garage ajoute lui-même ses prestations et ses tarifs.
+let catalogue = [];
+try { catalogue = JSON.parse(memoire.lire('catalogue')) || []; } catch (e) {}
 
 function afficherCatalogue() {
   $('catalogue').innerHTML = '';
@@ -242,9 +235,14 @@ function afficherCatalogue() {
     prix.min = 0;
     prix.step = 0.01;
     prix.value = presta.prix || '';
-    prix.placeholder = 'devis';
+    prix.placeholder = 'Tarif';
     prix.addEventListener('input', () => { presta.prix = nombre(prix.value); memoire.ecrire('catalogue', JSON.stringify(catalogue)); });
-    ligne.append(bouton, nom, prix);
+    const retirer = document.createElement('button');
+    retirer.className = 'retirer';
+    retirer.textContent = '×';
+    retirer.title = 'Retirer cette prestation de la liste';
+    retirer.addEventListener('click', () => { catalogue.splice(i, 1); memoire.ecrire('catalogue', JSON.stringify(catalogue)); afficherCatalogue(); });
+    ligne.append(bouton, nom, prix, retirer);
     $('catalogue').appendChild(ligne);
   });
 }
