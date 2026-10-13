@@ -36,7 +36,6 @@ td.devis{font-style:italic;color:var(--gold3)}
     <div class="logo">DETAILING<br>CENTER LYON<small>DCL</small></div>
     <div class="titre">
       <h1>TARIFS</h1>
-      <p id="date"></p>
     </div>
   </div>
 
@@ -73,7 +72,6 @@ const PRESTAS = [
 const euro = n => n.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
 const rubriques = [...new Set(PRESTAS.map(p => p[0]))];
 
-document.getElementById('date').textContent = 'Au 13/10/2026';
 document.getElementById('tableaux').innerHTML = rubriques.map(rubrique =>
   '<h2>' + rubrique + '</h2><table><thead><tr><th style="width:70%">Prestation</th><th>Prix HT</th></tr></thead><tbody>' +
   PRESTAS.filter(p => p[0] === rubrique).map(([, nom, ht]) =>
