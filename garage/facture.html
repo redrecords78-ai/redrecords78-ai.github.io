@@ -13,18 +13,10 @@ body{margin:0;background:#3a3a3a;font-family:Arial,Helvetica,sans-serif;color:va
 .barre button{font:inherit;font-weight:bold;border:0;border-radius:6px;padding:9px 14px;cursor:pointer;background:#333;color:#fff}
 .barre button.principal{background:var(--gold);color:#111}
 .barre span{color:#bbb;font-size:12px}
-.barre form{flex:1;min-width:260px;display:flex;gap:6px}
-.barre #rapide{flex:1;min-width:0;background:#fff;border:2px solid var(--gold);border-radius:6px;padding:8px 10px;font-weight:bold}
 .app{display:flex;align-items:flex-start;justify-content:center;gap:16px;padding:16px}
 .catalogue{flex:none;width:300px;background:#1b1b1b;color:#eee;border-radius:8px;padding:12px;position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto}
 .catalogue h2{margin:0 0 4px;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
-.catalogue p{margin:0 0 10px;font-size:11px;color:#aaa}
-.cat-ligne{display:grid;grid-template-columns:30px 1fr 64px 24px;gap:4px;margin-bottom:4px}
-.cat-ligne button{border:0;border-radius:4px;background:var(--gold);color:#111;font-weight:bold;cursor:pointer}
-.cat-ligne input{background:#2a2a2a;color:#fff;border:0;padding:5px}
-.cat-ligne input.prix{text-align:right}
-.cat-ligne button.retirer{background:none;color:#e66;font-size:16px}
-#formPresta{display:grid;grid-template-columns:1fr 84px;gap:4px;margin-bottom:10px}
+#formPresta{display:grid;grid-template-columns:1fr 84px;gap:4px}
 #formPresta input{background:#fff;color:#111;border:0;border-radius:4px;padding:8px}
 #formPresta button{grid-column:1 / 3;border:0;border-radius:6px;padding:10px;font:inherit;font-weight:bold;background:var(--gold);color:#111;cursor:pointer}
 .page{flex:none;width:210mm;min-height:297mm;background:#fff;padding:14mm 14mm 12mm;display:flex;flex-direction:column}
@@ -72,13 +64,11 @@ td input{width:100%;text-align:right}
   .barre{position:static}
   .barre span{width:100%}
   .catalogue{max-height:42vh}
-  .cat-ligne{grid-template-columns:44px 1fr 76px 30px}
-  .cat-ligne button{min-height:40px}
   .ref{grid-template-columns:auto 150px}
   thead{display:none}
   #lignes tr{display:grid;grid-template-columns:60px 1fr 1fr 34px;gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--trait)}
   #lignes td{border:0;padding:0}
-  #lignes td.colDes{grid-column:2 / 5}
+  #lignes td.colDes{grid-column:1 / 5}
   #lignes td.puHt{display:none}
   .suppr{font-size:24px}
   .reglement input,.reglement select{width:100%}
@@ -87,7 +77,7 @@ td input{width:100%;text-align:right}
 @page{size:A4;margin:0}
 @media print{
   body{background:#fff}
-  .barre,.catalogue,.ajout,.suppr,.vide,.colCode{display:none!important}
+  .barre,.catalogue,.ajout,.suppr,.vide{display:none!important}
   .app{display:block;padding:0}
   .page{margin:0;width:210mm;min-height:297mm}
   input,select,.des{background:none!important;border:0!important}
@@ -106,23 +96,17 @@ td input{width:100%;text-align:right}
 <div class="barre">
   <button class="principal" id="btnPdf">Imprimer / Enregistrer en PDF</button>
   <button id="btnNouvelle">Nouvelle facture</button>
-  <form id="formRapide">
-    <input id="rapide" inputmode="numeric" placeholder="Numéros des prestas, ex : 1 5 12" autocomplete="off">
-    <button class="principal">Ajouter</button>
-  </form>
-  <span id="info">Tape les numéros des prestas ou touche-les dans la liste : la désignation et le tarif se remplissent tout seuls.</span>
+  <span>Écris la prestation et son tarif TTC, puis Valider : elle part directement sur la facture.</span>
 </div>
 
 <div class="app">
 <div class="catalogue">
-  <h2>Prestations</h2>
-  <p>Écris la prestation et son tarif TTC, puis Valider : elle entre dans la liste avec un numéro et reste en mémoire. Touche un numéro pour la mettre sur la facture.</p>
+  <h2>Ajouter à la facture</h2>
   <form id="formPresta">
-    <input id="nvNom" placeholder="Nouvelle prestation" autocomplete="off" required>
+    <input id="nvNom" placeholder="Prestation" autocomplete="off" required>
     <input id="nvPrix" type="number" min="0" step="0.01" placeholder="Tarif" required>
     <button class="principal">Valider</button>
   </form>
-  <div id="catalogue"></div>
 </div>
 
 <div class="page">
@@ -165,8 +149,7 @@ td input{width:100%;text-align:right}
   <table>
     <thead>
       <tr>
-        <th class="colCode" style="width:7%">N°</th>
-        <th style="width:41%;text-align:left">Désignation</th>
+        <th style="width:48%;text-align:left">Désignation</th>
         <th style="width:9%">Qté</th>
         <th style="width:13%">PU HT</th>
         <th style="width:13%">PU TTC</th>
@@ -218,63 +201,18 @@ const memoire = {
   ecrire(cle, valeur) { try { localStorage.setItem('dcl-facture-' + cle, valeur); } catch (e) {} }
 };
 
-// Le catalogue est vide au départ : le garage ajoute lui-même ses prestations et ses tarifs.
-let catalogue = [];
-try { catalogue = JSON.parse(memoire.lire('catalogue-v2')) || []; } catch (e) {}
-
-function afficherCatalogue() {
-  $('catalogue').innerHTML = '';
-  catalogue.forEach((presta, i) => {
-    const ligne = document.createElement('div');
-    ligne.className = 'cat-ligne';
-    const bouton = document.createElement('button');
-    bouton.textContent = i + 1;
-    bouton.title = 'Ajouter à la facture';
-    bouton.addEventListener('click', () => poserPresta(i + 1));
-    const nom = document.createElement('input');
-    nom.value = presta.nom;
-    nom.placeholder = 'Nom de la prestation';
-    nom.addEventListener('input', () => { presta.nom = nom.value; memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); });
-    const prix = document.createElement('input');
-    prix.className = 'prix';
-    prix.type = 'number';
-    prix.min = 0;
-    prix.step = 0.01;
-    prix.value = presta.prix || '';
-    prix.placeholder = 'Tarif';
-    prix.addEventListener('input', () => { presta.prix = nombre(prix.value); memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); });
-    const retirer = document.createElement('button');
-    retirer.className = 'retirer';
-    retirer.textContent = '×';
-    retirer.title = 'Retirer cette prestation de la liste';
-    retirer.addEventListener('click', () => { catalogue.splice(i, 1); memoire.ecrire('catalogue-v2', JSON.stringify(catalogue)); afficherCatalogue(); });
-    ligne.append(bouton, nom, prix, retirer);
-    $('catalogue').appendChild(ligne);
-  });
-}
-
-function remplirLigne(tr, numero) {
-  const presta = catalogue[numero - 1];
-  if (!presta) return false;
-  tr.querySelector('.code').value = numero;
-  tr.querySelector('.des').textContent = presta.nom;
-  tr.querySelector('.puTtc').value = presta.prix || '';
-  return true;
-}
-
-function poserPresta(numero) {
-  if (!catalogue[numero - 1]) return false;
+function poserLigne(nom, prix) {
   if (!document.querySelector('#lignes tr.vide')) ajouterLigne();
   calculer();
-  remplirLigne(document.querySelector('#lignes tr.vide'), numero);
+  const tr = document.querySelector('#lignes tr.vide');
+  tr.querySelector('.des').textContent = nom;
+  tr.querySelector('.puTtc').value = prix || '';
   calculer();
-  return true;
 }
 
 function ajouterLigne() {
   const tr = document.createElement('tr');
   tr.innerHTML =
-    '<td class="colCode"><input class="code" type="number" min="1" step="1" placeholder="N°" title="Numéro de la prestation"></td>' +
     '<td class="colDes"><div class="des" contenteditable="true" data-ph="Prestation ou pièce"></div></td>' +
     '<td><input class="qte" type="number" min="0" step="0.01" value="1"></td>' +
     '<td class="puHt"></td>' +
@@ -324,7 +262,6 @@ function numeroSuivant() {
 function nouvelleFacture() {
   document.querySelectorAll('.client input, #acompte').forEach(i => i.value = '');
   $('lignes').innerHTML = '';
-  for (let i = 0; i < 5; i++) ajouterLigne();
   const aujourdhui = new Date().toLocaleDateString('fr-CA');
   $('date').value = aujourdhui;
   $('datePresta').value = aujourdhui;
@@ -338,21 +275,12 @@ $('lignes').addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'capital' || e.target.id === 'iban') memoire.ecrire(e.target.id, e.target.value);
-  if (e.target.classList.contains('code')) remplirLigne(e.target.closest('tr'), Number(e.target.value));
   calculer();
-});
-$('formRapide').addEventListener('submit', e => {
-  e.preventDefault();
-  const inconnus = $('rapide').value.split(/[^0-9]+/).filter(Boolean).filter(n => !poserPresta(Number(n)));
-  $('info').textContent = inconnus.length ? 'Numéro inconnu : ' + inconnus.join(', ') : 'Prestations ajoutées.';
-  $('rapide').value = '';
 });
 $('formPresta').addEventListener('submit', e => {
   e.preventDefault();
   if (!$('nvNom').value.trim()) return;
-  catalogue.push({nom: $('nvNom').value.trim(), prix: nombre($('nvPrix').value)});
-  memoire.ecrire('catalogue-v2', JSON.stringify(catalogue));
-  afficherCatalogue();
+  poserLigne($('nvNom').value.trim(), nombre($('nvPrix').value));
   $('nvNom').value = $('nvPrix').value = '';
   $('nvNom').focus();
 });
@@ -365,7 +293,6 @@ $('btnNouvelle').addEventListener('click', nouvelleFacture);
 
 $('capital').value = memoire.lire('capital') || '';
 $('iban').value = memoire.lire('iban') || '';
-afficherCatalogue();
 nouvelleFacture();
 </script>
 </body>
