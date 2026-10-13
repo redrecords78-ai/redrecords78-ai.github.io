@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tarifs DCL</title>
+<style>
+:root{--gold:#C9A84C;--gold3:#8A6E28;--noir:#111;--gris:#666;--trait:#ddd}
+*{box-sizing:border-box}
+body{margin:0;background:#3a3a3a;font-family:Arial,Helvetica,sans-serif;color:var(--noir);font-size:13px}
+.page{width:210mm;min-height:297mm;margin:16px auto;background:#fff;padding:14mm 14mm 12mm;display:flex;flex-direction:column}
+.entete{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--gold);padding-bottom:12px}
+.logo{font-size:24px;font-weight:bold;letter-spacing:2px;line-height:1.1}
+.logo small{display:block;font-size:11px;letter-spacing:5px;color:var(--gold3);margin-top:4px}
+.titre{text-align:right}
+.titre h1{margin:0;font-size:30px;letter-spacing:4px}
+.titre p{margin:8px 0 0;color:var(--gris)}
+h2{margin:18px 0 0;font-size:11px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th{background:var(--noir);color:#fff;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 10px;text-align:right}
+th:first-child,td:first-child{text-align:left}
+td{border-bottom:1px solid var(--trait);padding:9px 10px;text-align:right}
+td.ht{font-weight:bold}
+td.devis{text-align:center;font-style:italic;color:var(--gold3)}
+.note{margin-top:14px;color:var(--gris);font-size:11px}
+.pied{margin-top:auto;padding-top:12px;border-top:1px solid var(--trait);font-size:9.5px;color:var(--gris);text-align:center;line-height:1.5}
+@media screen and (max-width:820px){.page{width:100%;min-height:100vh;margin:0;padding:16px}.logo{font-size:19px}.titre h1{font-size:22px;letter-spacing:2px}th,td{padding:9px 6px}th:first-child{width:50%!important}}
+@page{size:A4;margin:0}
+@media print{body{background:#fff}.page{margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="entete">
+    <div class="logo">DETAILING<br>CENTER LYON<small>DCL</small></div>
+    <div class="titre">
+      <h1>TARIFS</h1>
+      <p id="date"></p>
+    </div>
+  </div>
+
+  <div id="tableaux"></div>
+  <p class="note">Prix en euros. TVA 20 %. Sur devis : le prix dépend du modèle et du travail demandé, il est annoncé avant le début des travaux.</p>
+
+  <div class="pied">
+    DETAILING CENTER LYON (DCL) — Bloc 117, 388 avenue Charles de Gaulle, 69200 Vénissieux<br>
+    SIRET 105 765 622 00011 — TVA intracommunautaire FR81105765622
+  </div>
+</div>
+
+<script>
+const TVA = 0.20;
+// Une ligne par prestation : [rubrique, nom, prix HT] — prix null = sur devis
+const PRESTAS = [
+  ['Moto', 'Crash bar Africa Twin', 250],
+  ['Moto', 'Sabot moteur Africa Twin', 130],
+  ['Moto', 'Crash bar X-ADV', 230],
+  ['Moto', 'Sabot moteur X-ADV', 130],
+  ['Moto', 'Jantes (la pièce)', 250],
+  ['Moto', 'Pose de feux additionnels', 180],
+  ['Moto', 'Teinte bulle + feux additionnels + feux stop (l’ensemble)', 150],
+  ['Moto', 'Installation CarPlay', 180],
+  ['Moto', 'Installation enceinte X-ADV (pièce + main-d’œuvre)', 550],
+  ['Moto', 'Installation logo RGB', null],
+  ['Moto', 'Covering', null],
+  ['Moto', 'Pose PPF', null],
+  ['Moto', 'Kit déco personnalisé', null],
+  ['Moto', 'Peinture', null],
+  ['Moto', 'Personnalisation casque', null]
+];
+
+const euro = n => n.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+const rubriques = [...new Set(PRESTAS.map(p => p[0]))];
+
+document.getElementById('date').textContent = 'Au 13/10/2026';
+document.getElementById('tableaux').innerHTML = rubriques.map(rubrique =>
+  '<h2>' + rubrique + '</h2><table><thead><tr><th style="width:60%">Prestation</th><th>Prix HT</th><th>Prix TTC</th></tr></thead><tbody>' +
+  PRESTAS.filter(p => p[0] === rubrique).map(([, nom, ht]) =>
+    '<tr><td>' + nom + '</td>' + (ht === null
+      ? '<td class="devis" colspan="2">Sur devis</td>'
+      : '<td class="ht">' + euro(ht) + '</td><td>' + euro(Math.round(ht * (1 + TVA) * 100) / 100) + '</td>') + '</tr>'
+  ).join('') + '</tbody></table>'
+).join('');
+</script>
+</body>
+</html>
