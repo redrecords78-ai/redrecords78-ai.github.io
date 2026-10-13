@@ -53,6 +53,9 @@ td input{width:100%;text-align:right}
 .totaux .ttc{background:var(--noir);color:#fff;font-weight:bold;font-size:15px}
 .totaux .reste{border:2px solid var(--gold);font-weight:bold;margin-top:6px}
 .totaux input{width:28mm;text-align:right}
+.totaux .paye{display:flex;gap:8px;align-items:center;padding:8px;cursor:pointer}
+.totaux #payee{width:18px;height:18px}
+.totaux #tAcquittee{font-weight:normal;font-size:12px}
 .mention{margin-top:10px;font-style:italic}
 .imp{display:none}
 .pied{margin-top:auto;padding-top:12px;border-top:1px solid var(--trait);font-size:9.5px;color:var(--gris);text-align:center;line-height:1.5}
@@ -176,8 +179,10 @@ td input{width:100%;text-align:right}
       <div><span>Total HT</span><span id="tHt"></span></div>
       <div><span>TVA <input id="taux" type="number" min="0" step="0.1" value="20" style="width:14mm"> %</span><span id="tTva"></span></div>
       <div class="ttc"><span>Total TTC</span><span id="tTtc"></span></div>
-      <div class="optionnel"><span>Acompte versé</span><input id="acompte" class="ecran" type="number" min="0" step="0.01" placeholder="0,00"><span id="acompteImp" class="imp"></span></div>
-      <div class="reste"><span>Reste à payer</span><span id="tReste"></span></div>
+      <label class="paye ecran"><input type="checkbox" id="payee"> Facture payée en totalité</label>
+      <div class="optionnel" id="ligneAcompte"><span>Acompte versé</span><input id="acompte" class="ecran" type="number" min="0" step="0.01" placeholder="0,00"><span id="acompteImp" class="imp"></span></div>
+      <div class="reste" id="ligneReste"><span>Reste à payer</span><span id="tReste"></span></div>
+      <div class="reste" id="ligneAcquittee"><span>Facture acquittée</span><span id="tAcquittee"></span></div>
     </div>
   </div>
 
@@ -243,6 +248,10 @@ function calculer() {
   $('tTtc').textContent = euro(totalTtc);
   $('tReste').textContent = euro(arrondi(totalTtc - nombre($('acompte').value)));
   $('acompteImp').textContent = euro(nombre($('acompte').value));
+  const payee = $('payee').checked;
+  $('ligneAcompte').style.display = $('ligneReste').style.display = payee ? 'none' : '';
+  $('ligneAcquittee').style.display = payee ? '' : 'none';
+  $('tAcquittee').textContent = 'le ' + new Date($('date').value || Date.now()).toLocaleDateString('fr-FR') + ' · ' + $('mode').value;
   $('mentionTva').textContent = taux === 0 ? 'TVA non applicable, art. 293 B du CGI' : '';
   document.querySelectorAll('.optionnel').forEach(el => {
     const champ = el.tagName === 'INPUT' ? el : el.querySelector('input');
@@ -262,6 +271,7 @@ function numeroSuivant() {
 function nouvelleFacture() {
   document.querySelectorAll('.client input, #acompte').forEach(i => i.value = '');
   $('lignes').innerHTML = '';
+  $('payee').checked = false;
   const aujourdhui = new Date().toLocaleDateString('fr-CA');
   $('date').value = aujourdhui;
   $('datePresta').value = aujourdhui;
