@@ -60,6 +60,27 @@ td input{width:100%;text-align:right}
 .totaux #tAcquittee{font-weight:normal;font-size:12px}
 .mention{margin-top:10px;font-style:italic}
 .imp{display:none}
+/* Copie de la facture pour le PDF téléchargé : les cases deviennent du texte */
+.pdf{width:210mm;background:#fff}
+.pdf .page{min-height:296mm}
+.pdf .val{display:inline-block;min-height:1em}
+.pdf .client .val{display:block;margin-bottom:3px}
+.pdf .duo .val{display:inline;margin-right:10px}
+.pdf td .val{display:block}
+.pdf .des{background:none;padding:0}
+.pdf .imp{display:inline}
+/* Sur téléphone, la copie garde la mise en page A4 (annule les règles écran mobile) */
+.pdf .page{width:210mm;padding:14mm 14mm 12mm}
+.pdf .entete{flex-direction:row;gap:0}
+.pdf .titre{text-align:right}
+.pdf .ref{justify-content:end;grid-template-columns:auto 120px}
+.pdf .blocs,.pdf .bas{flex-direction:row;gap:14mm}
+.pdf .totaux{width:78mm}
+.pdf .des{font-size:13px}
+.pdf thead{display:table-header-group}
+.pdf #lignes tr{display:table-row}
+.pdf #lignes td{border-bottom:1px solid var(--trait);padding:5px 6px}
+.pdf #lignes td.puHt{display:table-cell}
 .pied{margin-top:auto;padding-top:12px;border-top:1px solid var(--trait);font-size:9.5px;color:var(--gris);text-align:center;line-height:1.5}
 .pied input{font-size:9.5px;width:70px;text-align:center}
 @media screen and (max-width:1140px){.app{flex-direction:column;align-items:center}.catalogue{position:static;width:210mm;max-width:100%;max-height:none}}
@@ -99,7 +120,9 @@ td input{width:100%;text-align:right}
 <body>
 
 <div class="barre">
-  <button class="principal" id="btnPdf">Imprimer / Enregistrer en PDF</button>
+  <button class="principal" id="btnTelecharger">Télécharger la facture</button>
+  <button id="btnPdf">Imprimer</button>
+  <button id="btnMemeClient">Nouvelle facture, même client</button>
   <button id="btnNouvelle">Nouvelle facture</button>
   <span>Écris la prestation et son tarif TTC, puis Valider : elle part directement sur la facture.</span>
 </div>
@@ -270,10 +293,90 @@ function calculer() {
 
 function numeroSuivant() {
   const annee = new Date().getFullYear();
-  const dernier = memoire.lire('dernier-numero') || '';
-  const m = dernier.match(/^F-(\d{4})-(\d+)$/);
-  const rang = m && Number(m[1]) === annee ? Number(m[2]) + 1 : 1;
-  return 'F-' + annee + '-' + String(rang).padStart(3, '0');
+  // Le plus grand entre le dernier numéro sorti et celui affiché : deux factures d'affilée ne prennent jamais le même
+  let rang = 0;
+  [memoire.lire('dernier-numero') || '', $('num').value || ''].forEach(n => {
+    const m = n.match(/^F-(\d{4})-(\d+)$/);
+    if (m && Number(m[1]) === annee) rang = Math.max(rang, Number(m[2]));
+  });
+  return 'F-' + annee + '-' + String(rang + 1).padStart(3, '0');
+}
+
+function memeClient() {
+  $('lignes').innerHTML = '';
+  $('acompte').value = '';
+  $('num').value = numeroSuivant();
+  $('date').value = new Date().toLocaleDateString('fr-CA');
+  $('confirme').textContent = 'Facture ' + $('num').value + ' : même client, ajoute les prestations.';
+  calculer();
+}
+
+// PDF téléchargé directement : copie de la page où chaque case devient du texte, comme à l'impression
+function copiePourPdf() {
+  const page = document.querySelector('.page');
+  const copie = page.cloneNode(true);
+  const cases = page.querySelectorAll('input,select');
+  copie.querySelectorAll('input,select').forEach((el, i) => {
+    const o = cases[i];
+    let t = o.value;
+    if (o.tagName === 'SELECT') t = o.options[o.selectedIndex].text;
+    else if (o.type === 'date') t = o.value ? new Date(o.value + 'T12:00').toLocaleDateString('fr-FR') : '';
+    else if (o.type === 'checkbox') t = '';
+    const span = document.createElement('span');
+    span.className = 'val ' + el.className;
+    span.textContent = t;
+    el.replaceWith(span);
+  });
+  copie.querySelectorAll('.ecran,.ajout,.suppr,tr.vide,.optionnel.vide-champ').forEach(el => el.remove());
+  copie.querySelectorAll('.nouvelle').forEach(el => el.classList.remove('nouvelle'));
+  copie.querySelectorAll('.des').forEach(d => { d.removeAttribute('contenteditable'); d.removeAttribute('data-ph'); });
+  const cadre = document.createElement('div');
+  cadre.className = 'pdf';
+  cadre.appendChild(copie);
+  return cadre;
+}
+
+function chargerOutilPdf() {
+  if (window.html2pdf) return Promise.resolve();
+  return new Promise((ok, ko) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    sc.onload = ok; sc.onerror = ko;
+    document.head.appendChild(sc);
+  });
+}
+
+async function telecharger() {
+  calculer();
+  const bouton = $('btnTelecharger');
+  bouton.disabled = true;
+  bouton.textContent = 'Préparation du PDF…';
+  try {
+    await chargerOutilPdf();
+    const nom = 'Facture ' + $('num').value + ($('cNom').value.trim() ? ' - ' + $('cNom').value.trim() : '') + '.pdf';
+    await html2pdf().set({
+      margin: 0,
+      filename: nom,
+      image: {type: 'jpeg', quality: 0.98},
+      html2canvas: {scale: 2, backgroundColor: '#ffffff'},
+      jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+    }).from(copiePourPdf()).save();
+    memoire.ecrire('dernier-numero', $('num').value);
+    $('confirme').textContent = '✓ ' + nom + ' téléchargé.';
+  } catch (e) {
+    $('confirme').textContent = 'Téléchargement impossible (pas d’internet ?). Utilise « Imprimer » puis « Enregistrer en PDF ».';
+  }
+  bouton.disabled = false;
+  bouton.textContent = 'Télécharger la facture';
+}
+
+// Lien pré-rempli : facture-dcl.html?nom=...&adr=...&ville=...&tel=...&immat=...&vehicule=...&num=...&presta=AAAA-MM-JJ&payee=1
+function preRemplir() {
+  const q = new URLSearchParams(location.search);
+  const champs = {nom: 'cNom', adr: 'cAdr', ville: 'cVille', tel: 'cTel', pro: 'cPro', vehicule: 'cVehicule', immat: 'cImmat', km: 'cKm', num: 'num', presta: 'datePresta'};
+  Object.keys(champs).forEach(k => { if (q.has(k)) $(champs[k]).value = q.get(k); });
+  if (q.has('payee')) $('payee').checked = q.get('payee') === '1';
+  calculer();
 }
 
 function nouvelleFacture() {
@@ -308,10 +411,13 @@ $('btnPdf').addEventListener('click', () => {
   window.print();
 });
 $('btnNouvelle').addEventListener('click', nouvelleFacture);
+$('btnMemeClient').addEventListener('click', memeClient);
+$('btnTelecharger').addEventListener('click', telecharger);
 
 $('capital').value = memoire.lire('capital') || '';
 $('iban').value = memoire.lire('iban') || '';
 nouvelleFacture();
+preRemplir();
 </script>
 </body>
 </html>
