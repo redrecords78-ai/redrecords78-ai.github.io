@@ -282,7 +282,9 @@ function calculer() {
   const payee = $('payee').checked;
   $('ligneAcompte').style.display = $('ligneReste').style.display = payee ? 'none' : '';
   $('ligneAcquittee').style.display = payee ? '' : 'none';
-  $('tAcquittee').textContent = 'le ' + new Date($('date').value || Date.now()).toLocaleDateString('fr-FR') + ' · ' + $('mode').value;
+  // Acquittée à la date de la prestation (jour du paiement), sinon date de la facture
+  const jourPaye = $('datePresta').value || $('date').value;
+  $('tAcquittee').textContent = 'le ' + (jourPaye ? new Date(jourPaye + 'T12:00') : new Date()).toLocaleDateString('fr-FR') + ' · ' + $('mode').value;
   $('mentionTva').textContent = taux === 0 ? 'TVA non applicable, art. 293 B du CGI' : '';
   document.querySelectorAll('.optionnel').forEach(el => {
     const champ = el.tagName === 'INPUT' ? el : el.querySelector('input');
@@ -372,11 +374,12 @@ async function telecharger() {
   bouton.textContent = 'Télécharger la facture';
 }
 
-// Lien pré-rempli : facture-dcl.html?nom=...&adr=...&ville=...&tel=...&immat=...&vehicule=...&num=...&presta=AAAA-MM-JJ&payee=1
+// Lien pré-rempli : facture-dcl.html?mode=Espèces&nom=...&adr=...&ville=...&tel=...&immat=...&vehicule=...&num=...&presta=AAAA-MM-JJ&payee=1
 function preRemplir() {
   const q = new URLSearchParams(location.search);
   const champs = {nom: 'cNom', adr: 'cAdr', ville: 'cVille', tel: 'cTel', pro: 'cPro', vehicule: 'cVehicule', immat: 'cImmat', km: 'cKm', num: 'num', presta: 'datePresta'};
   Object.keys(champs).forEach(k => { if (q.has(k)) $(champs[k]).value = q.get(k); });
+  if (q.has('mode')) $('mode').value = q.get('mode');
   if (q.has('payee')) $('payee').checked = q.get('payee') === '1';
   q.getAll('ligne').forEach(l => { const [n, pr] = l.split('|'); poserLigne(n, nombre(pr)); });
   calculer();
